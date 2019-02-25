@@ -18,7 +18,7 @@ project "HideAndSeek"
 		"%{prj.name}/src/**.cpp",  
 	}
 	
-	include 
+	includedirs 
 	{
 		"%{prj.name}/vendor",
 		"%{prj.name}/src"	
