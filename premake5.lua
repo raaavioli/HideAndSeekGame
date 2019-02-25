@@ -10,18 +10,18 @@ project "HideAndSeek"
 	kind "ConsoleApp"
 	language "C++"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	targetdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files 
 	{ 
 		"%{prj.name}/src/**.h", 
-		"%{prj.name}/src/**.cpp",  
+		"%{prj.name}/src/**.cpp", 
 	}
 	
 	includedirs 
 	{
-		"%{prj.name}/vendor",
-		"%{prj.name}/src"	
+		"HideAndSeek/src",
+		"HideAndSeek/vendor",	
 	}
 
 	filter "system:windows"
