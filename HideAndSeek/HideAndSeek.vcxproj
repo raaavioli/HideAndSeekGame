@@ -53,7 +53,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>ENGINE_PLATFORM_WINDOWS;ENGINE_BUILD_DLL;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\HideAndSeek\src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)HideAndSeek\src;$(SolutionDir)HideAndSeek\vendor;</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -64,6 +64,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)HideAndSeek\src;$(SolutionDir)HideAndSeek\vendor;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -75,10 +76,63 @@
     <ClInclude Include="src\Engine\Application.h" />
     <ClInclude Include="src\Engine\Core.h" />
     <ClInclude Include="src\Engine\EntryPoint.h" />
+    <ClInclude Include="src\Engine\Log.h" />
+    <ClInclude Include="vendor\spdlog\async.h" />
+    <ClInclude Include="vendor\spdlog\async_logger.h" />
+    <ClInclude Include="vendor\spdlog\common.h" />
+    <ClInclude Include="vendor\spdlog\details\async_logger_impl.h" />
+    <ClInclude Include="vendor\spdlog\details\circular_q.h" />
+    <ClInclude Include="vendor\spdlog\details\console_globals.h" />
+    <ClInclude Include="vendor\spdlog\details\file_helper.h" />
+    <ClInclude Include="vendor\spdlog\details\fmt_helper.h" />
+    <ClInclude Include="vendor\spdlog\details\logger_impl.h" />
+    <ClInclude Include="vendor\spdlog\details\log_msg.h" />
+    <ClInclude Include="vendor\spdlog\details\mpmc_blocking_q.h" />
+    <ClInclude Include="vendor\spdlog\details\null_mutex.h" />
+    <ClInclude Include="vendor\spdlog\details\os.h" />
+    <ClInclude Include="vendor\spdlog\details\pattern_formatter.h" />
+    <ClInclude Include="vendor\spdlog\details\periodic_worker.h" />
+    <ClInclude Include="vendor\spdlog\details\registry.h" />
+    <ClInclude Include="vendor\spdlog\details\thread_pool.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bin_to_hex.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\chrono.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\color.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\core.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\format-inl.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\format.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\locale.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\ostream.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\posix.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\printf.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\ranges.h" />
+    <ClInclude Include="vendor\spdlog\fmt\bundled\time.h" />
+    <ClInclude Include="vendor\spdlog\fmt\fmt.h" />
+    <ClInclude Include="vendor\spdlog\fmt\ostr.h" />
+    <ClInclude Include="vendor\spdlog\formatter.h" />
+    <ClInclude Include="vendor\spdlog\logger.h" />
+    <ClInclude Include="vendor\spdlog\sinks\android_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\ansicolor_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\base_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\basic_file_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\daily_file_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\dist_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\msvc_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\null_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\ostream_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\rotating_file_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\stdout_color_sinks.h" />
+    <ClInclude Include="vendor\spdlog\sinks\stdout_sinks.h" />
+    <ClInclude Include="vendor\spdlog\sinks\syslog_sink.h" />
+    <ClInclude Include="vendor\spdlog\sinks\wincolor_sink.h" />
+    <ClInclude Include="vendor\spdlog\spdlog.h" />
+    <ClInclude Include="vendor\spdlog\tweakme.h" />
+    <ClInclude Include="vendor\spdlog\version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HideAndSeek.cpp" />
+    <ClCompile Include="src\Application\HideAndSeek.cpp" />
     <ClCompile Include="src\Engine\Application.cpp" />
+    <ClCompile Include="src\Engine\Log.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
