@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 {
 	Engine::Log::Init();
 
-	CORE_LOG_ERROR("OVERHEATING!! {0} {1}", "run!", 10);
+	CORE_LOG_ERROR("OVERHEATING!! {0} {1}", "Hello", 15);
 	APP_INFO("Maybe you should take a break!");
 
 	auto app = Engine::CreateApplication();

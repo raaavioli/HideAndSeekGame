@@ -5,6 +5,9 @@ workspace "HideAndSeek"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["spdlog"] = "HideAndSeek/vendor/spdlog/include"
+
 project "HideAndSeek"
 	location "HideAndSeek"
 	kind "ConsoleApp"
@@ -15,13 +18,14 @@ project "HideAndSeek"
 	files 
 	{ 
 		"%{prj.name}/src/**.h", 
-		"%{prj.name}/src/**.cpp", 
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/spdlog/include/**.h", 
 	}
 	
 	includedirs 
 	{
-		"HideAndSeek/src",
-		"HideAndSeek/vendor",	
+		"%{prj.name}/src",
+		"%{IncludeDir.spdlog}",	
 	}
 
 	filter "system:windows"

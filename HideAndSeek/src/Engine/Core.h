@@ -9,3 +9,5 @@
 #elif ENGINE_PLATFORM_LINUX
 	#error Linux is not supported!
 #endif
+
+#define BIT(x) (1 << x)

@@ -329,3 +329,20 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# spdlog repo-files
+HideAndSeek/vendor/spdlog/.clang-format
+HideAndSeek/vendor/spdlog/.clang-tidy
+HideAndSeek/vendor/spdlog/.gitignore
+HideAndSeek/vendor/spdlog/.travis.yml
+HideAndSeek/vendor/spdlog/CMakeLists.txt
+HideAndSeek/vendor/spdlog/INSTALL
+HideAndSeek/vendor/spdlog/LICENSE
+HideAndSeek/vendor/spdlog/README.md
+HideAndSeek/vendor/spdlog/appveyor.yml
+HideAndSeek/vendor/spdlog/bench/
+HideAndSeek/vendor/spdlog/clang_tidy.sh
+HideAndSeek/vendor/spdlog/cmake/
+HideAndSeek/vendor/spdlog/example/
+HideAndSeek/vendor/spdlog/format.sh
+HideAndSeek/vendor/spdlog/tests/
