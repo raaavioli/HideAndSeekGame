@@ -3,14 +3,15 @@
 #include "Engine/Core.h"
 
 #include <string>
+#include <sstream>
 #include <functional>
 
-namespace Event {
+namespace Engine {
 
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+		WindowClosed, WindowResized, WindowFocused, WindowLostFocus, WindowMoved,
 		KeyPressed, KeyReleased, 
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
@@ -30,7 +31,7 @@ namespace Event {
 // Also implements GetStaticType to return the static type of a specific Event.
 #define EVENT_CLASS_TYPE(type)	static EventType GetStaticType() { return EventType::##type; }\
 								virtual EventType GetEventType() const override { return GetStaticType(); }\
-								virtual std::string GetName() const override { return #type; }
+								virtual const char* GetName() const override { return #type; }
 
 // Every event deriving from Event needs to assign a couple of Category Flags.
 // This #define makes this easier. Just send for example "EventCategoryInput || EventCategoryKeyboard"
