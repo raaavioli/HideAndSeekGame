@@ -4,7 +4,9 @@
 
 #include "Window.h"
 #include "Event/Event.h"
-#include "Event/WindowEvent.h"
+#include "Engine/Event/WindowEvent.h"
+#include "Engine/Event/MouseEvent.h"
+#include "Engine/Event/KeyEvent.h"
 
 namespace Engine {
 

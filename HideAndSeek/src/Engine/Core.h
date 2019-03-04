@@ -10,4 +10,16 @@
 	#error Linux is not supported!
 #endif
 
+#ifdef DEBUG
+	#define ENGINE_ENABLE_ASSERTS
+#endif
+
+#ifdef ENGINE_ENABLE_ASSERTS
+	#define ENGINE_ASSERT(x, ...)		{ if(!(x)) { APP_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define ENGINE_CORE_ASSERT(x, ...)	{ if(!(x)) { CORE_LOG_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#else
+	#define HZ_ASSERT(x, ...)
+	#define HZ_CORE_ASSERT(x, ...)
+#endif
+
 #define BIT(x) (1 << x)

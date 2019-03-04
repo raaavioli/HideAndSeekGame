@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "Event/Event.h"
 
+#include "Log.h"
 #include <string>
 #include <functional>
 

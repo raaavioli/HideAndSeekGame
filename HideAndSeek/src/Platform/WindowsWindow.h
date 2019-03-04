@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Window.h"
+#include <GLFW/glfw3.h>
 
 namespace Engine {
 
@@ -18,6 +19,8 @@ namespace Engine {
 
 		inline void* GetNativeWindow() const override { return m_Window; }
 
+		inline void EnableVSync(bool b) { if (b) glfwSwapInterval(1); else glfwSwapInterval(0); }
+
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdow();
@@ -34,6 +37,4 @@ namespace Engine {
 
 		WindowData m_Data;
 	};
-
-
 }
