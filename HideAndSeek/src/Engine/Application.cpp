@@ -20,7 +20,6 @@ namespace Engine {
 	}
 	void Application::Run()
 	{
-
 		while (m_Running) {
 			m_Window->OnUpdate();
 		}
@@ -29,30 +28,12 @@ namespace Engine {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowClosedEvent>(BIND_EVENT_FN(OnWindowClose));
-		auto move = [&](MouseMovedEvent &e)->bool {
-			APP_INFO("MouseMove: {0},{1}", e.GetX(), e.GetY());
-			return true;
-		};
+		/*
+		after layerstack + layer implementation
 
-		auto mclick = [&](MouseButtonPressedEvent &e)->bool {
-			APP_INFO("MousePress: {0}", e.GetMouseButton());
-			return true;
-		};
-		auto mrel = [&](MouseButtonReleasedEvent &e)->bool {
-			APP_INFO("MouseRelease: {0}", e.GetMouseButton());
-			return true;
-		};
-
-		auto scroll = [&](MouseScrolledEvent &e)->bool {
-			APP_INFO("MouseScroll: {0},{1}", e.GetXOffset(), e.GetYOffset());
-			return true;
-		};
-
-		dispatcher.Dispatch<MouseMovedEvent>(move);
-		dispatcher.Dispatch<MouseButtonPressedEvent>(mclick);
-		dispatcher.Dispatch<MouseButtonReleasedEvent>(mrel);
-		dispatcher.Dispatch<MouseScrolledEvent>(scroll);
-		
+		for(auto *layer : Application.layerStack)
+			layer->OnEvent(e)
+		*/
 	}
 
 	bool Application::OnWindowClose(WindowClosedEvent &e)
