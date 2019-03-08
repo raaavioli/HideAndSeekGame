@@ -8,8 +8,11 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["spdlog"] = "HideAndSeek/vendor/spdlog/"
 IncludeDir["GLFW"] = "HideAndSeek/vendor/GLFW/include"
+IncludeDir["glad"] = "HideAndSeek/vendor/glad/include"
+IncludeDir["glm"] = "HideAndSeek/vendor/glm"
 
 include "HideAndSeek/vendor/GLFW"
+include "HideAndSeek/vendor/glad"
 
 project "HideAndSeek"
 	location "HideAndSeek"
@@ -22,7 +25,10 @@ project "HideAndSeek"
 	{ 
 		"%{prj.name}/src/**.h", 
 		"%{prj.name}/src/**.cpp", 
-		"%{prj.name}/vendor/spdlog/**.h"
+		"%{prj.name}/vendor/spdlog/**.h",
+		"%{prj.name}/vendor/glm/glm/**.hpp",
+		"%{prj.name}/vendor/glm/glm/**.h",
+		"%{prj.name}/vendor/glm/glm/**.inl",
 	}
 	
 	includedirs 
@@ -30,11 +36,14 @@ project "HideAndSeek"
 		"%{prj.name}/src",
 		"%{IncludeDir.spdlog}",	
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.glad}",
+		"%{IncludeDir.glm}",
 	}
 
 	links 
 	{ 
 		"GLFW",
+		"glad",
 		"opengl32.lib"
 	}
 

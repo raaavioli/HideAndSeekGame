@@ -10,7 +10,7 @@ namespace Engine {
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
-		CORE_LOG_ERROR("GLFW Error ({0}): {1}", error, description);
+		CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
 	Window* Window::Create(const WindowProps& props)
@@ -31,8 +31,8 @@ namespace Engine {
 
 	void WindowsWindow::OnUpdate()
 	{
-		glfwPollEvents();
 		glfwSwapBuffers(m_Window);
+		glfwPollEvents();
 	}
 
 	void WindowsWindow::Init(const WindowProps & props)
@@ -41,26 +41,28 @@ namespace Engine {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-		CORE_LOG_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+		CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		//Initialize glfw-window
 		if (!s_GLFWInitialized)
 		{
 			int success = glfwInit();
-			ENGINE_CORE_ASSERT(success, "Could not intialize GLFW!");
+			CORE_ASSERT(success, "Could not intialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
 
 		m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), NULL, NULL);
-		ENGINE_CORE_ASSERT(m_Window, "GLFW window was not properly created.");
-
+		CORE_ASSERT(m_Window, "GLFW window was not properly created.");
 		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
+
+		CORE_ASSERT(gladLoadGL(), "Glad failed to load.")
+		CORE_INFO("OpenGL version: {0}.{1}\n", GLVersion.major, GLVersion.minor);
+
 		EnableVSync(true);
 
-		//Set callback functions
-
+		//Set wcallback functions
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -98,7 +100,7 @@ namespace Engine {
 				data.EventCallback(event);
 			}	break;
 			default:
-				CORE_LOG_ERROR("MouseButtonCallback: Invalid type 'default'");
+				CORE_ERROR("MouseButtonCallback: Invalid type 'default'");
 				break;
 			}
 		});
@@ -108,9 +110,6 @@ namespace Engine {
 			MouseScrolledEvent event(xOffset, yOffset);
 			data.EventCallback(event);
 		});
-
-
-		
 	}
 
 	void WindowsWindow::Shutdow()

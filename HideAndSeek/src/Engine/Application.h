@@ -1,8 +1,11 @@
 #pragma once
 
+#include <glad/glad.h>
+
 #include "Core.h"
 
 #include "Window.h"
+#include "LayerStack.h"
 #include "Event/Event.h"
 #include "Engine/Event/WindowEvent.h"
 #include "Engine/Event/MouseEvent.h"
@@ -20,6 +23,11 @@ namespace Engine {
 
 		void OnEvent(Event& e);
 
+		void PushLayer(Layer *layer);
+		void PushOverlay(Layer *overlay);
+		void PopLayer(Layer *layer);
+		void PopOverlay(Layer *overlay);
+
 		inline Window& GetWindow() { return *m_Window; }
 		inline static Application& Get() { return *s_Instance; }
 
@@ -30,6 +38,7 @@ namespace Engine {
 		bool m_Running = true;
 	private:
 		static Application* s_Instance;
+		LayerStack m_LayerStack;
 	};
 
 	Application* CreateApplication();

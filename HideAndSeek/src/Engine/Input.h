@@ -16,11 +16,11 @@ namespace Engine {
 		inline std::pair<double,double> GetMousePosition()	{ return s_Instance->GetMousePositionImpl(); }
 
 	protected:
-		virtual bool IsKeyPressedImpl(int keycode);
-		virtual bool IsMouseButtonPressedImpl(int button);
-		virtual double GetMouseXImpl();
-		virtual double GetMouseYImpl();
-		virtual std::pair<double,double> GetMousePositionImpl();
+		virtual bool IsKeyPressedImpl(int keycode) = 0;
+		virtual bool IsMouseButtonPressedImpl(int button) = 0;
+		virtual std::pair<double, double> GetMousePositionImpl() = 0;
+		virtual double GetMouseXImpl() = 0;
+		virtual double GetMouseYImpl() = 0;
 	private:
 		static Input *s_Instance;
 	};

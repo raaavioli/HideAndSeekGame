@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Engine/Window.h"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 
 namespace Engine {
 

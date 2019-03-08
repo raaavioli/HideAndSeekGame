@@ -15,11 +15,24 @@
 #endif
 
 #ifdef ENGINE_ENABLE_ASSERTS
-	#define ENGINE_ASSERT(x, ...)		{ if(!(x)) { APP_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-	#define ENGINE_CORE_ASSERT(x, ...)	{ if(!(x)) { CORE_LOG_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define APP_ASSERT(x, ...)\
+	{\
+		if(!(x)) {\
+			APP_ERROR("	ASSERT FAILED: {0}\n			FILE: {1}\n			LINE: {2}\n", __VA_ARGS__, __FILE__, __LINE__);\
+			__debugbreak();\
+		}\
+	}
+	#define CORE_ASSERT(x, ...)\
+	{\
+		if(!(x)) {\
+			CORE_ERROR("	ASSERT FAILED: {0}\n			FILE: {1}\n			LINE: {2}\n", __VA_ARGS__, __FILE__, __LINE__);\
+			__debugbreak();\
+		}\
+	}
+
 #else
-	#define HZ_ASSERT(x, ...)
-	#define HZ_CORE_ASSERT(x, ...)
+	#define APP_ASSERT(x, ...)
+	#define CORE_ASSERT(x, ...)
 #endif
 
 #define BIT(x) (1 << x)
