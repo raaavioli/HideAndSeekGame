@@ -9,6 +9,7 @@
 #include "Engine/Log.h"
 
 #include "Engine/Objects/Camera.h"
+#include "Engine/Objects/Entity.h"
 
 namespace Engine {
 
@@ -27,13 +28,11 @@ namespace Engine {
 		static ShaderProgram& Get() { return *s_ShaderProgram; }
 		static GLuint GetProgramId();
 
-		void BindViewProjectionMatrices(Camera *camera);
-
-		//void BindEntityWorldMatrix(Entity *entity);
-
-		void BindLightSource(glm::vec3 *light);
-
-		void BindModelTexture(GLuint texture_id, unsigned int active_texture);
+		static void BindViewProjectionMatrices(Camera *camera);
+		static void BindEntityWorldMatrix(glm::mat4 *m_Transformation);
+		static void BindLightSource(glm::vec3 *light);
+		static void BindModelTexture(GLuint texture_id, unsigned int active_texture);
+		static void BindVertexColor(glm::vec3 *color);
 
 	private:
 		static std::string read(const char* file_path);
@@ -46,10 +45,11 @@ namespace Engine {
 		static GLuint m_ModelUniform;
 		static GLuint m_LightPositionUniform;
 		static GLuint m_ModelTextureUniform;
+		static GLuint m_VertexColor;
 
-		void bindMatrix(GLuint uniform_id, glm::mat4 matrix);
-		void bindVector3(GLuint uniform_id, glm::vec3 vector);
-		void bindTexture2D(GLuint uniform_id, unsigned int active_texture);
+		static void bindMatrix(GLuint uniform_id, glm::mat4 *matrix);
+		static void bindVector3(GLuint uniform_id, glm::vec3 *vector);
+		static void bindTexture2D(GLuint uniform_id, unsigned int active_texture);
 
 		static ShaderProgram *s_ShaderProgram;
 	};

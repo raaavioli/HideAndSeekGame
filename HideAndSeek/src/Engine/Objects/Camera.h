@@ -42,10 +42,10 @@ namespace Engine {
 
 		void Move(unsigned char directions, float speed);
 		void Rotate(double pitch, double yaw, double roll, float scale_factor);
-		glm::vec3 GetPosition();
+		glm::vec3 *GetPosition();
+		glm::mat4 *GetProjectionMatrix();
+		glm::mat4 *GetViewMatrix();
 		glm::vec3 GetForwardDirection();
-		glm::mat4 GetProjectionMatrix();
-		glm::mat4 GetViewMatrix();
 
 		inline void ToggleRotatable() { m_IsRotatable = !m_IsRotatable; }
 		inline bool IsRotatable() { return m_IsRotatable; }
@@ -61,6 +61,9 @@ namespace Engine {
 		double m_PerspectiveRatio;	// ScreenWidth / ScreenHeight
 
 		bool m_IsRotatable;
+
+		glm::mat4 m_ProjectionMatrix;
+		glm::mat4 m_ViewMatrix;
 
 		glm::vec3 getRightDirection();
 

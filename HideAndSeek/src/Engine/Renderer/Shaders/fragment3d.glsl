@@ -1,13 +1,14 @@
 #version 330 core
 
 // Input data
+in vec3 fragVertexColor;
 //in vec3 v_world_normal;
 //in vec3 v_to_camera;
 //in vec3 v_to_light;
 //in vec2 UV;
 
 // Ouput data
-out vec3 color;
+out vec3 outputColor;
 
 //uniform sampler2D model_texture;
 
@@ -24,6 +25,5 @@ void main()
 
 	color =  object_color + specular_color;*/
 
-	color = vec3(1.0, 0.0, 0.0);
-
+	outputColor = fragVertexColor;
 }

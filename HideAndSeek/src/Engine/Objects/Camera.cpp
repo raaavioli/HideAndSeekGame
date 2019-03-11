@@ -8,12 +8,14 @@ namespace Engine {
 	{
 	}
 
-
-	glm::vec3 Camera::GetPosition() {
-		return m_Position;
+	// *
+	glm::vec3 *Camera::GetPosition() 
+	{
+		return &m_Position;
 	}
 
-	void Camera::Move(unsigned char directions, float speed) { 
+	void Camera::Move(unsigned char directions, float speed) 
+	{ 
 		static auto inDir = [&](Direction d) { return directions & d; };
 
 		if (inDir(FORWARD)) {
@@ -34,7 +36,8 @@ namespace Engine {
 	// Rotation is only applied locally to the camera. That is to say,//
 	// A rotation does rotate the camera locally, which can appear odd//
 	// if the camera has a roll != 0                                  // 
-	void Camera::Rotate(double pitch, double yaw, double roll, float scale_factor) {
+	void Camera::Rotate(double pitch, double yaw, double roll, float scale_factor) 
+	{
 		if(m_IsRotatable)
 		{
 			m_Pitch	+= scale_factor * -pitch;
@@ -43,11 +46,14 @@ namespace Engine {
 		}
 	}
 
-	glm::mat4 Camera::GetProjectionMatrix() {
-		return glm::perspective(glm::radians(m_Fov), m_PerspectiveRatio, m_NearPlane, m_FarPlane);
+	glm::mat4 *Camera::GetProjectionMatrix() 
+	{
+		m_ProjectionMatrix = glm::perspective(glm::radians(m_Fov), m_PerspectiveRatio, m_NearPlane, m_FarPlane);
+		return &m_ProjectionMatrix;
 	}
 
-	glm::mat4 Camera::GetViewMatrix() {	
+	glm::mat4 *Camera::GetViewMatrix() 
+	{
 		glm::vec3 direction = GetForwardDirection();
 		glm::vec3 right = getRightDirection();
 
@@ -56,11 +62,13 @@ namespace Engine {
 		glm::vec3 up = glm::cross(right, direction);
 
 		// Returns the View-matrix consisting of: The camera position, it's direction and the up-vector.
-		return glm::lookAt(m_Position, m_Position + direction, up);
+		m_ViewMatrix = glm::lookAt(m_Position, m_Position + direction, up);
+		return &m_ViewMatrix;
 	}
 
 	// Camera's forward facing direction depending on it's angles
-	glm::vec3 Camera::GetForwardDirection() {
+	glm::vec3 Camera::GetForwardDirection() 
+	{
 		return glm::vec3(
 			cos(m_Pitch) * sin(m_Yaw),
 			sin(m_Pitch),
@@ -69,7 +77,8 @@ namespace Engine {
 	}
 
 	// Camera's local right pointing direction. i.e camera's local z-vector.
-	glm::vec3 Camera::getRightDirection() {
+	glm::vec3 Camera::getRightDirection() 
+	{
 		glm::vec3 right(
 			sin(m_Yaw - 3.14f / 2.0f),
 			0,

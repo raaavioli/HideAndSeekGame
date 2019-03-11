@@ -1,13 +1,15 @@
 #include <Engine.h>
 #include <Engine/Objects/Camera.h>
 
+#include <glm/gtc/constants.hpp>
+
 class TestLayer : public Engine::Layer
 {
 
 
 
 public:
-	TestLayer(Layer::LayerType type, std::vector<Engine::Model*> &objects)
+	TestLayer(Layer::LayerType type, std::vector<Engine::Entity*> &objects)
 		: Layer(type, objects) {};
 
 	virtual void OnAttach() {
@@ -47,7 +49,6 @@ public:
 				cam.Rotate(mouseY, mouseX, 0, 0.001f);
 			m_setWindowsMouseCenter();
 		}
-
 
 		Engine::ShaderProgram::Get().BindViewProjectionMatrices(&cam);
 	}
@@ -89,7 +90,7 @@ class HUDLayer : public Engine::Layer
 
 
 public:
-	HUDLayer(Layer::LayerType type, std::vector<Engine::Model*> &objects)
+	HUDLayer(Layer::LayerType type, std::vector<Engine::Entity*> &objects)
 		: Layer(type, objects) {};
 
 	virtual void OnAttach() {
@@ -115,11 +116,11 @@ private:
 class HideAndSeek : public Engine::Application
 {
 public:
-	std::vector<Engine::Model*>models;
+	std::vector<Engine::Entity*>models;
 
 	HideAndSeek() 
 	{
-		models = std::vector<Engine::Model*>();
+		models = std::vector<Engine::Entity*>();
 
 		//models.push_back(Engine::OBJLoader::GetModel("stall"));
 
@@ -144,7 +145,7 @@ public:
 
 		std::vector<float> fl2;
 		for (int i = 0; i < 12; i++) {
-			fl.push_back(vy2[i]);
+			fl2.push_back(vy2[i]);
 		}
 
 		std::vector<unsigned int> ind;
@@ -156,9 +157,12 @@ public:
 		ind.push_back(3);
 
 		Engine::Model *mod = new Engine::Model(new Engine::VAO(), new Engine::VBO(&fl, 3), nullptr, nullptr, new Engine::VBO(&ind));
-		Engine::Model *mod = new Engine::Model(new Engine::VAO(), new Engine::VBO(&fl2, 3), nullptr, nullptr, new Engine::VBO(&ind));
 
-		models.push_back(mod);
+		Engine::Entity *ent1 = new Engine::Entity(mod, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0, 0.0, 1.0), 1.0);
+		Engine::Entity *ent2 = new Engine::Entity(mod, glm::vec3(0.0, 0.0, 0.0), glm::vec3(9, 9, -1.0), glm::vec3(1.0, 1.0, 0.0), 0.1);
+
+		models.push_back(ent1);
+		models.push_back(ent2);
 
 		PushLayer(new TestLayer(Engine::Layer::LayerType::LAYER, models));
 

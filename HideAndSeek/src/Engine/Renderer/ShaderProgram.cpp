@@ -8,10 +8,11 @@ namespace Engine {
 	ShaderProgram* ShaderProgram::s_ShaderProgram	= nullptr;
 	GLuint ShaderProgram::m_ProgramId				= 0;
 	GLuint ShaderProgram::m_ProjectionUniform		= 0;
-	GLuint ShaderProgram::m_ViewUniform 			= 0;
-	GLuint ShaderProgram::m_ModelUniform 			= 0;
+	GLuint ShaderProgram::m_ViewUniform				= 0;
+	GLuint ShaderProgram::m_ModelUniform			= 0;
 	GLuint ShaderProgram::m_ModelTextureUniform		= 0;
 	GLuint ShaderProgram::m_LightPositionUniform	= 0; 
+	GLuint ShaderProgram::m_VertexColor				= 0;
 
 	ShaderProgram::~ShaderProgram() {
 	}
@@ -56,11 +57,12 @@ namespace Engine {
 
 	void ShaderProgram::BindUniformLocations()
 	{
-		m_ProjectionUniform		= glGetUniformLocation(m_ProgramId, "m_projection");
-		m_ViewUniform			= glGetUniformLocation(m_ProgramId, "m_view");
-		m_ModelUniform			= glGetUniformLocation(m_ProgramId, "m_model");
-		m_LightPositionUniform	= glGetUniformLocation(m_ProgramId, "light_position");
-		m_ModelTextureUniform	= glGetUniformLocation(m_ProgramId, "model_texture");
+		m_ProjectionUniform		= glGetUniformLocation(m_ProgramId, "m_Projection");
+		m_ViewUniform			= glGetUniformLocation(m_ProgramId, "m_View");
+		m_ModelUniform			= glGetUniformLocation(m_ProgramId, "m_Model");
+		m_LightPositionUniform	= glGetUniformLocation(m_ProgramId, "lightPosition");
+		m_ModelTextureUniform	= glGetUniformLocation(m_ProgramId, "modelTexture");
+		m_VertexColor			= glGetUniformLocation(m_ProgramId, "vertexColor");
 	}
 
 	std::string ShaderProgram::read(const char* file_path) 
@@ -132,19 +134,19 @@ namespace Engine {
 	}
 
 
-	void ShaderProgram::bindMatrix(GLuint uniform_id, glm::mat4 matrix) 
+	void ShaderProgram::bindMatrix(GLuint uniform_id, glm::mat4 *matrix) 
 	{
 		glUniformMatrix4fv(
 			uniform_id,
 			1,
 			GL_FALSE,
-			&matrix[0][0]
+			(GLfloat*)matrix
 		);
 	}
 
-	void ShaderProgram::bindVector3(GLuint uniform_id, glm::vec3 vector) 
+	void ShaderProgram::bindVector3(GLuint uniform_id, glm::vec3 *vector) 
 	{
-		glUniform3fv(uniform_id, 1, (GLfloat*)&vector);
+		glUniform3fv(uniform_id, 1, (GLfloat*)vector);
 	}
 
 	void ShaderProgram::bindTexture2D(GLuint uniform_id, unsigned int active_texture) 
@@ -152,14 +154,21 @@ namespace Engine {
 		glUniform1i(uniform_id, active_texture);
 	}
 
-	void ShaderProgram::BindViewProjectionMatrices(Camera *camera) {
+	void ShaderProgram::BindViewProjectionMatrices(Camera *camera) 
+	{
 		bindMatrix(m_ViewUniform, camera->GetViewMatrix());
 		bindMatrix(m_ProjectionUniform, camera->GetProjectionMatrix());
 	}
 
-	/*void ShaderProgram::BindEntityWorldMatrix(Entity *entity) {
-		bindMatrix(m_ModelUniform, entity->getWorldTransformation());
-	}*/
+	void ShaderProgram::BindEntityWorldMatrix(glm::mat4 *m_Transformation)
+	{
+		bindMatrix(m_ModelUniform, m_Transformation);
+	}
+
+	void ShaderProgram::BindVertexColor(glm::vec3 *color)
+	{
+		bindVector3(m_VertexColor, color);
+	}
 
 	void ShaderProgram::BindLightSource(glm::vec3 *light) 
 	{

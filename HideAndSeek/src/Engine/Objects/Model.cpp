@@ -17,7 +17,7 @@ namespace Engine {
 	void Model::Draw() 
 	{
 		// Bind all buffers
-		//m_VAO			-> Bind();
+		m_VAO			-> Bind();
 		m_Vertices		-> Bind(VertexAttrib::VERTEX);
 		//m_Normals		-> Bind(VertexAttrib::NORMAL);
 		//m_TextureCoords	-> Bind(VertexAttrib::TEXTURE);

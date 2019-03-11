@@ -20,10 +20,10 @@ namespace Engine {
 			delete s_Renderer;
 	}
 
-	void Renderer::Render(std::vector<Model*> &objects)
+	void Renderer::Render(std::vector<Entity*> &objects)
 	{
-		for (auto model : objects)
-			model->Draw();
+		for (auto entity : objects)
+			entity->Draw();
 	}
 
 }

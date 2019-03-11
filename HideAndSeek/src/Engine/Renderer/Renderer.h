@@ -4,7 +4,7 @@
 
 #include "Engine/Core.h"
 #include "Engine/Log.h"
-#include "Engine/Objects/Model.h"
+#include "Engine/Objects/Entity.h"
 
 namespace Engine {
 	class ENGINE_API Renderer
@@ -17,7 +17,7 @@ namespace Engine {
 		static void Init();
 		static void Shutdown();
 
-		void Render(std::vector<Model*> &objects);
+		void Render(std::vector<Entity*> &objects);
 
 		inline static Renderer &GetRenderer() { return *s_Renderer; }
 
