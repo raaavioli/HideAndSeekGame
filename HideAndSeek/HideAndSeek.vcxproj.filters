@@ -13,6 +13,15 @@
     <Filter Include="src\Engine\Event">
       <UniqueIdentifier>{E32745A8-CF20-64FA-F852-497FE4AA4306}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Engine\Objects">
+      <UniqueIdentifier>{CB31A3A1-B715-64F7-2076-5E4A0C794E79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Engine\Renderer">
+      <UniqueIdentifier>{F838018B-649A-DE98-ED07-254B59681558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Engine\Renderer\Shaders">
+      <UniqueIdentifier>{D1D52A5C-3DE3-5842-C6C9-542D32D624F9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
     </Filter>
@@ -95,6 +104,27 @@
     </ClInclude>
     <ClInclude Include="src\Engine\Log.h">
       <Filter>src\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\Camera.h">
+      <Filter>src\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\Model.h">
+      <Filter>src\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\OBJLoader.h">
+      <Filter>src\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\VAO.h">
+      <Filter>src\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\VBO.h">
+      <Filter>src\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Renderer\Renderer.h">
+      <Filter>src\Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Renderer\ShaderProgram.h">
+      <Filter>src\Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Window.h">
       <Filter>src\Engine</Filter>
@@ -1371,6 +1401,7 @@
     <ClInclude Include="vendor\spdlog\spdlog\version.h">
       <Filter>vendor\spdlog\spdlog</Filter>
     </ClInclude>
+    <ClInclude Include="src\Engine\Objects\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application\HideAndSeek.cpp">
@@ -1388,11 +1419,43 @@
     <ClCompile Include="src\Engine\Log.cpp">
       <Filter>src\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Objects\Camera.cpp">
+      <Filter>src\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Objects\Model.cpp">
+      <Filter>src\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Objects\OBJLoader.cpp">
+      <Filter>src\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Objects\VAO.cpp">
+      <Filter>src\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Objects\VBO.cpp">
+      <Filter>src\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Renderer\Renderer.cpp">
+      <Filter>src\Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Renderer\ShaderProgram.cpp">
+      <Filter>src\Engine\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\WindowsInput.cpp">
       <Filter>src\Platform</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\WindowsWindow.cpp">
       <Filter>src\Platform</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Objects\Entity.cpp">
+      <Filter>src\Engine\Objects</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Engine\Renderer\Shaders\fragment3d.glsl">
+      <Filter>src\Engine\Renderer\Shaders</Filter>
+    </None>
+    <None Include="src\Engine\Renderer\Shaders\vertex3d.glsl">
+      <Filter>src\Engine\Renderer\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

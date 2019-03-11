@@ -25,6 +25,7 @@ project "HideAndSeek"
 	{ 
 		"%{prj.name}/src/**.h", 
 		"%{prj.name}/src/**.cpp", 
+		"%{prj.name}/src/**.glsl", 
 		"%{prj.name}/vendor/spdlog/**.h",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.h",

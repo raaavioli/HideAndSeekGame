@@ -31,8 +31,8 @@ namespace Engine {
 
 	void WindowsWindow::OnUpdate()
 	{
-		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
+		glfwSwapBuffers(m_Window);
 	}
 
 	void WindowsWindow::Init(const WindowProps & props)
@@ -56,9 +56,12 @@ namespace Engine {
 		CORE_ASSERT(m_Window, "GLFW window was not properly created.");
 		glfwMakeContextCurrent(m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_Data);
+		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-		CORE_ASSERT(gladLoadGL(), "Glad failed to load.")
 		CORE_INFO("OpenGL version: {0}.{1}\n", GLVersion.major, GLVersion.minor);
+
+		glViewport(0, 0, props.Width, props.Height);
+		glClearColor(0.0, 1.0, 1.0, 1.0);
 
 		EnableVSync(true);
 
@@ -70,7 +73,8 @@ namespace Engine {
 			data.EventCallback(event);
 		});
 
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) 
+		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			data.Width = width;
 			data.Height = height;
@@ -79,13 +83,15 @@ namespace Engine {
 			data.EventCallback(event);
 		});
 
-		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) {
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) 
+		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			MouseMovedEvent event(x, y);
 			data.EventCallback(event);
 		});
 
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int type, int mod) {
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int type, int mod) 
+		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			switch (type)
 			{
@@ -105,7 +111,34 @@ namespace Engine {
 			}
 		});
 
-		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			switch (action)
+			{
+			case GLFW_PRESS:
+			{
+				KeyPressedEvent event(key,0);
+				data.EventCallback(event);
+			}	break;
+			case GLFW_RELEASE:
+			{
+				KeyReleasedEvent event(key);
+				data.EventCallback(event);
+			}	break;
+			case GLFW_REPEAT:
+			{
+				KeyPressedEvent event(key, 1);
+				data.EventCallback(event);
+			}	break;
+			default:
+				CORE_ERROR("KeyCallback: Invalid type 'default'");
+				break;
+			}
+		});
+
+		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) 
+		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			MouseScrolledEvent event(xOffset, yOffset);
 			data.EventCallback(event);

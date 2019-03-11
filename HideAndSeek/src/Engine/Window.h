@@ -12,13 +12,13 @@ namespace Engine {
 	struct WindowProps
 	{
 		std::string Title;
-		unsigned int Width;
-		unsigned int Height;
+		double Width;
+		double Height;
 
 		WindowProps(
 			const std::string& title = "Engine Window",
-			unsigned int width = 1280,
-			unsigned int height = 720)
+			double width = 1280.0f,
+			double height = 720.0f)
 			: Title(title), Width(width), Height(height) {}
 	};
 
@@ -29,9 +29,10 @@ namespace Engine {
 
 		virtual ~Window() {};
 		virtual void OnUpdate() {};
+		virtual void ClearWindow() {};
 
-		virtual unsigned int GetWidth() const = 0;
-		virtual unsigned int GetHeight() const = 0;
+		virtual double GetWidth() const = 0;
+		virtual double GetHeight() const = 0;
 
 		virtual void SetEventCallback(const EventCallbackFunction& callback) = 0;
 

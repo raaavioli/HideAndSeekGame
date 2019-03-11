@@ -1,8 +1,8 @@
 #pragma once
-
-#include "Engine/Window.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "Engine/Window.h"
 
 
 namespace Engine {
@@ -13,9 +13,10 @@ namespace Engine {
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 		void OnUpdate() override;
+		inline void ClearWindow() override { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); };
 
-		unsigned int GetWidth() const override { return m_Data.Width; }
-		unsigned int GetHeight() const override { return m_Data.Height; }
+		double GetWidth() const override { return m_Data.Width; }
+		double GetHeight() const override { return m_Data.Height; }
 
 		inline void SetEventCallback(const EventCallbackFunction& callback) override { m_Data.EventCallback = callback; }
 
@@ -32,7 +33,7 @@ namespace Engine {
 		struct WindowData
 		{
 			std::string Title;
-			unsigned int Width, Height;
+			double Width, Height;
 
 			EventCallbackFunction EventCallback;
 		};

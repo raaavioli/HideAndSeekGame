@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include "Objects/Model.h"
+
 namespace Engine {
 
 #define BIND_EVENT_FN(fn) std::bind(&Application::fn, this, std::placeholders::_1)
@@ -13,6 +15,12 @@ namespace Engine {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		
+		m_Camera = std::unique_ptr<Camera>(new Camera(
+				glm::vec3(0.0f, 0.0f, -40.0f), 
+				0.0, 0.0f, 0.0f, 60.0f, 0.1f, 1000.0f,
+				m_Window->GetWidth() / m_Window->GetHeight()
+		));
 	}
 
 	Application::~Application()
@@ -21,11 +29,22 @@ namespace Engine {
 
 	void Application::Run()
 	{
-		glClearColor(0.0, 0.0, 1.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
 
 		while (m_Running) {
+			for (auto it = m_LayerStack.StackEnd(); it != m_LayerStack.StackBegin(); )
+			{
+				(*--it)->OnUpdate();
+			}
+
+			for (auto it = m_LayerStack.StackBegin(); it != m_LayerStack.StackEnd(); )
+			{
+				(*it++)->OnRender();
+			}
+
+
 			m_Window->OnUpdate();
+
+			m_Window->ClearWindow();
 		}
 	}
 

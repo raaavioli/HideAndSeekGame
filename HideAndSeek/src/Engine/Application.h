@@ -10,6 +10,7 @@
 #include "Engine/Event/WindowEvent.h"
 #include "Engine/Event/MouseEvent.h"
 #include "Engine/Event/KeyEvent.h"
+#include "Objects/Camera.h"
 
 namespace Engine {
 
@@ -28,6 +29,7 @@ namespace Engine {
 		void PopLayer(Layer *layer);
 		void PopOverlay(Layer *overlay);
 
+		inline Camera& GetCamera() { return *m_Camera; }
 		inline Window& GetWindow() { return *m_Window; }
 		inline static Application& Get() { return *s_Instance; }
 
@@ -35,10 +37,11 @@ namespace Engine {
 		bool OnWindowClose(WindowClosedEvent& e);
 
 		std::unique_ptr<Window> m_Window;
+		std::unique_ptr<Camera> m_Camera;
 		bool m_Running = true;
+		LayerStack m_LayerStack;
 	private:
 		static Application* s_Instance;
-		LayerStack m_LayerStack;
 	};
 
 	Application* CreateApplication();
