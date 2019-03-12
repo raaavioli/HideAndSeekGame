@@ -43,11 +43,11 @@ namespace Engine {
 		}
 	}
 
-	Model *OBJLoader::GetModel(const char* filename, bool normalize, bool center) {
-		return loadObjFile(filename, normalize, center);
+	Model *OBJLoader::GetModel(const char* filename, bool normalize, bool centralize) {
+		return loadObjFile(filename, normalize, centralize);
 	}
 
-	Model *OBJLoader::loadObjFile(const char* filename, bool normalize, bool center) {
+	Model *OBJLoader::loadObjFile(const char* filename, bool normalize, bool centralize) {
 		std::string fn = "src/Application/objects/" + std::string(filename) + ".obj";
 		FILE* file = fopen(fn.c_str(), "r");
 		errno = 0;
@@ -109,12 +109,9 @@ namespace Engine {
 		generateIndexBuffer(&vertex_index_data, &temp_vertices, &temp_textures, &temp_normals);
 		std::fclose(file);
 
-		CORE_INFO("Max: {0}, {1}, {2}", v_MaxCoords.x, v_MaxCoords.y, v_MaxCoords.z);
-		CORE_INFO("Min: {0}, {1}, {2}", v_MinCoords.x, v_MinCoords.y, v_MinCoords.z);
-		
-		glm::vec3 new_Max = glm::vec3(0.0);
-		glm::vec3 new_Min = glm::vec3(0.0);
-		if (center || normalize)
+		glm::vec3 v_MaxTemp(0.0);
+		glm::vec3 v_MinTemp(0.0);
+		if (centralize || normalize)
 		{
 			float dx = v_MaxCoords.x - v_MinCoords.x;
 			float dy = v_MaxCoords.y - v_MinCoords.y;
@@ -126,18 +123,18 @@ namespace Engine {
 			float y_center = (v_MaxCoords.y + v_MinCoords.y) / 2;
 			float z_center = (v_MaxCoords.z + v_MinCoords.z) / 2;
 
-			glm::vec3 v_center = glm::vec3(x_center, y_center, z_center);
+			glm::vec3 v_Center(x_center, y_center, z_center);
 			
 			for (int i = 0; i < vertices_.size(); i++) {
-				if (center) {
-					vertices_.at(i) -= v_center;
+				if (centralize) {
+					vertices_.at(i) -= v_Center;
 				}
 				if (normalize) {
 					vertices_.at(i) /= max_dist;
 				}
 
-				AddMaxVertex(new_Max, vertices_.at(i));
-				AddMinVertex(new_Min, vertices_.at(i));
+				AddMaxVertex(v_MaxTemp, vertices_.at(i));
+				AddMinVertex(v_MinTemp, vertices_.at(i));
 			}
 		}
 
@@ -145,12 +142,21 @@ namespace Engine {
 		
 
 		VAO *vao = new VAO();
-		VBO *vertexBuffer = new VBO(&vertices_);
-		VBO *normalBuffer = new VBO(&normals_);
-		VBO *textureBuffer = new VBO(&textures_);
-		VBO *indexBuffer = new VBO(&indices_);
-	
-		return new Model(vao, vertexBuffer, normalBuffer, textureBuffer, indexBuffer);
+		std::map<VertexAttrib, VBO*> vbos;
+		vbos[VERTEX] = new VBO(&vertices_, VertexAttrib::VERTEX);
+		vbos[NORMAL] = new VBO(&normals_, VertexAttrib::NORMAL);
+		vbos[TEXTURE] = new VBO(&textures_, VertexAttrib::TEXTURE);
+		vbos[INDEX] = new VBO(&indices_, VertexAttrib::INDEX);
+
+		if (normalize || centralize) {
+			v_MaxCoords = v_MaxTemp;
+			v_MinCoords = v_MinTemp;
+		}
+
+		CORE_INFO("Max: {0},{1},{2}", v_MaxCoords.x, v_MaxCoords.y, v_MaxCoords.z);
+		CORE_INFO("Min: {0},{1},{2}", v_MinCoords.x, v_MinCoords.y, v_MinCoords.z);
+
+		return new Model(vao, vbos, v_MinCoords, v_MaxCoords);
 	}
 
 	void OBJLoader::AddMaxVertex(glm::vec3 &v_max, glm::vec3 &v_other) {

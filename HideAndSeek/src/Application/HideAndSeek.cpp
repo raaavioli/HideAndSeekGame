@@ -156,8 +156,6 @@ public:
 		ind.push_back(2);
 		ind.push_back(3);
 
-		Engine::Model *mod = new Engine::Model(new Engine::VAO(), new Engine::VBO(&fl, 3), nullptr, nullptr, new Engine::VBO(&ind));
-		
 		Engine::BoundingBox *bb = new Engine::AABB();
 
 		Engine::Model *stall = Engine::OBJLoader::GetModel("stall", true, true);

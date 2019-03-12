@@ -2,13 +2,6 @@
 
 namespace Engine {
 
-	Model::Model(VAO *vao, VBO *vertices, VBO *normals, VBO *textures, VBO *indices)
-		: m_VAO(vao), m_Vertices(vertices), m_Normals(normals),
-		m_TextureCoords(textures), m_IndexBuffer(indices)
-	{
-
-	}
-
 	Model::~Model()
 	{
 
@@ -16,50 +9,44 @@ namespace Engine {
 	
 	void Model::DrawModel() 
 	{
-		//Set to assert m_Normals and m_TextureCoords when fully implemented
-		CORE_ASSERT(m_VAO && m_Vertices && m_IndexBuffer, 
-			"A buffer was not successfully initialized. Buffers must not be null.\nTry DrawOutline if Model does not have textures/normals"
-		);
-		
-		// Bind all buffers
-		m_VAO			-> Bind();
-		m_Vertices		-> Bind(VertexAttrib::VERTEX);
-		//m_Normals		-> Bind(VertexAttrib::NORMAL);
-		//m_TextureCoords	-> Bind(VertexAttrib::TEXTURE);
-		m_IndexBuffer	-> Bind(VertexAttrib::INDEX);
+		CORE_ASSERT(m_VAO, "VAO was not successfully initialized. nullpointer. \n");
+		// Bind buffers
+		m_VAO->Bind();
+		for (auto &buffer : m_BufferMap) {
+			buffer.second->Bind();
+		}
 
 		//Draw lines/non filled triangles
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		// Draw triangles 
-		glDrawElements(
-			GL_TRIANGLES,				// mode
-			m_IndexBuffer->GetCount(),	// count
-			GL_UNSIGNED_INT,			// type
-			(void*)0					// element array buffer offset
-		);
+		DrawCall();
 	};
 
 	void Model::DrawOutline()
 	{
-
-		CORE_ASSERT(m_VAO && m_Vertices && m_IndexBuffer,
-			"A buffer was not successfully initialized. Buffers must not be null.\nTry DrawOutline if Model does not have textures/normals"
-		);
+		CORE_ASSERT(m_VAO, "VAO was not successfully initialized. nullpointer. \n");
 		// Bind buffers
 		m_VAO->Bind();
-		m_Vertices->Bind(VertexAttrib::VERTEX);
-		m_IndexBuffer->Bind(VertexAttrib::INDEX);
-
+		for (auto &buffer : m_BufferMap) {
+			buffer.second->Bind();
+		}
 		//Draw lines/non filled triangles
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		// Draw triangles 
-		glDrawElements(
-			GL_TRIANGLES,				// mode
-			m_IndexBuffer->GetCount(),	// count
-			GL_UNSIGNED_INT,			// type
-			(void*)0					// element array buffer offset
-		);
+		DrawCall();
 	};
 
+	glm::vec3 Model::getModelCenter()
+	{
+		return (m_MaxPosition + m_MinPosition) / glm::vec3(2.0);
+	}
 
+	void Model::DrawCall() {
+		glDrawElements(
+			GL_TRIANGLES,									// Drawing mode (GL_TRIANGLES, GL_LINES ...)
+			m_BufferMap[VertexAttrib::INDEX]->GetCount(),	// Index count (amount of vertex indices to process)
+			GL_UNSIGNED_INT,								// data type
+			(void*)0										// element array buffer offset
+		);
+	}
 }

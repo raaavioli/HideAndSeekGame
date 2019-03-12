@@ -16,7 +16,7 @@ namespace Engine {
 		static void Init();
 		static void Shutdown();
 
-		static Model *GetModel(const char* filename, bool normalize, bool center);
+		static Model *GetModel(const char* filename, bool normalize, bool centralize);
 
 	protected:
 		static std::vector<VAO*> loadedVAOs;

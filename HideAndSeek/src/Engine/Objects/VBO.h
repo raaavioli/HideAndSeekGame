@@ -18,16 +18,15 @@ namespace Engine {
 	class ENGINE_API VBO
 	{
 	public:
-		VBO();
-		VBO(const std::vector<float> *data, int data_size);
-		VBO(const std::vector<glm::vec3> *data);
-		VBO(const std::vector<glm::vec2> *data);
-		VBO(const std::vector<unsigned int> *data);
+		VBO(const std::vector<float> *data, int data_size, VertexAttrib va);
+		VBO(const std::vector<glm::vec3> *data, VertexAttrib va);
+		VBO(const std::vector<glm::vec2> *data, VertexAttrib va);
+		VBO(const std::vector<unsigned int> *data, VertexAttrib va);
 
 		
 		~VBO();
 
-		void Bind(VertexAttrib vertex_attrib);
+		void Bind();
 		inline int GetCount() { return m_DataCount; }
 		inline int GetID() { return m_ID; }
 		inline GLuint GetBType() { return m_BufferType; }
@@ -37,6 +36,7 @@ namespace Engine {
 		int m_DataCount;
 		int m_DataSize;
 		GLuint m_BufferType;
+		VertexAttrib m_VertexAttribute;
 
 		inline bool isIndexBuffer() { return m_BufferType == GL_ELEMENT_ARRAY_BUFFER; }
 	};

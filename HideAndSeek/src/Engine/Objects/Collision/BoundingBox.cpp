@@ -1,5 +1,7 @@
 #include "BoundingBox.h"
 
+#include <map>
+
 #include "Engine/Log.h"
 
 namespace Engine {
@@ -72,10 +74,12 @@ namespace Engine {
 			}
 
 			VAO *vao = new VAO();
-			VBO *vertices = new VBO(&cube_vector, 3);
-			VBO *indices = new VBO(&index_vector);
 
-			AABBModel = new Model(vao, vertices, nullptr, nullptr, indices);
+			std::map<VertexAttrib, VBO*> vbos;
+			vbos[VertexAttrib::VERTEX] = new VBO(&cube_vector, 3, VertexAttrib::VERTEX);
+			vbos[VertexAttrib::INDEX] = new VBO(&index_vector, VertexAttrib::INDEX);
+
+			AABBModel = new Model(vao, vbos, glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1));
 			return AABBModel;
 		}	
 
