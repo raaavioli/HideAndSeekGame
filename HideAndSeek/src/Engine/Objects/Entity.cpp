@@ -13,7 +13,9 @@ namespace Engine {
 		// Temporary -- Should not be updated during the render cycle
 		UpdateWorldTransformation();
 		ShaderProgram::BindEntityWorldMatrix(&m_Transformation);
-		m_Model->Draw();
+
+		m_ColliderBox->Draw();
+		m_Model->DrawModel();
 	}
 
 	glm::mat4 *Entity::UpdateWorldTransformation() {

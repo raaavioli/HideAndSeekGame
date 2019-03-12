@@ -102,6 +102,7 @@
     <ClInclude Include="src\Engine\LayerStack.h" />
     <ClInclude Include="src\Engine\Log.h" />
     <ClInclude Include="src\Engine\Objects\Camera.h" />
+    <ClInclude Include="src\Engine\Objects\Collision\BoundingBox.h" />
     <ClInclude Include="src\Engine\Objects\Entity.h" />
     <ClInclude Include="src\Engine\Objects\Model.h" />
     <ClInclude Include="src\Engine\Objects\OBJLoader.h" />
@@ -542,6 +543,7 @@
     <ClCompile Include="src\Engine\LayerStack.cpp" />
     <ClCompile Include="src\Engine\Log.cpp" />
     <ClCompile Include="src\Engine\Objects\Camera.cpp" />
+    <ClCompile Include="src\Engine\Objects\Collision\BoundingBox.cpp" />
     <ClCompile Include="src\Engine\Objects\Entity.cpp" />
     <ClCompile Include="src\Engine\Objects\Model.cpp" />
     <ClCompile Include="src\Engine\Objects\OBJLoader.cpp" />

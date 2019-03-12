@@ -62,6 +62,8 @@ namespace Engine {
 
 		glViewport(0, 0, props.Width, props.Height);
 		glClearColor(0.0, 1.0, 1.0, 1.0);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 
 		EnableVSync(true);
 

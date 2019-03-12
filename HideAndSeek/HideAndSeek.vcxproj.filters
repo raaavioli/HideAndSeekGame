@@ -1401,7 +1401,10 @@
     <ClInclude Include="vendor\spdlog\spdlog\version.h">
       <Filter>vendor\spdlog\spdlog</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Objects\Entity.h" />
+    <ClInclude Include="src\Engine\Objects\Entity.h">
+      <Filter>src\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\Collision\BoundingBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application\HideAndSeek.cpp">
@@ -1449,6 +1452,7 @@
     <ClCompile Include="src\Engine\Objects\Entity.cpp">
       <Filter>src\Engine\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Objects\Collision\BoundingBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Engine\Renderer\Shaders\fragment3d.glsl">

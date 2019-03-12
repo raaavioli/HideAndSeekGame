@@ -11,7 +11,8 @@ namespace Engine {
 	public:
 		Model(VAO *vao, VBO *vertices, VBO *normals, VBO *textures, VBO *indices);
 		~Model();
-		void Draw();
+		void DrawModel();
+		void DrawOutline();
 
 	protected:
 	private:
@@ -20,6 +21,8 @@ namespace Engine {
 		VBO *m_Normals;
 		VBO *m_TextureCoords;
 		VBO *m_IndexBuffer;
+
+
 	};
 
 }

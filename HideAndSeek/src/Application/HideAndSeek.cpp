@@ -1,7 +1,9 @@
+#include <glm/gtc/constants.hpp>
+
 #include <Engine.h>
 #include <Engine/Objects/Camera.h>
 
-#include <glm/gtc/constants.hpp>
+#include "Engine/Objects/Collision/BoundingBox.h"
 
 class TestLayer : public Engine::Layer
 {
@@ -122,8 +124,6 @@ public:
 	{
 		models = std::vector<Engine::Entity*>();
 
-		//models.push_back(Engine::OBJLoader::GetModel("stall"));
-
 		static const GLfloat vy[] = {
 		   -10.0f, -10.0f, 0.0f,
 		   -10.0f, 10.0f, 0.0f,
@@ -157,12 +157,24 @@ public:
 		ind.push_back(3);
 
 		Engine::Model *mod = new Engine::Model(new Engine::VAO(), new Engine::VBO(&fl, 3), nullptr, nullptr, new Engine::VBO(&ind));
+		
+		Engine::BoundingBox *bb = new Engine::AABB();
 
-		Engine::Entity *ent1 = new Engine::Entity(mod, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0, 0.0, 1.0), 1.0);
-		Engine::Entity *ent2 = new Engine::Entity(mod, glm::vec3(0.0, 0.0, 0.0), glm::vec3(9, 9, -1.0), glm::vec3(1.0, 1.0, 0.0), 0.1);
+		Engine::Model *stall = Engine::OBJLoader::GetModel("stall", true, true);
+
+		Engine::Entity *ent1 = new Engine::Entity(
+			stall,
+			bb, 
+			glm::vec3(0.0, 0.0, 0.0), 
+			glm::vec3(0.0, 0.0, 0.0), 
+			glm::vec3(1.0, 0.0, 1.0), 
+			2.0
+		);
+
+		//Engine::Entity *ent2 = new Engine::Entity(mod, glm::vec3(0.0, 0.0, 0.0), glm::vec3(9, 9, -1.0), glm::vec3(1.0, 1.0, 0.0), 0.1);
 
 		models.push_back(ent1);
-		models.push_back(ent2);
+		//models.push_back(ent2);
 
 		PushLayer(new TestLayer(Engine::Layer::LayerType::LAYER, models));
 

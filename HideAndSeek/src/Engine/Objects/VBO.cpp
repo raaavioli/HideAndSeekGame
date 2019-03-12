@@ -43,6 +43,7 @@ namespace Engine {
 	}
 
 	VBO::VBO(const std::vector<unsigned int> *data)
+		: m_DataSize(1)
 	{
 		m_BufferType = GL_ELEMENT_ARRAY_BUFFER;
 		m_DataCount = data->size();

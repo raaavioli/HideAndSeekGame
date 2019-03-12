@@ -1,5 +1,7 @@
 #include "OBJLoader.h"
 
+#include "Engine/Log.h"
+
 #pragma warning(disable:4996)
 
 namespace Engine {
@@ -41,22 +43,25 @@ namespace Engine {
 		}
 	}
 
-	Model *OBJLoader::GetModel(const char* filename) {
-		return loadObjFile(filename);
+	Model *OBJLoader::GetModel(const char* filename, bool normalize, bool center) {
+		return loadObjFile(filename, normalize, center);
 	}
 
-	Model *OBJLoader::loadObjFile(const char* filename) {
+	Model *OBJLoader::loadObjFile(const char* filename, bool normalize, bool center) {
 		std::string fn = "src/Application/objects/" + std::string(filename) + ".obj";
 		FILE* file = fopen(fn.c_str(), "r");
 		errno = 0;
 
 		CORE_ASSERT((file != NULL), "File not found");
-		CORE_ERROR("Filename: '{0}' ", fn.c_str());
+		CORE_INFO("Filename: '{0}' ", fn.c_str());
 
 		std::vector<glm::uvec3> vertex_index_data;
 		std::vector<glm::vec3> temp_vertices;
 		std::vector<glm::vec3> temp_normals;
 		std::vector<glm::vec2> temp_textures;
+
+		glm::vec3 v_MaxCoords = glm::vec3(0.0);
+		glm::vec3 v_MinCoords = glm::vec3(0.0);
 
 		while (1) {
 			char line_head[128];
@@ -67,6 +72,10 @@ namespace Engine {
 			if (strcmp(line_head, "v") == 0) {
 				glm::vec3 vertex;
 				fscanf_s(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+
+				AddMaxVertex(v_MaxCoords, vertex);
+				AddMinVertex(v_MinCoords, vertex);
+
 				temp_vertices.push_back(vertex);
 			}
 			else if (strcmp(line_head, "vn") == 0) {
@@ -100,6 +109,40 @@ namespace Engine {
 		generateIndexBuffer(&vertex_index_data, &temp_vertices, &temp_textures, &temp_normals);
 		std::fclose(file);
 
+		CORE_INFO("Max: {0}, {1}, {2}", v_MaxCoords.x, v_MaxCoords.y, v_MaxCoords.z);
+		CORE_INFO("Min: {0}, {1}, {2}", v_MinCoords.x, v_MinCoords.y, v_MinCoords.z);
+		
+		glm::vec3 new_Max = glm::vec3(0.0);
+		glm::vec3 new_Min = glm::vec3(0.0);
+		if (center || normalize)
+		{
+			float dx = v_MaxCoords.x - v_MinCoords.x;
+			float dy = v_MaxCoords.y - v_MinCoords.y;
+			float dz = v_MaxCoords.z - v_MinCoords.z;
+
+			float max_dist = std::max(dx, std::max(dy, dz));
+
+			float x_center = (v_MaxCoords.x + v_MinCoords.x) / 2;
+			float y_center = (v_MaxCoords.y + v_MinCoords.y) / 2;
+			float z_center = (v_MaxCoords.z + v_MinCoords.z) / 2;
+
+			glm::vec3 v_center = glm::vec3(x_center, y_center, z_center);
+			
+			for (int i = 0; i < vertices_.size(); i++) {
+				if (center) {
+					vertices_.at(i) -= v_center;
+				}
+				if (normalize) {
+					vertices_.at(i) /= max_dist;
+				}
+
+				AddMaxVertex(new_Max, vertices_.at(i));
+				AddMinVertex(new_Min, vertices_.at(i));
+			}
+		}
+
+
+		
 
 		VAO *vao = new VAO();
 		VBO *vertexBuffer = new VBO(&vertices_);
@@ -108,6 +151,18 @@ namespace Engine {
 		VBO *indexBuffer = new VBO(&indices_);
 	
 		return new Model(vao, vertexBuffer, normalBuffer, textureBuffer, indexBuffer);
+	}
+
+	void OBJLoader::AddMaxVertex(glm::vec3 &v_max, glm::vec3 &v_other) {
+		v_max.x = std::max(v_max.x, v_other.x);
+		v_max.y = std::max(v_max.y, v_other.y);
+		v_max.z = std::max(v_max.z, v_other.z);
+	}
+
+	void OBJLoader::AddMinVertex(glm::vec3 &v_max, glm::vec3 &v_other) {
+		v_max.x = std::min(v_max.x, v_other.x);
+		v_max.y = std::min(v_max.y, v_other.y);
+		v_max.z = std::min(v_max.z, v_other.z);
 	}
 
 	bool OBJLoader::isNear(float a, float b) {

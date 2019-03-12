@@ -16,7 +16,7 @@ namespace Engine {
 		static void Init();
 		static void Shutdown();
 
-		static Model *GetModel(const char* filename);
+		static Model *GetModel(const char* filename, bool normalize, bool center);
 
 	protected:
 		static std::vector<VAO*> loadedVAOs;
@@ -27,7 +27,9 @@ namespace Engine {
 		static std::vector<glm::vec2> textures_;
 		static std::vector<unsigned int> indices_;
 	private:
-		static Model *loadObjFile(const char* filename);
+		static Model *loadObjFile(const char* filename, bool normalized, bool centered);
+		static void OBJLoader::AddMaxVertex(glm::vec3 &v_max, glm::vec3 &v_other);
+		static void OBJLoader::AddMinVertex(glm::vec3 &v_max, glm::vec3 &v_other);
 
 		static bool getSimilarVertexIndex(
 			const glm::vec3 & vertex_in, const glm::vec3 & normal_in, const glm::vec2 & texture_in,
