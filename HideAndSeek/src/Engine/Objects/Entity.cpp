@@ -4,6 +4,16 @@
 #include "Engine/Renderer/ShaderProgram.h"
 
 namespace Engine {
+	
+	Entity::Entity(Model * model)
+		: m_Model(model)
+	{
+		m_ColliderBox	= new AABB(*model->GetMinPos(), *model->GetMaxPos());
+		v_Rotation		= glm::vec3(0.0, 0.0, 0.0);
+		v_Transition	= glm::vec3(0.0, 0.0, 0.0);
+		v_Color			= glm::vec3(1.0, 0.0, 1.0);
+		f_Scale			= 1.0;
+	}
 
 	Entity::~Entity() {
 	}

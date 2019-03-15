@@ -34,7 +34,7 @@ namespace Engine {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		// Draw triangles 
 		DrawCall();
-	};
+	}
 
 	glm::vec3 Model::getModelCenter()
 	{

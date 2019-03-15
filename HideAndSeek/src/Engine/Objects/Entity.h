@@ -11,10 +11,12 @@ namespace Engine {
 		Entity(Model* model, BoundingBox *collider, glm::vec3 rotation, glm::vec3 transition, glm::vec3 color, float scale)
 			: m_Model(model), m_ColliderBox(collider), v_Rotation(rotation), v_Transition(transition), v_Color(color), f_Scale(scale)
 		{}
+
+		Entity(Model* model);
+
 		~Entity();
 
 		void Draw();
-
 		void setPosition(const glm::vec3 transition);
 		glm::mat4 *UpdateWorldTransformation();
 		glm::vec3 *GetTransition();

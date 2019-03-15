@@ -6,13 +6,14 @@
 #include "Engine/Objects/Model.h"
 
 namespace Engine {
+
 	class ENGINE_API BoundingBox
 	{
 	public:
 		~BoundingBox();
 
 		virtual bool CollidesWith(BoundingBox& other) = 0;
-		virtual Model *GetStaticUnitModel() = 0;
+		virtual Model *GetDrawableModel() = 0;
 		virtual void Draw() = 0;
 	};
 
@@ -20,7 +21,9 @@ namespace Engine {
 	class ENGINE_API AABB : public BoundingBox
 	{
 	public:
-		AABB(){};
+		AABB(const glm::vec3 modelMin, const glm::vec3 modelMax){
+			Init(modelMin, modelMax);
+		};
 		~AABB();
 
 		inline bool CollidesWith(BoundingBox& other) override 
@@ -30,17 +33,16 @@ namespace Engine {
 
 		inline void Draw() override 
 		{
-			if (!AABBModel)
-				GetStaticUnitModel();
 			AABBModel->DrawOutline();
 		}
 
-		Model *GetStaticUnitModel() override;
+		inline Model *GetDrawableModel() override { return AABBModel; }
 
 	private:
 
+		void Init(const glm::vec3 modelMin, const glm::vec3 modelMax);
 
-		static Model *AABBModel;
+		Model *AABBModel;
 	};
 
 }

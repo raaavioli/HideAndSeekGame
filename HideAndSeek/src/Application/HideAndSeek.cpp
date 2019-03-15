@@ -156,22 +156,11 @@ public:
 		ind.push_back(2);
 		ind.push_back(3);
 
-		Engine::BoundingBox *bb = new Engine::AABB();
+		Engine::Model *stall = Engine::OBJLoader::GetModel("stall", false, false);
 
-		Engine::Model *stall = Engine::OBJLoader::GetModel("stall", true, true);
+		Engine::Entity *ent = new Engine::Entity(stall);
 
-		Engine::Entity *ent1 = new Engine::Entity(
-			stall,
-			bb, 
-			glm::vec3(0.0, 0.0, 0.0), 
-			glm::vec3(0.0, 0.0, 0.0), 
-			glm::vec3(1.0, 0.0, 1.0), 
-			2.0
-		);
-
-		//Engine::Entity *ent2 = new Engine::Entity(mod, glm::vec3(0.0, 0.0, 0.0), glm::vec3(9, 9, -1.0), glm::vec3(1.0, 1.0, 0.0), 0.1);
-
-		models.push_back(ent1);
+		models.push_back(ent);
 		//models.push_back(ent2);
 
 		PushLayer(new TestLayer(Engine::Layer::LayerType::LAYER, models));

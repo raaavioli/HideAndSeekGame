@@ -19,6 +19,9 @@ namespace Engine {
 		void DrawModel();
 		void DrawOutline();
 
+		inline glm::vec3 *GetMinPos() { return &m_MinPosition; }
+		inline glm::vec3 *GetMaxPos() { return &m_MaxPosition; }
+
 	protected:
 	private:
 		VAO *m_VAO;
