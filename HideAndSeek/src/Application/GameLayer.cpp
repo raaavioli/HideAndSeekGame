@@ -6,8 +6,21 @@
 #include "Engine/Renderer/ShaderProgram.h"
 #include <Engine/Objects/Camera.h>
 #include "Engine/Objects/Collision/BoundingBox.h"
+#include "GameObjects/Wall.h"
+#include "GameObjects/Player.h"
 
-void GameLayer::OnAttach() {}
+void GameLayer::OnAttach() 
+{
+	m_Plane = new GroundPlane(60, 40);
+	PushModel(m_Plane);
+	PushModel(new Wall(*m_Plane, -1, 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
+	PushModel(new Wall(*m_Plane, (int)m_Plane->GetWidth(), 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
+	PushModel(new Wall(*m_Plane, 0, -1, glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
+	PushModel(new Wall(*m_Plane, 0, (int)m_Plane->GetHeight(), glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
+
+	m_Player = new Player();
+	PushModel(m_Player);
+}
 
 void GameLayer::OnDetach() {}
 
@@ -22,46 +35,27 @@ void GameLayer::OnUpdate()
 	mouseX -= windowHalfWidth;
 	mouseY -= windowHalfHeight;
 
-	//Check key pressed
+	//Check WASD-keys pressed
 	unsigned char dir = getWASDDirection();
+
+	//Move and rotate camera based on mouse-movement and key-presses
 	handleCameraMovement(dir, (float)mouseX, (float)mouseY);
 
 	float speed = 0.1f;
-	if (Engine::Input::IsKeyPressed(GLFW_KEY_X)) {
-		m_Objects.at(0)->Move(glm::vec3(mouseX, 0, 0), speed);
-	}
-	else if (Engine::Input::IsKeyPressed(GLFW_KEY_Y)) {
-		m_Objects.at(0)->Move(glm::vec3(0, mouseY, 0), speed);
-	}
-	else if (Engine::Input::IsKeyPressed(GLFW_KEY_Z)) {
-		m_Objects.at(0)->Move(glm::vec3(0, 0, mouseX), speed);
-	}
+	m_Player->Move(dir, speed);
 
 	for (auto entity : m_Objects)
 		entity->Update();
 
 	setWindowsMouseCenter();
 
+
 	for (int i = 0; i < m_Objects.size(); i++) {
 		auto &o1 = *m_Objects.at(i);
-		for (int j = i + 1; j < m_Objects.size(); j++) {
-			auto &o2 = *m_Objects.at(j);
-
-			if (o1.CollidesWith(o2)) {
-				if (Engine::Input::IsKeyPressed(GLFW_KEY_X)) {
-					m_Objects.at(0)->Move(glm::vec3(-mouseX, 0, 0), speed);
-				}
-				else if (Engine::Input::IsKeyPressed(GLFW_KEY_Y)) {
-					m_Objects.at(0)->Move(glm::vec3(0, -mouseY, 0), speed);
-				}
-				else if (Engine::Input::IsKeyPressed(GLFW_KEY_Z)) {
-					m_Objects.at(0)->Move(glm::vec3(0, 0, -mouseX), speed);
-				}
-			}
+		if (&o1 != m_Player && m_Player->CollidesWith(o1)) {
+			m_Player->Move(dir, -speed);
 		}
-	}
-
-	
+	}	
 }
 
 void GameLayer::OnEvent(Engine::Event &e)
@@ -96,6 +90,9 @@ unsigned char GameLayer::getWASDDirection() {
 	return dir;
 }
 
+/*
+	Currently also binds light source. Camera position is source of light
+*/
 void GameLayer::handleCameraMovement(unsigned char dir, float mouseX, float mouseY) {
 	Engine::Camera& cam = Engine::Application::Get().GetCamera();
 	if (cam.IsRotatable()) {
@@ -108,6 +105,8 @@ void GameLayer::handleCameraMovement(unsigned char dir, float mouseX, float mous
 		else
 			cam.Rotate(mouseY, mouseX, 0, 0.001f);
 	}
+
+	Engine::ShaderProgram::Get().BindLightSource(cam.GetPosition());
 	Engine::ShaderProgram::Get().BindViewProjectionMatrices(&cam);
 }
 

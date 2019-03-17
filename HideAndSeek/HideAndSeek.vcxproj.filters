@@ -1413,6 +1413,10 @@
     <ClInclude Include="src\Application\GameLayer.h" />
     <ClInclude Include="src\Application\HideAndSeek.h" />
     <ClInclude Include="src\Application\HUDLayer.h" />
+    <ClInclude Include="src\Application\GameObjects\Player.h" />
+    <ClInclude Include="src\Application\GameObjects\GroundPlane.h" />
+    <ClInclude Include="src\Application\GameObjects\Wall.h" />
+    <ClInclude Include="src\Engine\Objects\Collision\Collider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application\GameLayer.cpp">
@@ -1467,6 +1471,10 @@
       <Filter>src\Platform</Filter>
     </ClCompile>
     <ClCompile Include="src\Application\HUDLayer.cpp" />
+    <ClCompile Include="src\Application\GameObjects\Player.cpp" />
+    <ClCompile Include="src\Application\GameObjects\GroundPlane.cpp" />
+    <ClCompile Include="src\Application\GameObjects\Wall.cpp" />
+    <ClCompile Include="src\Engine\Objects\Collision\Collider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Engine\Renderer\Shaders\fragment3d.glsl">

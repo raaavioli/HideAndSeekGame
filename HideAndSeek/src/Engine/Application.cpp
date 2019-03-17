@@ -17,8 +17,8 @@ namespace Engine {
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		
 		m_Camera = std::unique_ptr<Camera>(new Camera(
-				glm::vec3(0.0f, 0.0f, -40.0f), 
-				0.0, 0.0f, 0.0f, 60.0f, 0.1f, 1000.0f,
+				glm::vec3(0.0f, 0.0f, 45.0f), 
+				-glm::pi<float>(), 0.0f, 0.0f, 60.0f, 0.1f, 1000.0f,
 				m_Window->GetWidth() / m_Window->GetHeight()
 		));
 	}

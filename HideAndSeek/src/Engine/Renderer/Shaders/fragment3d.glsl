@@ -2,9 +2,9 @@
 
 // Input data
 in vec3 fragVertexColor;
-//in vec3 v_world_normal;
-//in vec3 v_to_camera;
-//in vec3 v_to_light;
+in vec3 v_WorldNormal;
+in vec3 v_ToCamera;
+in vec3 v_ToLight;
 //in vec2 UV;
 
 // Ouput data
@@ -14,16 +14,18 @@ out vec3 outputColor;
 
 void main()
 {
-	/*vec3 surface_reflection = normalize(reflect(-v_to_light, v_world_normal));
+	vec3 surfaceReflection = normalize(reflect(-v_ToLight, v_WorldNormal));
 	
-	float cosA = clamp(dot(surface_reflection, v_to_camera), 0.0, 1.0);
-	float specular_factor = pow(cosA, 15);
-	float shade_factor = max(dot(v_world_normal, v_to_light),0.1);
+	float cosA = clamp(dot(surfaceReflection, v_ToCamera), 0.0, 1.0);
+	float specularFactor = pow(cosA, 15);
+	float shadeFactor = max(dot(v_WorldNormal, v_ToLight),0.1);
 
-	vec3 object_color = shade_factor * texture( model_texture, UV ).rgb * (1.0 - specular_factor);
-	vec3 specular_color = vec3(1.0, 1.0, 1.0) * specular_factor;
+	//When texturing
+	//vec3 objectColor = shadeFactor * texture( model_texture, UV ).rgb * (1.0 - specularFactor);
 
-	color =  object_color + specular_color;*/
+	vec3 objectColor = shadeFactor * fragVertexColor * (1.0 - specularFactor);
+	vec3 specularColor = vec3(1.0, 1.0, 1.0) * specularFactor;
 
-	outputColor = fragVertexColor;
+	outputColor =  objectColor + specularColor;
+
 }

@@ -18,10 +18,13 @@ namespace Engine {
 			AABB &b1 = (AABB&)*this;
 			AABB &b2 = (AABB&)other;
 
-			return	(b1.GetMinPos().x < b2.GetMaxPos().x && b1.GetMaxPos().x > b2.GetMinPos().x) &&
-					(b1.GetMinPos().y < b2.GetMaxPos().y && b1.GetMaxPos().y > b2.GetMinPos().y) &&
-					(b1.GetMinPos().z < b2.GetMaxPos().z && b1.GetMaxPos().z > b2.GetMinPos().z);
+			bool colX = (b1.GetMinPos().x < b2.GetMaxPos().x && b1.GetMaxPos().x > b2.GetMinPos().x);
+			bool colY = (b1.GetMinPos().y < b2.GetMaxPos().y && b1.GetMaxPos().y > b2.GetMinPos().y);
+			bool colZ = (b1.GetMinPos().z < b2.GetMaxPos().z && b1.GetMaxPos().z > b2.GetMinPos().z);
+
+			return colX && colY && colZ;
 		}
+		return false;
 	}
 
 	//--------------------------------------------------------//

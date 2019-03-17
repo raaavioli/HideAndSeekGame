@@ -8,7 +8,6 @@ namespace Engine {
 	{
 	}
 
-	// *
 	glm::vec3 *Camera::GetPosition() 
 	{
 		return &m_Position;

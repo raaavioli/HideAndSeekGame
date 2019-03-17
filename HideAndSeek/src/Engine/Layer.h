@@ -17,6 +17,12 @@ namespace Engine {
 	public:
 		Layer(LayerType type, std::vector<Entity*> &objects, const std::string& name = "DafaultLayerName")
 			: m_Objects(objects), m_DebugName(name), m_Type(type) {};
+
+		Layer(LayerType type, const std::string& name = "DafaultLayerName")
+			: m_DebugName(name), m_Type(type) 
+		{
+			m_Objects = std::vector<Engine::Entity*>();
+		};
 		virtual ~Layer();
 
 		virtual void OnAttach() {}
@@ -31,7 +37,7 @@ namespace Engine {
 		inline std::vector<Entity*> &GetObjects() { return m_Objects;  }
 		
 	protected:
-		std::vector<Entity*> &m_Objects;
+		std::vector<Entity*> m_Objects;
 		LayerType m_Type;
 		std::string m_DebugName;
 	private:

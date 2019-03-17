@@ -89,6 +89,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Application\GameObjects\GroundPlane.h" />
+    <ClInclude Include="src\Application\GameObjects\Player.h" />
     <ClInclude Include="src\Application\GameLayer.h" />
     <ClInclude Include="src\Application\HideAndSeek.h" />
     <ClInclude Include="src\Application\HUDLayer.h" />
@@ -106,6 +108,7 @@
     <ClInclude Include="src\Engine\Log.h" />
     <ClInclude Include="src\Engine\Objects\Camera.h" />
     <ClInclude Include="src\Engine\Objects\Collision\BoundingBox.h" />
+    <ClInclude Include="src\Engine\Objects\Collision\Collider.h" />
     <ClInclude Include="src\Engine\Objects\Entity.h" />
     <ClInclude Include="src\Engine\Objects\Model.h" />
     <ClInclude Include="src\Engine\Objects\OBJLoader.h" />
@@ -538,8 +541,11 @@
     <ClInclude Include="vendor\spdlog\spdlog\spdlog.h" />
     <ClInclude Include="vendor\spdlog\spdlog\tweakme.h" />
     <ClInclude Include="vendor\spdlog\spdlog\version.h" />
+    <ClInclude Include="src\Application\GameObjects\Wall.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Application\GameObjects\GroundPlane.cpp" />
+    <ClCompile Include="src\Application\GameObjects\Player.cpp" />
     <ClCompile Include="src\Application\GameLayer.cpp" />
     <ClCompile Include="src\Application\HideAndSeek.cpp" />
     <ClCompile Include="src\Application\HUDLayer.cpp" />
@@ -549,6 +555,7 @@
     <ClCompile Include="src\Engine\Log.cpp" />
     <ClCompile Include="src\Engine\Objects\Camera.cpp" />
     <ClCompile Include="src\Engine\Objects\Collision\BoundingBox.cpp" />
+    <ClCompile Include="src\Engine\Objects\Collision\Collider.cpp" />
     <ClCompile Include="src\Engine\Objects\Entity.cpp" />
     <ClCompile Include="src\Engine\Objects\Model.cpp" />
     <ClCompile Include="src\Engine\Objects\OBJLoader.cpp" />
@@ -558,6 +565,7 @@
     <ClCompile Include="src\Engine\Renderer\ShaderProgram.cpp" />
     <ClCompile Include="src\Platform\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\WindowsWindow.cpp" />
+    <ClCompile Include="src\Application\GameObjects\Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Engine\Renderer\Shaders\fragment3d.glsl" />
