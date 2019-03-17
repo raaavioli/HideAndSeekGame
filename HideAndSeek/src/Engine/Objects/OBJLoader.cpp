@@ -141,7 +141,7 @@ namespace Engine {
 
 		
 
-		VAO *vao = new VAO();
+		VAO vao = VAO();
 		std::map<VertexAttrib, VBO*> vbos;
 		vbos[VERTEX] = new VBO(&vertices_, VertexAttrib::VERTEX);
 		vbos[NORMAL] = new VBO(&normals_, VertexAttrib::NORMAL);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdlib.h>
+
 #include "Engine/Core.h"
 #include "Model.h"
 #include "Collision/BoundingBox.h"
@@ -13,14 +15,18 @@ namespace Engine {
 		{}
 
 		Entity(Model* model);
-
 		~Entity();
 
+		void Update();
 		void Draw();
-		void setPosition(const glm::vec3 transition);
+		void SetPosition(const glm::vec3 transition);
+		void Scale(float s);
+		void Move(glm::vec3 directions, float speed);
+		bool CollidesWith(Entity &other);
 		glm::mat4 *UpdateWorldTransformation();
 		glm::vec3 *GetTransition();
-		Model *GetModel();
+		inline Model &GetModel() { return *m_Model; };
+		inline BoundingBox &GetColliderBox() { return *m_ColliderBox; };
 
 	private:
 		Model * m_Model;

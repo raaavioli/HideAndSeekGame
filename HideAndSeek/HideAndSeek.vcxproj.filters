@@ -16,6 +16,9 @@
     <Filter Include="src\Engine\Objects">
       <UniqueIdentifier>{CB31A3A1-B715-64F7-2076-5E4A0C794E79}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Engine\Objects\Collision">
+      <UniqueIdentifier>{A660D1F0-921B-C19C-3BD3-39E7276D0B2D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Engine\Renderer">
       <UniqueIdentifier>{F838018B-649A-DE98-ED07-254B59681558}</UniqueIdentifier>
     </Filter>
@@ -106,6 +109,12 @@
       <Filter>src\Engine</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Objects\Camera.h">
+      <Filter>src\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\Collision\BoundingBox.h">
+      <Filter>src\Engine\Objects\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Engine\Objects\Entity.h">
       <Filter>src\Engine\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Objects\Model.h">
@@ -1401,12 +1410,14 @@
     <ClInclude Include="vendor\spdlog\spdlog\version.h">
       <Filter>vendor\spdlog\spdlog</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine\Objects\Entity.h">
-      <Filter>src\Engine\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Engine\Objects\Collision\BoundingBox.h" />
+    <ClInclude Include="src\Application\GameLayer.h" />
+    <ClInclude Include="src\Application\HideAndSeek.h" />
+    <ClInclude Include="src\Application\HUDLayer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Application\GameLayer.cpp">
+      <Filter>src\Application</Filter>
+    </ClCompile>
     <ClCompile Include="src\Application\HideAndSeek.cpp">
       <Filter>src\Application</Filter>
     </ClCompile>
@@ -1423,6 +1434,12 @@
       <Filter>src\Engine</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Objects\Camera.cpp">
+      <Filter>src\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Objects\Collision\BoundingBox.cpp">
+      <Filter>src\Engine\Objects\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Objects\Entity.cpp">
       <Filter>src\Engine\Objects</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Objects\Model.cpp">
@@ -1449,10 +1466,7 @@
     <ClCompile Include="src\Platform\WindowsWindow.cpp">
       <Filter>src\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Objects\Entity.cpp">
-      <Filter>src\Engine\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Engine\Objects\Collision\BoundingBox.cpp" />
+    <ClCompile Include="src\Application\HUDLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Engine\Renderer\Shaders\fragment3d.glsl">

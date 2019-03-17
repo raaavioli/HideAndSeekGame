@@ -12,12 +12,35 @@ namespace Engine {
 	}
 
 
+	bool BoundingBox::CollidesWith(BoundingBox &other)
+	{
+		if (other.GetColliderType() == ColliderType::tAABB && this->GetColliderType() == ColliderType::tAABB) {
+			AABB &b1 = (AABB&)*this;
+			AABB &b2 = (AABB&)other;
+
+			return	(b1.GetMinPos().x < b2.GetMaxPos().x && b1.GetMaxPos().x > b2.GetMinPos().x) &&
+					(b1.GetMinPos().y < b2.GetMaxPos().y && b1.GetMaxPos().y > b2.GetMinPos().y) &&
+					(b1.GetMinPos().z < b2.GetMaxPos().z && b1.GetMaxPos().z > b2.GetMinPos().z);
+		}
+	}
+
 	//--------------------------------------------------------//
 	//  AABB                                                  //
 	//--------------------------------------------------------//
 
 	AABB::~AABB()
 	{
+	}
+
+	glm::vec3 AABB::GetModelCenter()
+	{
+		return (m_MaxPosition + m_MinPosition) / glm::vec3(2.0);
+	}
+
+	void AABB::Update(glm::mat4 & matrix)
+	{
+		m_MaxPosition = glm::vec3(matrix * glm::vec4(m_Model->GetMaxPos(), 1.0));
+		m_MinPosition = glm::vec3(matrix * glm::vec4(m_Model->GetMinPos(), 1.0));
 	}
 
 	void AABB::Init(const glm::vec3 min, const glm::vec3 max)
@@ -58,13 +81,13 @@ namespace Engine {
 			index_vector.push_back(index_array[i]);
 		}
 
-		VAO *vao = new VAO();
+		VAO vao = VAO();
 
 		std::map<VertexAttrib, VBO*> vbos;
 		vbos[VertexAttrib::VERTEX] = new VBO(&cube_vector, 3, VertexAttrib::VERTEX);
 		vbos[VertexAttrib::INDEX] = new VBO(&index_vector, VertexAttrib::INDEX);
 
-		AABBModel = new Model(vao, vbos, min, max);
+		m_Model = new Model(vao, vbos, min, max);
 	}
 
 }

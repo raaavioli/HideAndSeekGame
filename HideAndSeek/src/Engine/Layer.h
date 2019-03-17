@@ -30,10 +30,11 @@ namespace Engine {
 		inline const std::string& GetName() const { return m_DebugName; }
 		inline std::vector<Entity*> &GetObjects() { return m_Objects;  }
 		
-	private:
-		std::string m_DebugName;
-		LayerType m_Type;
+	protected:
 		std::vector<Entity*> &m_Objects;
+		LayerType m_Type;
+		std::string m_DebugName;
+	private:
 	};
 
 }
