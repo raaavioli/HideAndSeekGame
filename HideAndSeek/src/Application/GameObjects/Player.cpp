@@ -3,10 +3,12 @@
 
 
 Player::Player()
-	: Entity(Engine::OBJLoader::GetModel("monkey", false, false))
+	: Entity(Engine::OBJLoader::GetModel("monkey", true, true))
 {
-	Scale(2);
-	SetPosition(glm::vec3(0, 0, 0));
+	float charScale = 4;
+	Scale(charScale);
+	float depth = charScale * m_Model->GetMaxPos().z;
+	SetPosition(glm::vec3(0, 0, depth));
 }
 
 
@@ -30,6 +32,4 @@ void Player::Move(unsigned int directions, float speed)
 		direction.x -= 1;
 
 	SetVelocity(speed * direction);
-
-	Entity::Move();
 }

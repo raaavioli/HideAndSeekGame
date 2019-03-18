@@ -24,6 +24,7 @@ namespace Engine {
 		for (int i = 0; i < dynamicEntities.size(); i++) 
 		{
 			Entity dynamicCopy = *dynamicEntities.at(i);
+			float x = dynamicCopy.GetVelocity().x;
 			dynamicCopy.Move();
 
 			//Probably don't want to update this for every object every time.
@@ -32,7 +33,6 @@ namespace Engine {
 			for (int j = i+1; j < dynamicEntities.size(); j++) {
 				Entity dynamicOtherCopy = *dynamicEntities.at(j);
 				dynamicOtherCopy.Move();
-
 				//Probably don't want to update this for every object every time.
 				dynamicOtherCopy.Update();
 
@@ -40,15 +40,28 @@ namespace Engine {
 					if (dynamicCopy.GetColliderBox().GetColliderType() == tAABB
 						&& dynamicOtherCopy.GetColliderBox().GetColliderType() == tAABB) {
 
-						
+						AABBvsAABB(&dynamicCopy, &dynamicOtherCopy);
 
+						dynamicEntities.at(i)->SetVelocity(dynamicCopy.GetVelocity());
 					}
 				}
 					
 			}
 			for (int j = 0; j < staticEntities.size(); j++) {
-				auto &staticOther = staticEntities.at(i);
+				Entity staticOther = *staticEntities.at(j);
+
+				if (dynamicCopy.CollidesWith(staticOther)) {
+					if (dynamicCopy.GetColliderBox().GetColliderType() == tAABB
+						&& staticOther.GetColliderBox().GetColliderType() == tAABB) {
+
+						AABBvsAABB(&dynamicCopy, &staticOther);
+						dynamicEntities.at(i)->SetVelocity(dynamicCopy.GetVelocity());
+					}
+				}
 			}
+
+			dynamicEntities.at(i)->Move();
+			dynamicEntities.at(i)->Update();
 		}
 	}
 
@@ -83,17 +96,31 @@ namespace Engine {
 			// SAT test on y axis
 			if (y_overlap > 0)
 			{
-				
+				if (y_overlap > x_overlap) 
+				{
+					a->GetVelocity() *= glm::vec3(0, 1, 1);
+					b->GetVelocity() *= glm::vec3(0, 1, 1);
+				}
+				else
+				{
+					a->GetVelocity() *= glm::vec3(1, 0, 1);
+					b->GetVelocity() *= glm::vec3(1, 0, 1);
+				}
 			}
 		}
 	}
 
-	void Engine::Collider::Add(Entity *entity, ColliderType c_Type)
+	void Engine::Collider::Add(Entity *entity, MovementType c_Type)
 	{
+		if (c_Type == STATIC)
+			staticEntities.push_back(entity);
+		else if (c_Type == DYNAMIC)
+			dynamicEntities.push_back(entity);
 	}
 
 	void Engine::Collider::Remove(Entity *entity)
 	{
+		
 	}
 
 }

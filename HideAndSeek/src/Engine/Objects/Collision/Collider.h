@@ -16,7 +16,7 @@ namespace Engine {
 
 		static void Interact();
 
-		static void Add(Entity*, ColliderType);
+		static void Add(Entity*, MovementType);
 		static void Remove(Entity*);
 
 	private:

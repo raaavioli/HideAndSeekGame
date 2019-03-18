@@ -5,21 +5,33 @@
 #include "Engine/Application.h"
 #include "Engine/Renderer/ShaderProgram.h"
 #include <Engine/Objects/Camera.h>
-#include "Engine/Objects/Collision/BoundingBox.h"
 #include "GameObjects/Wall.h"
 #include "GameObjects/Player.h"
+#include "Engine/Objects/Entity.h"
+#include "Engine/Objects/Collision/Collider.h"
 
 void GameLayer::OnAttach() 
 {
 	m_Plane = new GroundPlane(60, 40);
+	//Background plane
 	PushModel(m_Plane);
+	//Outer walls
 	PushModel(new Wall(*m_Plane, -1, 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
 	PushModel(new Wall(*m_Plane, (int)m_Plane->GetWidth(), 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
 	PushModel(new Wall(*m_Plane, 0, -1, glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	PushModel(new Wall(*m_Plane, 0, (int)m_Plane->GetHeight(), glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
+	PushModel()
+
 
 	m_Player = new Player();
+	for (Engine::Entity* e : m_Objects) {
+		Engine::Collider::Add(e, Engine::STATIC);
+		e->Update();
+	}
+		
+
 	PushModel(m_Player);
+	Engine::Collider::Add(m_Player, Engine::DYNAMIC);
 }
 
 void GameLayer::OnDetach() {}
@@ -40,22 +52,12 @@ void GameLayer::OnUpdate()
 
 	//Move and rotate camera based on mouse-movement and key-presses
 	handleCameraMovement(dir, (float)mouseX, (float)mouseY);
-
-	float speed = 0.1f;
-	m_Player->Move(dir, speed);
-
-	for (auto entity : m_Objects)
-		entity->Update();
-
 	setWindowsMouseCenter();
 
-
-	for (int i = 0; i < m_Objects.size(); i++) {
-		auto &o1 = *m_Objects.at(i);
-		if (&o1 != m_Player && m_Player->CollidesWith(o1)) {
-			m_Player->Move(dir, -speed);
-		}
-	}	
+	//Set player velocity based on input
+	float speed = 0.1f;
+	m_Player->Move(dir, speed);
+	
 }
 
 void GameLayer::OnEvent(Engine::Event &e)

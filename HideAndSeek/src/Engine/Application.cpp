@@ -1,6 +1,7 @@
 #include "Application.h"
 
 #include "Objects/Model.h"
+#include "Objects/Collision/Collider.h"
 
 namespace Engine {
 
@@ -35,6 +36,8 @@ namespace Engine {
 			{
 				(*--it)->OnUpdate();
 			}
+
+			Engine::Collider::Interact();
 
 			for (auto it = m_LayerStack.StackBegin(); it != m_LayerStack.StackEnd(); )
 			{

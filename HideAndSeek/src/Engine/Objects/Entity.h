@@ -12,7 +12,9 @@ namespace Engine {
 	public:
 		Entity(Model* model, BoundingBox *collider, glm::vec3 rotation, glm::vec3 transition, glm::vec3 color, float scale)
 			: m_Model(model), m_ColliderBox(collider), v_Rotation(rotation), v_Transition(transition), v_Color(color), v_Scale(scale)
-		{}
+		{
+			Update();
+		}
 
 		Entity(Model* model);
 		~Entity();
@@ -29,6 +31,7 @@ namespace Engine {
 		glm::vec3 *GetTransition();
 		inline Model &GetModel() { return *m_Model; };
 		inline glm::vec3 GetPosition() { return v_Transition; }
+		inline glm::vec3 &GetVelocity() { return v_Velocity; }
 		inline BoundingBox &GetColliderBox() { return *m_ColliderBox; };
 
 	protected:
