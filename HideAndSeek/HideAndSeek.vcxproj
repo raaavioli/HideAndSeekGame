@@ -94,6 +94,7 @@
     <ClInclude Include="src\Application\GameLayer.h" />
     <ClInclude Include="src\Application\HideAndSeek.h" />
     <ClInclude Include="src\Application\HUDLayer.h" />
+    <ClInclude Include="src\Application\Utils\MazeGenerator.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\Engine\Application.h" />
     <ClInclude Include="src\Engine\Core.h" />
@@ -549,6 +550,7 @@
     <ClCompile Include="src\Application\GameLayer.cpp" />
     <ClCompile Include="src\Application\HideAndSeek.cpp" />
     <ClCompile Include="src\Application\HUDLayer.cpp" />
+    <ClCompile Include="src\Application\Utils\MazeGenerator.cpp" />
     <ClCompile Include="src\Engine\Application.cpp" />
     <ClCompile Include="src\Engine\Layer.cpp" />
     <ClCompile Include="src\Engine\LayerStack.cpp" />

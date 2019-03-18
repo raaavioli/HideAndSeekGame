@@ -9,6 +9,7 @@
 #include "GameObjects/Player.h"
 #include "Engine/Objects/Entity.h"
 #include "Engine/Objects/Collision/Collider.h"
+#include "Utils/MazeGenerator.h"
 
 void GameLayer::OnAttach() 
 {
@@ -20,8 +21,10 @@ void GameLayer::OnAttach()
 	PushModel(new Wall(*m_Plane, (int)m_Plane->GetWidth(), 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
 	PushModel(new Wall(*m_Plane, 0, -1, glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	PushModel(new Wall(*m_Plane, 0, (int)m_Plane->GetHeight(), glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
-	PushModel()
-
+	
+	MazeGenerator mg(40, 30);
+	mg.GenerateMaze();
+	mg.PrintMaze();
 
 	m_Player = new Player();
 	for (Engine::Entity* e : m_Objects) {

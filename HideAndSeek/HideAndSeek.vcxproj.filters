@@ -1417,6 +1417,7 @@
     <ClInclude Include="src\Application\GameObjects\GroundPlane.h" />
     <ClInclude Include="src\Application\GameObjects\Wall.h" />
     <ClInclude Include="src\Engine\Objects\Collision\Collider.h" />
+    <ClInclude Include="src\Application\Utils\MazeGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application\GameLayer.cpp">
@@ -1475,6 +1476,7 @@
     <ClCompile Include="src\Application\GameObjects\GroundPlane.cpp" />
     <ClCompile Include="src\Application\GameObjects\Wall.cpp" />
     <ClCompile Include="src\Engine\Objects\Collision\Collider.cpp" />
+    <ClCompile Include="src\Application\Utils\MazeGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Engine\Renderer\Shaders\fragment3d.glsl">
