@@ -1,13 +1,11 @@
 #include "GameLayer.h"
 
 #include <glm/gtc/constants.hpp>
-#include "Engine/Window.h"
 #include "Engine/Application.h"
 #include "Engine/Renderer/ShaderProgram.h"
 #include <Engine/Objects/Camera.h>
 #include "GameObjects/Wall.h"
 #include "GameObjects/Player.h"
-#include "Engine/Objects/Entity.h"
 #include "Engine/Objects/Collision/Collider.h"
 #include "Utils/MazeGenerator.h"
 
@@ -22,9 +20,9 @@ void GameLayer::OnAttach()
 	PushModel(new Wall(*m_Plane, 0, -1, glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	PushModel(new Wall(*m_Plane, 0, (int)m_Plane->GetHeight(), glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	
-	MazeGenerator mg(40, 30);
+	MazeGenerator mg(15, 10);
 	mg.GenerateMaze();
-	mg.PrintMaze();
+	mg.CutLongerWalls(3);
 
 	m_Player = new Player();
 	for (Engine::Entity* e : m_Objects) {
