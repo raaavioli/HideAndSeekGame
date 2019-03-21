@@ -20,9 +20,10 @@ void GameLayer::OnAttach()
 	PushModel(new Wall(*m_Plane, 0, -1, glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	PushModel(new Wall(*m_Plane, 0, (int)m_Plane->GetHeight(), glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	
-	MazeGenerator mg(15, 10);
+	MazeGenerator mg(60, 40);
 	mg.GenerateMaze();
 	mg.CutLongerWalls(3);
+	mg.PrintMaze();
 
 	m_Player = new Player();
 	for (Engine::Entity* e : m_Objects) {

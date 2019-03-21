@@ -21,6 +21,7 @@ namespace Engine {
 	protected:
 		static std::vector<VAO*> loadedVAOs;
 		static std::vector<VBO*> loadedVBOs;
+		static std::map<std::string, Model*> modelCache;
 
 		static std::vector<glm::vec3> vertices_;
 		static std::vector<glm::vec3> normals_;
