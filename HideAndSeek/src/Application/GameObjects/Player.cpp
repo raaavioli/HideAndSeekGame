@@ -5,10 +5,10 @@
 Player::Player()
 	: Entity(Engine::OBJLoader::GetModel("monkey", true, true))
 {
-	float charScale = 4;
+	float charScale = 3;
 	Scale(charScale);
 	float depth = charScale * m_Model->GetMaxPos().z;
-	SetPosition(glm::vec3(0, 0, depth));
+	SetPosition(glm::vec3(-27.5, -18.5, depth));
 }
 
 

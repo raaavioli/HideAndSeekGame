@@ -11,27 +11,43 @@
 
 void GameLayer::OnAttach() 
 {
+	//GroundPlane &gp = GroundPlane(60, 40);
 	m_Plane = new GroundPlane(60, 40);
-	//Background plane
 	PushModel(m_Plane);
+	
 	//Outer walls
 	PushModel(new Wall(*m_Plane, -1, 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
 	PushModel(new Wall(*m_Plane, (int)m_Plane->GetWidth(), 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
 	PushModel(new Wall(*m_Plane, 0, -1, glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	PushModel(new Wall(*m_Plane, 0, (int)m_Plane->GetHeight(), glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
 	
-	MazeGenerator mg(60, 40);
+	MazeGenerator mg(12, 8);
 	mg.GenerateMaze();
+	mg.PrintMaze();
 	mg.CutLongerWalls(3);
+	std::cout << "\n";
 	mg.PrintMaze();
 
-	m_Player = new Player();
+	std::vector<Wall*> walls = mg.GetGameWalls(*m_Plane);
 	for (Engine::Entity* e : m_Objects) {
 		Engine::Collider::Add(e, Engine::STATIC);
 		e->Update();
 	}
-		
 
+	for (Wall* w : walls) {
+		PushModel(w);
+		Engine::Collider::Add(w, Engine::STATIC);
+		w->Update();
+	}
+
+	//Push background plane into layer but not collider when we have floor as smaller units
+	/*for (Engine::Entity* plane : gp.GetPlane())
+	{
+		PushModel(plane);
+		plane->Update();
+	}*/
+		
+	m_Player = new Player();
 	PushModel(m_Player);
 	Engine::Collider::Add(m_Player, Engine::DYNAMIC);
 }
@@ -54,12 +70,10 @@ void GameLayer::OnUpdate()
 
 	//Move and rotate camera based on mouse-movement and key-presses
 	handleCameraMovement(dir, (float)mouseX, (float)mouseY);
-	setWindowsMouseCenter();
 
 	//Set player velocity based on input
 	float speed = 0.1f;
 	m_Player->Move(dir, speed);
-	
 }
 
 void GameLayer::OnEvent(Engine::Event &e)
@@ -108,10 +122,12 @@ void GameLayer::handleCameraMovement(unsigned char dir, float mouseX, float mous
 			cam.Rotate(0, 0, mouseX, 0.001f);
 		else
 			cam.Rotate(mouseY, mouseX, 0, 0.001f);
+
+		setWindowsMouseCenter();
 	}
 
-	Engine::ShaderProgram::Get().BindLightSource(cam.GetPosition());
 	Engine::ShaderProgram::Get().BindViewProjectionMatrices(&cam);
+	Engine::ShaderProgram::Get().BindLightSource(cam.GetPosition());
 }
 
 void GameLayer::setWindowsMouseCenter()

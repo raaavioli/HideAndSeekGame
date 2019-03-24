@@ -75,6 +75,7 @@ void MazeGenerator::GenerateMaze() {
 
 void MazeGenerator::CutLongerWalls(int wallLength) {
 	std::vector<int> columns(m_Width, 1);
+
 	for (int y = 0; y < m_Height; y++)
 	{
 		int inRow = 1;
@@ -135,6 +136,46 @@ void MazeGenerator::PrintMaze() {
 		}
 		std::cout << "|\n";
 	}
+}
+
+std::vector<Wall*> MazeGenerator::GetGameWalls(GroundPlane &gp)
+{
+	std::vector<Wall*> walls = std::vector<Wall*>();
+	int maxWalls = (m_Width - 1)*(int)m_Height / 2 + (m_Height - 1)*(int)m_Width / 2;
+	walls.reserve(maxWalls);
+
+	static auto xToPlane = [&](int x) { return x * gp.GetWidth() / m_Width; };
+	static auto yToPlane = [&](int y) { return y * gp.GetHeight() / m_Height; };
+
+	APP_INFO("Width: {0}, Height: {1}", gp.GetWidth(), gp.GetHeight());
+	APP_INFO("Width: {0}, Height: {1}", xToPlane(m_Width), yToPlane(m_Height));
+
+	std::vector<int> columnRowCount(m_Width, 0);
+
+	for (int y = 0; y < m_Height; y++)
+	{
+		int inRow = 0;
+		for (int x = 0; x < m_Width; x++)
+		{
+			if (y < m_Height - 1 && m_Maze.at(y*m_Width + x)->Neighbors.at(SOUTH) != nullptr)
+				inRow++;
+			else if(inRow > 0)
+			{
+				walls.push_back(new Wall(gp, xToPlane(x - inRow), yToPlane(y + 1 + 0.5), glm::vec3(xToPlane(inRow), 0.5, 3)));
+				inRow = 0;
+			}
+
+			if (x < m_Width - 1 && m_Maze.at(y*m_Width + x)->Neighbors.at(EAST) != nullptr)
+				columnRowCount.at(x)++;
+			else if (columnRowCount.at(x) > 0)
+			{
+				walls.push_back(new Wall(gp, xToPlane(x + 1 + 0.5), yToPlane(y - columnRowCount.at(x)), glm::vec3(0.5, yToPlane(columnRowCount.at(x)), 3)));
+				columnRowCount.at(x) = 0;
+			}
+		}
+	}
+	APP_INFO("WALLS: {0}", walls.size());
+	return walls;
 }
 
 Cell &MazeGenerator::GotoUnvisitedNeighbor(const Cell from)

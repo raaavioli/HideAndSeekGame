@@ -11,7 +11,6 @@ public:
 	~Wall();
 
 private:
-	GroundPlane &m_Plane;
 	int xStart, yStart;
 	glm::vec3 m_Scale;
 };

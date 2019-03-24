@@ -3,7 +3,7 @@
 
 Wall::Wall(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
 	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false)),
-	m_Plane(gp), m_Scale(scale), xStart(x), yStart(y)
+	m_Scale(scale), xStart(x), yStart(y)
 {
 	Scale(scale);
 

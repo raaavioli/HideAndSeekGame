@@ -9,6 +9,7 @@ namespace Engine {
 
 	std::vector<VAO*> OBJLoader::loadedVAOs;
 	std::vector<VBO*> OBJLoader::loadedVBOs;
+	std::map<std::string, Model*> OBJLoader::modelCache;
 
 	std::vector<glm::vec3> OBJLoader::vertices_;
 	std::vector<glm::vec3> OBJLoader::normals_;
@@ -26,6 +27,7 @@ namespace Engine {
 
 		loadedVAOs	= std::vector<VAO*>();
 		loadedVBOs	= std::vector<VBO*>();
+		modelCache	= std::map<std::string, Model*>();
 
 		vertices_	= std::vector<glm::vec3>();
 		normals_	= std::vector<glm::vec3>();
@@ -34,17 +36,25 @@ namespace Engine {
 	}
 
 	void OBJLoader::Shutdown() {
-		for (VAO *vao : loadedVAOs) {
+		for (VAO *vao : loadedVAOs) 
 			delete vao;
-		}
 
-		for (VBO *vbo : loadedVBOs) {
+		for (VBO *vbo : loadedVBOs) 
 			delete vbo;
-		}
+
+		for (auto &[key, value] : modelCache)
+			delete value;
 	}
 
 	Model *OBJLoader::GetModel(const char* filename, bool normalize, bool centralize) {
-		return loadObjFile(filename, normalize, centralize);
+		std::map<std::string, Model*>::const_iterator iter = modelCache.find(std::string(filename));
+
+		if (iter != modelCache.end()) {
+			CORE_INFO("Reuse Model: {0}", (*iter).first);
+			return (*iter).second;
+		} 
+		else 
+			return loadObjFile(filename, normalize, centralize);
 	}
 
 	Model *OBJLoader::loadObjFile(const char* filename, bool normalize, bool centralize) {
@@ -156,7 +166,9 @@ namespace Engine {
 		CORE_INFO("Max: {0},{1},{2}", v_MaxCoords.x, v_MaxCoords.y, v_MaxCoords.z);
 		CORE_INFO("Min: {0},{1},{2}", v_MinCoords.x, v_MinCoords.y, v_MinCoords.z);
 
-		return new Model(vao, vbos, v_MinCoords, v_MaxCoords);
+		Model* m = new Model(vao, vbos, v_MinCoords, v_MaxCoords);
+		modelCache.insert(std::make_pair(std::string(filename), m));
+		return m;
 	}
 
 	void OBJLoader::AddMaxVertex(glm::vec3 &v_max, glm::vec3 &v_other) {

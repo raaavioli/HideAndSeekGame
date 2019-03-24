@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "Engine/Log.h"
+#include "Application/GameObjects/Wall.h"
 
 enum Direction {
 	UNKNOWN = -1,
@@ -32,8 +33,11 @@ public:
 	void CutLongerWalls(int wallLength);
 	void PrintMaze();
 
+	std::vector<Wall*> GetGameWalls(GroundPlane &gp);
+
 private:
-	Direction Opposite(Direction d) {
+	Direction Opposite(Direction d) 
+	{
 		switch (d) {
 		case NORTH:
 			return SOUTH;

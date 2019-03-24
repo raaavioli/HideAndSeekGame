@@ -67,6 +67,49 @@ project "HideAndSeek"
 		defines "RELEASE"
 		symbols "On"
 
+project "Server"
+	location "Server"
+	kind "ConsoleApp"
+	language "C++"
+	targetdir ("server-bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("server-bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files 
+	{ 
+		"%{prj.name}/src/**.h", 
+		"%{prj.name}/src/**.cpp", 
+	}
+	
+	includedirs 
+	{
+		"%{prj.name}/src",
+	}
+
+	links 
+	{ 
+
+	}
+
+	filter "system:windows"
+		cppdialect "C++17"
+		staticruntime "On"
+		systemversion "latest"
+
+		defines { 
+			
+		}
+
+	filter "configurations:Debug"
+		defines "DEBUG"
+		symbols "On"
+
+	filter "configurations:Release"
+		defines "RELEASE"
+		symbols "On"
+
+
+
+		
 
 
 		
