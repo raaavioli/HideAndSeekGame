@@ -17,3 +17,4 @@ Wall::Wall(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
 Wall::~Wall()
 {
 }
+

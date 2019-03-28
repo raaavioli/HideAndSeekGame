@@ -17,12 +17,13 @@
 #endif
 
 #include <iostream>
+#include <vector>
 
 class Server
 {
 public:
-	Server(std::string ipAddress, int port)
-		: m_Address(ipAddress), m_Port(port) 
+	Server(std::string ipAddress, int port, int numClients)
+		: m_Address(ipAddress), m_Port(port), m_ClientCount(numClients)
 	{
 		m_Opt = 1;
 		Init();
@@ -38,7 +39,8 @@ public:
 private:
 	//The server socket
 	SOCKET m_ServerFD;
-	SOCKET m_ClientFD;
+	int m_ClientCount;
+	std::vector<SOCKET> m_Clients;
 	//The 4 byte address.
 	std::string m_Address;
 	//The port
@@ -48,9 +50,12 @@ private:
 	bool m_Running;
 
 	void Init();
-	void Shutdown();
 	SOCKET CreateSocket();
 	void Wait();
 	int CloseSocket();
+	void Shutdown();
+
+	void Send(SOCKET &client, std::string message);
+	std::string Receive(SOCKET client);
 };
 

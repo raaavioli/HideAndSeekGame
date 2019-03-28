@@ -1,6 +1,11 @@
 #include "Server.h"
 #include <sstream>
 
+#include "Protocol.h"
+#include "Utils/MazeGenerator.h"
+#include "GameObjects/Player.h"
+#include "GameObjects/Collision/Collider.h"
+
 void Server::Init()
 {
 	WSADATA wsa_data;
@@ -21,28 +26,44 @@ void Server::Run()
 {
 	m_Running = true;
 
-	int valread;
-	char buffer[4096] = { 0 };
-	int buffersize = 4096;
+	GroundPlane &m_Plane = GroundPlane(60, 40);
+	Collider::Add(&m_Plane, MovementType::STATIC);
+
+	//Outer walls
+	Wall *w = new Wall(m_Plane, -1, 0, glm::vec3(1, (int)m_Plane.GetHeight(), 4));
+
+	std::string s = w->ToProtocolString();
+	Protocol protocol = Protocol(&s);
+	/*
+	Fix so that the values from the protocol are sent to each client.
+	*/
+
+
+	Collider::Add(w, MovementType::STATIC);
+	Collider::Add(new Wall(m_Plane, (int)m_Plane.GetWidth(), 0, glm::vec3(1, (int)m_Plane.GetHeight(), 4)), MovementType::STATIC);
+	Collider::Add(new Wall(m_Plane, 0, -1, glm::vec3((int)m_Plane.GetWidth(), 1, 4)), MovementType::STATIC);
+	Collider::Add(new Wall(m_Plane, 0, (int)m_Plane.GetHeight(), glm::vec3((int)m_Plane.GetWidth(), 1, 4)), MovementType::STATIC);
+
+	MazeGenerator mg(12, 8);
+	mg.GenerateMaze();
+	mg.CutLongerWalls(3);
+	mg.PrintMaze();
+
+
+	for (Wall* w : mg.GetGameWalls(m_Plane)) {
+		Collider::Add(w, MovementType::STATIC);
+		w->Update();
+	}
+
+	Player *m_Player = new Player();
+	Collider::Add(m_Player, MovementType::DYNAMIC);
 
 	while (m_Running)
 	{
-		int accum = 0;
-		while ((valread = recv(m_ClientFD, buffer, buffersize, 0)) > 0) 
+		for (SOCKET client : m_Clients)
 		{
-			accum += valread;
-			if (accum > buffersize) break;
 
-			printf("From Client: %.*s, %d bytes data \n", valread, buffer+accum-valread, valread);
-
-			if (accum%buffersize != 0) break;
 		}
-		printf("All string: %s", buffer);
-
-		send(m_ClientFD, "Gotya!!!", buffersize, 0);
-		if (strcmp(buffer, "quit") == 0)
-			m_Running = false;
-
 	}
 	std::cout << "The server got shut down!" << std::endl;
 }
@@ -74,11 +95,14 @@ SOCKET Server::CreateSocket()
 
 void Server::Wait()
 {
-	sockaddr_in client;
-	int clientSize = sizeof(client);
-	std::cout << "Trying to accept a client..." << std::endl;
-	m_ClientFD = accept(m_ServerFD, (sockaddr*)&client, &clientSize);
-	std::cout << "Client was accepted successfully" << std::endl;
+	for (int i = 0; i < m_ClientCount; i++) 
+	{
+		sockaddr_in client;
+		int clientSize = sizeof(client);
+		std::cout << "Trying to accept a client..." << std::endl;
+		m_Clients.push_back(accept(m_ServerFD, (sockaddr*)&client, &clientSize));
+		std::cout << "Client was accepted successfully" << std::endl;
+	}
 }
 
 /* Note: For POSIX, typedef SOCKET as an int. */
@@ -104,4 +128,21 @@ void Server::Shutdown()
 #ifdef _WIN32
 	WSACleanup();
 #endif
+}
+
+void Server::Send(SOCKET &client, std::string message)
+{
+	message.append('\0');
+	send(client, message.c_str(), message.size(), 0);
+}
+
+std::string Server::Receive(SOCKET client)
+{
+	int valread = 0, accum = 0, buffersize = 4096;
+	char buffer[4096] = { 0 };
+
+	if (recv(client, buffer, buffersize, 0) > 0)
+		return buffer;
+	else
+		return "";
 }

@@ -7,10 +7,9 @@
 #include <iostream>
 #include <ctime>
 
-#include "Engine/Log.h"
-#include "Application/GameObjects/Wall.h"
+#include "../GameObjects/Wall.h"
 
-enum Direction {
+enum Cardinal {
 	UNKNOWN = -1,
 	NORTH,
 	EAST,
@@ -20,7 +19,7 @@ enum Direction {
 
 struct Cell {
 	int X, Y;
-	std::map<Direction, Cell*> Neighbors;
+	std::map<Cardinal, Cell*> Neighbors;
 	bool isVisited = false;
 };
 
@@ -37,7 +36,7 @@ public:
 	std::vector<Wall*> GetGameWalls(GroundPlane &gp);
 
 private:
-	Direction Opposite(Direction d) 
+	Cardinal Opposite(Cardinal d)
 	{
 		switch (d) {
 		case NORTH:
@@ -55,7 +54,7 @@ private:
 
 	Cell &GotoUnvisitedNeighbor(const Cell from);
 
-	void destroyWall(Direction d, Cell* cell);
+	void destroyWall(Cardinal d, Cell* cell);
 
 
 private:
