@@ -25,9 +25,8 @@ void ServerHandler::Init(std::string addr, int port)
 	CreateSocket();
 }
 
-void ServerHandler::Send(std::string message)
+void ServerHandler::Send(const std::string message)
 {
-	message.append('\0');
 	send(m_Socket, message.c_str(), message.size(), 0);
 }
 
@@ -36,11 +35,10 @@ std::string ServerHandler::Recieve()
 	int valread = 0, accum = 0, buffersize = 4096;
 	char buffer[4096] = { 0 };
 
-	if (recv(m_Socket, buffer, buffersize, 0) > 0)
-		return buffer;
+	if (valread = recv(m_Socket, buffer, buffersize, 0))
+		return std::string(buffer, valread);
 	else
 		return "";
-
 }
 
 void ServerHandler::Shutdown()

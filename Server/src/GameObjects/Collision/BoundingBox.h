@@ -2,8 +2,7 @@
 
 #include <vector>
 
-#include "../../HideAndSeek/vendor/glm/glm/glm.hpp"
-
+#include "glm/glm/glm.hpp"
 
 enum ColliderType {
 	tAABB,

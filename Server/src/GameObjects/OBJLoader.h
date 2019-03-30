@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "../../HideAndSeek/vendor/glm/glm/glm.hpp"
+#include "glm/glm/glm.hpp"
 
 #include "Collision/BoundingBox.h"
 

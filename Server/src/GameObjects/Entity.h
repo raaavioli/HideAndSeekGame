@@ -2,10 +2,12 @@
 
 #include <stdlib.h>
 
-#include "../../HideAndSeek/vendor/glm/glm/glm.hpp"
+#include "glm/glm/glm.hpp"
 
-#include "Collision/BoundingBox.h"
 #include "Protocol.h"
+
+#include "GameObjects/Collision/BoundingBox.h"
+
 
 class Entity
 {

@@ -16,7 +16,6 @@
 	typedef int SOCKET
 #endif
 
-#include <iostream>
 #include <vector>
 
 class Server
@@ -55,7 +54,7 @@ private:
 	int CloseSocket();
 	void Shutdown();
 
-	void Send(SOCKET &client, std::string message);
+	void Send(SOCKET &client, std::string &message);
 	std::string Receive(SOCKET client);
 };
 

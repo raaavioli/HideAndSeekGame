@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "GameObjects/Entity.h"
 
 enum MovementType {

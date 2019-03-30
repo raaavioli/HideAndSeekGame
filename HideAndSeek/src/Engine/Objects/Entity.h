@@ -23,6 +23,7 @@ namespace Engine {
 		void Draw();
 		inline void SetPosition(const glm::vec3 transition) { v_Transition = transition; }
 		inline void SetVelocity(const glm::vec3 velocity) { v_Velocity = velocity; }
+		inline void SetScale(const glm::vec3 scale) { v_Scale = scale; }
 		inline void Scale(const float s) { v_Scale *= s; };
 		inline void Scale(const glm::vec3 &s) { v_Scale *= s; };
 		inline void Move() { v_Transition += v_Velocity; };
@@ -30,8 +31,9 @@ namespace Engine {
 		glm::mat4 *UpdateWorldTransformation();
 		glm::vec3 *GetTransition();
 		inline Model &GetModel() { return *m_Model; };
-		inline glm::vec3 GetPosition() { return v_Transition; }
+		inline glm::vec3 &GetPosition() { return v_Transition; }
 		inline glm::vec3 &GetVelocity() { return v_Velocity; }
+		inline glm::vec3 &GetScale() { return v_Scale; }
 		inline BoundingBox &GetColliderBox() { return *m_ColliderBox; };
 
 	protected:

@@ -11,41 +11,19 @@
 
 void GameLayer::OnAttach() 
 {
-	//GroundPlane &gp = GroundPlane(60, 40);
-	m_Plane = new GroundPlane(60, 40);
-	PushModel(m_Plane);
-	
-	//Outer walls
-	PushModel(new Wall(*m_Plane, -1, 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
-	PushModel(new Wall(*m_Plane, (int)m_Plane->GetWidth(), 0, glm::vec3(1, (int)m_Plane->GetHeight(), 4)));
-	PushModel(new Wall(*m_Plane, 0, -1, glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
-	PushModel(new Wall(*m_Plane, 0, (int)m_Plane->GetHeight(), glm::vec3((int)m_Plane->GetWidth(), 1, 4)));
-	
-	MazeGenerator mg(12, 8);
-	mg.GenerateMaze();
-	mg.PrintMaze();
-	mg.CutLongerWalls(3);
-	std::cout << "\n";
-	mg.PrintMaze();
+	std::string received = ServerHandler::Recieve();
+	APP_INFO("Received {0} bytes of data from server", received.size());
 
-	std::vector<Wall*> walls = mg.GetGameWalls(*m_Plane);
+	Protocol protocol(&received);
+	bool validEntity = true;
+	do {
+		validEntity = parseNextEntity(protocol);
+	} while (validEntity && protocol.Next());
+
 	for (Engine::Entity* e : m_Objects) {
 		Engine::Collider::Add(e, Engine::STATIC);
 		e->Update();
 	}
-
-	for (Wall* w : walls) {
-		PushModel(w);
-		Engine::Collider::Add(w, Engine::STATIC);
-		w->Update();
-	}
-
-	//Push background plane into layer but not collider when we have floor as smaller units
-	/*for (Engine::Entity* plane : gp.GetPlane())
-	{
-		PushModel(plane);
-		plane->Update();
-	}*/
 		
 	m_Player = new Player();
 	PushModel(m_Player);
@@ -138,4 +116,67 @@ void GameLayer::setWindowsMouseCenter()
 		window->GetWidth() / 2,
 		window->GetHeight() / 2
 	);
+}
+
+Engine::Entity* GameLayer::getNewEntityPointerFromType(ObjectType ot)
+{
+	switch (ot)
+	{
+	case PLANE:
+		return new GroundPlane();
+	case WALL:
+		return new Wall();
+	case ITEM:
+		//To be implemented
+	default:
+		return nullptr;
+	}
+}
+
+bool GameLayer::parseNextEntity(Protocol &protocol)
+{
+	ObjectType ot = protocol.GetObjectType();
+	Attribute attrib = protocol.GetAttribute();
+	APP_ASSERT(attrib == NUMATTRIBS, "First attribute of object is not NUMATTRIBS.");
+	Numattribs na;
+	protocol.GetData(&na);
+	APP_ASSERT(na.Value > 0 && na.Value <= NUMATTRIBS, "Invalid number of attributes");
+
+	Engine::Entity *entity;
+	if ((entity = getNewEntityPointerFromType(ot)) != nullptr)
+	{
+		for (int i = 0; i < na.Value; i++)
+		{
+			if (!protocol.HasNext()) {
+				delete entity;
+				entity = nullptr;
+				return false;
+			}
+			protocol.Next();
+
+			Attribute attribToSet = protocol.GetAttribute();
+			if (attribToSet == POSITION) {
+				Position p;
+				protocol.GetData(&p);
+				entity->SetPosition(glm::vec3(p.X, p.Y, p.Z));
+			}
+			else if (attribToSet == SCALE) {
+				Scale s;
+				protocol.GetData(&s);
+				entity->SetScale(glm::vec3(s.X, s.Y, s.Z));
+			}
+			else {
+				APP_ERROR("There should not be anything but scaled and translated entities here...");
+				delete entity;
+				entity = nullptr;
+				return false;
+			}
+		}
+		PushModel(entity);
+	}
+	else
+	{
+		return false;
+	}
+	return true;
 }

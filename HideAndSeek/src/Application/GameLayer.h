@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ServerHandler/ServerHandler.h"
+#include "ServerHandler/Protocol.h"
+
 #include "Engine/Layer.h"
 #include "Engine/Event/KeyEvent.h"
 #include "GameObjects/GroundPlane.h"
@@ -26,5 +29,7 @@ private:
 	unsigned char getWASDDirection();
 	void handleCameraMovement(unsigned char dir, float mouseX, float mouseY);
 	void setWindowsMouseCenter();
+	Engine::Entity* getNewEntityPointerFromType(ObjectType ot);
+	bool parseNextEntity(Protocol &protocol);
 
 };

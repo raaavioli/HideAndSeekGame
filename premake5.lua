@@ -55,6 +55,7 @@ project "HideAndSeek"
 
 		defines { 
 			"ENGINE_PLATFORM_WINDOWS",
+			"WIN32",
 			--"ENGINE_BUILD_DLL", // if we want to export to dll
 			"GLFW_INCLUDE_NONE"
 		}
@@ -78,10 +79,13 @@ project "Server"
 	{ 
 		"%{prj.name}/src/**.h", 
 		"%{prj.name}/src/**.cpp", 
+		"%{prj.name}/Tests/**.h",
+		"%{prj.name}/Tests/**.cpp",
 	}
 	
 	includedirs 
 	{
+		"HideAndSeek/vendor",
 		"%{prj.name}/src",
 	}
 
@@ -96,7 +100,7 @@ project "Server"
 		systemversion "latest"
 
 		defines { 
-			
+			"WIN32",
 		}
 
 	filter "configurations:Debug"
@@ -106,10 +110,3 @@ project "Server"
 	filter "configurations:Release"
 		defines "RELEASE"
 		symbols "On"
-
-
-
-		
-
-
-		

@@ -1,7 +1,6 @@
-#include "entity.h"
+#include "Entity.h"
 
-#include "../../HideAndSeek/vendor/glm/glm/gtc/matrix_transform.hpp"
-
+#include "glm/glm/gtc/matrix_transform.hpp"
 	
 Entity::Entity(BoundingBox *bb)
 	: m_ColliderBox(bb)

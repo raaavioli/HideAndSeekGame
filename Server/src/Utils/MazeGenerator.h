@@ -1,13 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <stack>
 #include <map>
-#include <stdlib.h>
-#include <iostream>
-#include <ctime>
 
-#include "../GameObjects/Wall.h"
+#include "GameObjects/Wall.h"
 
 enum Cardinal {
 	UNKNOWN = -1,

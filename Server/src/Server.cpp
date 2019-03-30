@@ -1,10 +1,13 @@
 #include "Server.h"
 #include <sstream>
+#include <iostream>
 
+#include "GameObjects/Collision/Collider.h"
 #include "Protocol.h"
 #include "Utils/MazeGenerator.h"
 #include "GameObjects/Player.h"
-#include "GameObjects/Collision/Collider.h"
+#include "GameObjects/GroundPlane.h"
+#include "GameObjects/Wall.h"
 
 void Server::Init()
 {
@@ -25,34 +28,26 @@ void Server::Init()
 void Server::Run()
 {
 	m_Running = true;
+	std::string gameMapProtocolString = std::string();
 
 	GroundPlane &m_Plane = GroundPlane(60, 40);
 	Collider::Add(&m_Plane, MovementType::STATIC);
-
-	//Outer walls
-	Wall *w = new Wall(m_Plane, -1, 0, glm::vec3(1, (int)m_Plane.GetHeight(), 4));
-
-	std::string s = w->ToProtocolString();
-	Protocol protocol = Protocol(&s);
-	/*
-	Fix so that the values from the protocol are sent to each client.
-	*/
-
-
-	Collider::Add(w, MovementType::STATIC);
-	Collider::Add(new Wall(m_Plane, (int)m_Plane.GetWidth(), 0, glm::vec3(1, (int)m_Plane.GetHeight(), 4)), MovementType::STATIC);
-	Collider::Add(new Wall(m_Plane, 0, -1, glm::vec3((int)m_Plane.GetWidth(), 1, 4)), MovementType::STATIC);
-	Collider::Add(new Wall(m_Plane, 0, (int)m_Plane.GetHeight(), glm::vec3((int)m_Plane.GetWidth(), 1, 4)), MovementType::STATIC);
+	gameMapProtocolString.append(m_Plane.ToProtocolString());
 
 	MazeGenerator mg(12, 8);
 	mg.GenerateMaze();
 	mg.CutLongerWalls(3);
 	mg.PrintMaze();
 
-
 	for (Wall* w : mg.GetGameWalls(m_Plane)) {
 		Collider::Add(w, MovementType::STATIC);
+		gameMapProtocolString.append(w->ToProtocolString());
 		w->Update();
+	}
+
+	for (SOCKET client : m_Clients)
+	{
+		Send(client, gameMapProtocolString);
 	}
 
 	Player *m_Player = new Player();
@@ -60,6 +55,14 @@ void Server::Run()
 
 	while (m_Running)
 	{
+		//Receive instructions from each client
+		for (SOCKET client : m_Clients)
+		{
+
+		}
+
+		Collider::Interact();
+
 		for (SOCKET client : m_Clients)
 		{
 
@@ -130,10 +133,10 @@ void Server::Shutdown()
 #endif
 }
 
-void Server::Send(SOCKET &client, std::string message)
+void Server::Send(SOCKET &client, std::string &message)
 {
-	message.append('\0');
-	send(client, message.c_str(), message.size(), 0);
+	int data = send(client, message.c_str(), message.size(), 0);
+	std::cout << data << " bytes were sent to client " << client << std::endl;
 }
 
 std::string Server::Receive(SOCKET client)
@@ -141,8 +144,8 @@ std::string Server::Receive(SOCKET client)
 	int valread = 0, accum = 0, buffersize = 4096;
 	char buffer[4096] = { 0 };
 
-	if (recv(client, buffer, buffersize, 0) > 0)
-		return buffer;
+	if (valread = recv(client, buffer, buffersize, 0))
+		return std::string(buffer, valread);
 	else
 		return "";
 }

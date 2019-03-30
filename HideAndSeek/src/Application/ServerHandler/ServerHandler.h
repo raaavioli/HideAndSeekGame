@@ -22,7 +22,7 @@ class ServerHandler
 {
 public:
 	static void Init(std::string addr, int port);
-	static void Send(std::string message);
+	static void Send(const std::string message);
 	static std::string Recieve();
 	static void Shutdown();
 

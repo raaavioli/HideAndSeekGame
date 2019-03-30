@@ -3,10 +3,9 @@
 #include "Engine/Objects/OBJLoader.h"
 
 GroundPlane::GroundPlane(const float width, const float height)
-	: m_Width(width), m_Height(height),
-	Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
+	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
 {
-	m_Thickness = 0.1;
+	float thickness = 0.1;
 	//If we want to divide floor into smaller units
 	/*for (int y = 0; y < height; y++)
 	{
@@ -19,10 +18,14 @@ GroundPlane::GroundPlane(const float width, const float height)
 		}
 	}*/
 	
-	Scale(glm::vec3(width, height, m_Thickness));
-	SetPosition(glm::vec3(0, 0, -m_Thickness));
+	Scale(glm::vec3(width, height, thickness));
+	SetPosition(glm::vec3(0, 0, -thickness));
 
 }
+
+GroundPlane::GroundPlane()
+	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
+{}
 
 GroundPlane::~GroundPlane()
 {

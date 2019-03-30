@@ -1,5 +1,10 @@
 #include "MazeGenerator.h"
 
+#include <stack>
+#include <stdlib.h>
+#include <iostream>
+#include <ctime>
+
 MazeGenerator::MazeGenerator(int width, int height)
 	: m_Width(width), m_Height(height), m_Size(width*height)
 {
@@ -171,6 +176,14 @@ std::vector<Wall*> MazeGenerator::GetGameWalls(GroundPlane &gp)
 			}
 		}
 	}
+
+	//Outer walls
+	Wall *left = new Wall(gp, -1, 0, glm::vec3(1, (int)gp.GetHeight(), 4));
+	Wall *right = new Wall(gp, (int)gp.GetWidth(), 0, glm::vec3(1, (int)gp.GetHeight(), 4));
+	Wall *upper = new Wall(gp, 0, -1, glm::vec3((int)gp.GetWidth(), 1, 4));
+	Wall *lower = new Wall(gp, 0, (int)gp.GetHeight(), glm::vec3((int)gp.GetWidth(), 1, 4));
+
+	walls.push_back(left); walls.push_back(right); walls.push_back(upper); walls.push_back(lower);
 
 	return walls;
 }

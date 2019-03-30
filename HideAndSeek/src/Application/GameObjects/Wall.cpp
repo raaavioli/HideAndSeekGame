@@ -14,6 +14,12 @@ Wall::Wall(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
 	SetPosition(glm::vec3(xPos, yPos, zPos));
 }
 
+
+Wall::Wall()
+	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false)), 
+	xStart(0), yStart(0), m_Scale(glm::vec3(0))
+{};
+
 Wall::~Wall()
 {
 }

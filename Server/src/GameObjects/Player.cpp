@@ -35,5 +35,26 @@ void Player::Move(unsigned int directions, float speed)
 
 const std::string &Player::ToProtocolString()
 {
-	return "";
+	static ObjectType ot = ObjectType::PLAYER;
+	static Attribute attrcount = Attribute::NUMATTRIBS;
+	static Attribute scale = Attribute::SCALE;
+	static Attribute pos = Attribute::POSITION;
+	Numattribs n{ 2 }; // 3 when items are in the game
+	glm::vec3 &entity_scale = GetScale();
+	Scale s{ entity_scale.x, entity_scale.y, entity_scale.z };
+	glm::vec3 &entity_pos = GetPosition();
+	Position p{ entity_pos.x, entity_pos.y, entity_pos.z };
+
+	m_ProtocolString.clear();
+	m_ProtocolString.reserve(sizeof(Numattribs) + sizeof(Position) + sizeof(Scale) + 3 * sizeof(int));
+	m_ProtocolString.append(Protocol::Stringify(ot, attrcount, &n));
+	m_ProtocolString.append(Protocol::Stringify(ot, pos, &p));
+	m_ProtocolString.append(Protocol::Stringify(ot, scale, &s));
+	/*
+	Send a message of the items a player is carrying.
+	My thought is to make items map to a binary string, where
+	i.e 000101 means a player is currently carrying item 0 and 2. Etc.
+	*/
+
+	return m_ProtocolString;
 };

@@ -1,7 +1,14 @@
 #include "stdafx.h"
+
 #include "CppUnitTest.h"
-#include "../Server/src/Protocol.h"
-#include "../Server/src/Protocol.cpp"
+
+#include "../../HideAndSeek/vendor/glm/glm/glm.hpp"
+#include "../../Server/src/Protocol.cpp"
+
+#include "GameObjects/Wall.h"
+#include "GameObjects/Wall.cpp"
+#include "GameObjects/GroundPlane.h"
+#include "GameObjects/GroundPlane.cpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -156,6 +163,33 @@ namespace ServerTest
 			Assert::IsTrue(secondNext);
 			Assert::IsFalse(thirdNext);
 		}
+
+		// For some reason this just cannot be run. Linker errors all over the place.
+
+		//TEST_METHOD(AssertNumAttribsCorrectForWall)
+		//{
+		//	//Setup
+		//	GroundPlane gp(10, 10);
+		//	Wall wall(gp, 0,9, glm::vec3(2,3,4));
+		//	std::string protocolstring = wall.ToProtocolString();
+		//	char expectedCount = 2;
+		//	char actual = 0;
+		//	Protocol p(&protocolstring);
+
+		//	//Calculate
+		//	Numattribs numAttribs;
+		//	p.GetData(&numAttribs);
+		//	actual = p.Next() ? actual + 1 : actual;
+		//	actual = p.Next() ? actual + 1 : actual;
+
+		//	//Assert
+		//	Assert::AreEqual(expectedCount, numAttribs.Value);
+		//	Assert::AreEqual(expectedCount, actual);
+		//	actual = p.Next() ? actual + 1 : actual;
+		//	Assert::AreEqual(numAttribs.Value, actual);
+		//	actual = p.Next() ? actual + 1 : actual;
+		//	Assert::AreEqual(numAttribs.Value, actual);
+		//}
 
 	};
 }
