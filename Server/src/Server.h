@@ -18,6 +18,8 @@
 
 #include <vector>
 
+#include "Client.h"
+
 class Server
 {
 public:
@@ -29,6 +31,10 @@ public:
 	};
 	~Server()
 	{
+		for (Client* c : m_Clients)
+		{
+			delete c;
+		}
 		Shutdown();
 	};
 
@@ -39,7 +45,7 @@ private:
 	//The server socket
 	SOCKET m_ServerFD;
 	int m_ClientCount;
-	std::vector<SOCKET> m_Clients;
+	std::vector<Client*> m_Clients;
 	//The 4 byte address.
 	std::string m_Address;
 	//The port

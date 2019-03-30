@@ -37,8 +37,6 @@ namespace Engine {
 				(*--it)->OnUpdate();
 			}
 
-			Engine::Collider::Interact();
-
 			for (auto it = m_LayerStack.StackBegin(); it != m_LayerStack.StackEnd(); )
 			{
 				(*it++)->OnRender();

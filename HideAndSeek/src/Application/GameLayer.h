@@ -31,5 +31,6 @@ private:
 	void setWindowsMouseCenter();
 	Engine::Entity* getNewEntityPointerFromType(ObjectType ot);
 	bool parseNextEntity(Protocol &protocol);
+	void updatePlayer(std::string &playerData);
 
 };

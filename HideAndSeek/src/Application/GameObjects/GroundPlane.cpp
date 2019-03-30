@@ -18,7 +18,7 @@ GroundPlane::GroundPlane(const float width, const float height)
 		}
 	}*/
 	
-	Scale(glm::vec3(width, height, thickness));
+	DoScale(glm::vec3(width, height, thickness));
 	SetPosition(glm::vec3(0, 0, -thickness));
 
 }

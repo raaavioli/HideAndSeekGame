@@ -6,19 +6,14 @@ class Player : public Entity
 {
 public:
 	Player();
+	Player(int id, float xPos, float yPos, float scale);
 	~Player();
 
-	void Move(unsigned int dir, float speed);
+	void UpdatePlayerData(std::string &pData);
 	const std::string &ToProtocolString() override;
 
-	enum Direction {
-		FORWARD = 1,
-		BACKWARD = 2,
-		LEFT = 4,
-		RIGHT = 8,
-	};
-
 private:
-	int score;
+	int m_Score;
+	float m_Speed;
 };
 

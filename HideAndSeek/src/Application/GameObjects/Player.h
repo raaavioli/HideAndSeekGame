@@ -4,15 +4,19 @@
 #include "Engine/Objects/OBJLoader.h"
 #include "Engine/Objects/Camera.h"
 
+#define UNDEFINED -1
+
 class Player : public Engine::Entity
 {
 public:
 	Player();
 	~Player();
 
-	void Move(unsigned int dir, float speed);
+	void ChangeVelocity(unsigned int dir);
+	const std::string &BuildProtocolString();
 
 private:
-	int score;
+	int m_Score;
+	std::string m_ProtocolString;
 };
 

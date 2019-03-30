@@ -5,7 +5,6 @@
 #include "GameObjects/Collision/Collider.h"
 #include "Protocol.h"
 #include "Utils/MazeGenerator.h"
-#include "GameObjects/Player.h"
 #include "GameObjects/GroundPlane.h"
 #include "GameObjects/Wall.h"
 
@@ -45,27 +44,34 @@ void Server::Run()
 		w->Update();
 	}
 
-	for (SOCKET client : m_Clients)
+	for (Client* client : m_Clients)
 	{
-		Send(client, gameMapProtocolString);
+		SOCKET s = client->GetSocket();
+		Send(s, gameMapProtocolString);
+		//Receive handshake that client is done reading map
+		Receive(client->GetSocket());
+		//Send player details.
+		std::string playerData = client->GetPlayer()->ToProtocolString();
+		Send(s, playerData);
 	}
-
-	Player *m_Player = new Player();
-	Collider::Add(m_Player, MovementType::DYNAMIC);
 
 	while (m_Running)
 	{
 		//Receive instructions from each client
-		for (SOCKET client : m_Clients)
+		for (Client* client : m_Clients)
 		{
-
+			std::string playerData = Receive(client->GetSocket());
+			client->GetPlayer()->UpdatePlayerData(playerData);
+			
 		}
 
 		Collider::Interact();
 
-		for (SOCKET client : m_Clients)
+		for (Client* client : m_Clients)
 		{
-
+			std::string playerData = client->GetPlayer()->ToProtocolString();
+			SOCKET s = client->GetSocket();
+			Send(s, playerData);
 		}
 	}
 	std::cout << "The server got shut down!" << std::endl;
@@ -103,7 +109,9 @@ void Server::Wait()
 		sockaddr_in client;
 		int clientSize = sizeof(client);
 		std::cout << "Trying to accept a client..." << std::endl;
-		m_Clients.push_back(accept(m_ServerFD, (sockaddr*)&client, &clientSize));
+		//CHANGE PLAYER POSITION LATER, NOW IT WILL NOT WORK FOR MORE THAN TWO PLAYERS
+		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), (i*2-1)*27.5, -18.5);
+		m_Clients.push_back(c);
 		std::cout << "Client was accepted successfully" << std::endl;
 	}
 }

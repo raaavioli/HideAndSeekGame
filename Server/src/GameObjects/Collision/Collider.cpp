@@ -28,7 +28,8 @@ void Collider::Interact()
 		//Probably don't want to update this for every object every time.
 		dynamicCopy.Update();
 
-		for (int j = i+1; j < dynamicEntities.size(); j++) {
+		for (int j = 0; j < dynamicEntities.size(); j++) {
+			if (i == j) continue;
 			Entity dynamicOtherCopy = *dynamicEntities.at(j);
 			dynamicOtherCopy.Move();
 			//Probably don't want to update this for every object every time.

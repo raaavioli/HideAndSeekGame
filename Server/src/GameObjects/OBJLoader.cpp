@@ -4,8 +4,7 @@
 
 #pragma warning(disable:4996)
 
-OBJLoader* OBJLoader::s_Instance= nullptr;
-
+OBJLoader* OBJLoader::s_Instance = nullptr;
 std::map<std::string, BoundingBox*> OBJLoader::boundingBoxCache;
 
 OBJLoader::~OBJLoader()
@@ -30,11 +29,7 @@ void OBJLoader::Shutdown() {
 BoundingBox *OBJLoader::GetAABB(const char* filename, bool normalize, bool centralize) {
 	std::map<std::string, BoundingBox*>::const_iterator iter = boundingBoxCache.find(std::string(filename));
 
-	if (iter != boundingBoxCache.end()) {
-		return (*iter).second;
-	} 
-	else 
-		return loadObjFile(filename, normalize, centralize);
+	return loadObjFile(filename, normalize, centralize);
 }
 
 BoundingBox *OBJLoader::loadObjFile(const char* filename, bool normalize, bool centralize) {
@@ -104,7 +99,7 @@ BoundingBox *OBJLoader::loadObjFile(const char* filename, bool normalize, bool c
 		v_MinCoords = v_MinTemp;
 	}
 
-	BoundingBox *b = new AABB(v_MaxCoords, v_MinCoords);
+	BoundingBox *b = new AABB(v_MinCoords, v_MaxCoords);
 	boundingBoxCache.insert(std::make_pair(std::string(filename), b));
 	return b;
 }

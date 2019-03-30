@@ -7,7 +7,6 @@
 #include "GameObjects/Wall.h"
 #include "GameObjects/Player.h"
 #include "Engine/Objects/Collision/Collider.h"
-#include "Utils/MazeGenerator.h"
 
 void GameLayer::OnAttach() 
 {
@@ -24,10 +23,13 @@ void GameLayer::OnAttach()
 		Engine::Collider::Add(e, Engine::STATIC);
 		e->Update();
 	}
+	//Needs to be rewritten, should not have to do a handshake for playerData
+	ServerHandler::Send("handshake");
 		
 	m_Player = new Player();
+	std::string playerData = ServerHandler::Recieve();
+	updatePlayer(playerData);
 	PushModel(m_Player);
-	Engine::Collider::Add(m_Player, Engine::DYNAMIC);
 }
 
 void GameLayer::OnDetach() {}
@@ -51,7 +53,13 @@ void GameLayer::OnUpdate()
 
 	//Set player velocity based on input
 	float speed = 0.1f;
-	m_Player->Move(dir, speed);
+	m_Player->ChangeVelocity(dir);
+
+	//Send local player attributes and wait for server to respond
+	ServerHandler::Send(m_Player->BuildProtocolString());
+	std::string playerData = ServerHandler::Recieve();
+
+	updatePlayer(playerData);
 }
 
 void GameLayer::OnEvent(Engine::Event &e)
@@ -179,4 +187,67 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 		return false;
 	}
 	return true;
+}
+
+void GameLayer::updatePlayer(std::string &playerData)
+{
+	Protocol protocol(&playerData);
+	ObjectType ot = protocol.GetObjectType();
+	Attribute at = protocol.GetAttribute();
+	if (ot != ObjectType::PLAYER || at != Attribute::NUMATTRIBS)
+		return;
+
+	Numattribs na;
+	protocol.GetData(&na);
+
+	int player_id = UNDEFINED;
+	glm::vec3 position = m_Player->GetPosition();
+	glm::vec3 scale = m_Player->GetScale();
+	for (int i = 0; i < na.Value; i++)
+	{
+		if (!protocol.HasNext()) {
+			return;
+		}
+		protocol.Next();
+		ot = protocol.GetObjectType();
+		at = protocol.GetAttribute();
+		if (ot != ObjectType::PLAYER)
+			return;
+
+		if (at == Attribute::ID)
+		{
+			Id i;
+			protocol.GetData(&i);
+			player_id = i.Value;
+			if (m_Player->GetId() == UNDEFINED)
+			{
+				m_Player->SetId(player_id);
+			}
+			else if (m_Player->GetId() != player_id)
+			{
+				APP_ERROR("Player with wrong ID was sent from server.");
+				return;
+			}
+		}
+		else if (at == Attribute::POSITION)
+		{
+			Position p;
+			protocol.GetData(&p);
+			position = glm::vec3(p.X, p.Y, p.Z);
+		}
+		else if (at == Attribute::SCALE)
+		{
+			Scale s;
+			protocol.GetData(&s);
+			scale = glm::vec3(s.X, s.Y, s.Z);
+		}
+		//Ignore any other attributes
+	}
+
+	if (player_id != UNDEFINED) 
+	{
+		m_Player->SetScale(scale);
+		m_Player->SetPosition(position);
+		m_Player->Update();
+	}
 }
