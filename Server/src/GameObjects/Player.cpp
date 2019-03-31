@@ -6,7 +6,7 @@
 Player::Player()
 	: Entity(OBJLoader::GetAABB("monkey", true, true)), m_Score(0), m_Speed(0.1)
 {
-	float charScale = 3;
+	float charScale = 1.5;
 	DoScale(charScale);
 	float depth = charScale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
 	SetPosition(glm::vec3(-27.5, -18.5, depth));
@@ -14,7 +14,7 @@ Player::Player()
 }
 
 Player::Player(int id, float xPos, float yPos, float scale)
-	: Entity(OBJLoader::GetAABB("monkey", true, true)), m_Score(0), m_Speed(0.1)
+	: Entity(OBJLoader::GetAABB("monkey", true, true)), m_Score(0), m_Speed(0.25)
 {
 	DoScale(scale);
 	float depth = scale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
@@ -30,9 +30,9 @@ Player::~Player()
 void Player::UpdatePlayerData(std::string & pData)
 {
 	Protocol protocol(&pData);
-	ObjectType ot = protocol.GetObjectType();
+	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
-	if (ot != ObjectType::PLAYER || at != Attribute::NUMATTRIBS)
+	if (ot != InstructionType::PLAYER || at != Attribute::NUMATTRIBS)
 		return;
 
 	Numattribs na;
@@ -46,9 +46,9 @@ void Player::UpdatePlayerData(std::string & pData)
 			return;
 		}
 		protocol.Next();
-		ot = protocol.GetObjectType();
+		ot = protocol.GetInstructionType();
 		at = protocol.GetAttribute();
-		if (ot != ObjectType::PLAYER)
+		if (ot != InstructionType::PLAYER)
 			return;
 
 		if (at == Attribute::ID)
@@ -78,7 +78,7 @@ void Player::UpdatePlayerData(std::string & pData)
 
 const std::string &Player::ToProtocolString()
 {
-	static ObjectType ot = ObjectType::PLAYER;
+	static InstructionType ot = InstructionType::PLAYER;
 	Numattribs n{ 3 };
 	int entity_id = GetId();
 	Id i{ entity_id };

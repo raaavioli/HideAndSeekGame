@@ -8,7 +8,7 @@ void main()
 {
 	OBJLoader::Init();
 	Collider::Init();
-	Server server = Server("127.0.0.1", 8080, 2);
+	Server server = Server("127.0.0.1", 8080, 1);
 	
 	server.Run();
 

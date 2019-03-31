@@ -2,13 +2,15 @@
 
 #include <string>
 
-enum ObjectType {
+enum InstructionType {
 	OBJERROR = -1,
 	PLAYER,
 	PLANE,
 	WALL,
 	ITEM,
 	NUMOBJTYPES,
+	PICKUP,
+	DROP,
 };
 
 enum Attribute {
@@ -74,11 +76,11 @@ public:
 
 	bool Next();
 	bool HasNext();
-	ObjectType GetObjectType();
+	InstructionType GetInstructionType();
 	Attribute GetAttribute();
 	int GetData(void* out_data);
 
-	static std::string Stringify(ObjectType, Attribute, void* data);
+	static std::string Stringify(InstructionType, Attribute, void* data);
 private:
 	int m_DataPointer;
 	std::string *m_BeingParsed;

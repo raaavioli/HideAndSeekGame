@@ -30,7 +30,7 @@ GroundPlane::~GroundPlane()
 
 const std::string &GroundPlane::ToProtocolString()
 {
-	static ObjectType ot = ObjectType::PLANE;
+	static InstructionType ot = InstructionType::PLANE;
 	static Attribute attrcount = Attribute::NUMATTRIBS;
 	static Attribute scale = Attribute::SCALE;
 	static Attribute pos = Attribute::POSITION;

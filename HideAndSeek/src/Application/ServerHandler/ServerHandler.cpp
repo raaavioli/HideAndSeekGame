@@ -27,13 +27,14 @@ void ServerHandler::Init(std::string addr, int port)
 
 void ServerHandler::Send(const std::string message)
 {
-	send(m_Socket, message.c_str(), message.size(), 0);
+	int i = send(m_Socket, message.c_str(), message.size(), 0);
+	APP_INFO("Client sent {0} bytes", i);
 }
 
 std::string ServerHandler::Recieve()
 {
-	int valread = 0, accum = 0, buffersize = 4096;
-	char buffer[4096] = { 0 };
+	int valread = 0, accum = 0, buffersize = 16384;
+	char buffer[16384] = { 0 };
 
 	if (valread = recv(m_Socket, buffer, buffersize, 0))
 		return std::string(buffer, valread);

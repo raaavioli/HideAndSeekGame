@@ -1,6 +1,6 @@
 #include "Protocol.h"
 
-std::string Protocol::Stringify(ObjectType object, Attribute attrib, void *data)
+std::string Protocol::Stringify(InstructionType object, Attribute attrib, void *data)
 {
 	std::string ret = "";
 	if (object < NUMOBJTYPES && attrib <= NUMATTRIBS) {
@@ -82,12 +82,12 @@ bool Protocol::HasNext()
 	return false;
 }
 
-ObjectType Protocol::GetObjectType()
+InstructionType Protocol::GetInstructionType()
 {
 	if (m_BeingParsed->size() > m_DataPointer) {
 		char obj = m_BeingParsed->at(m_DataPointer);
 		if (0 <= obj && obj < NUMOBJTYPES)
-			return (ObjectType)obj;
+			return (InstructionType)obj;
 	}
 	return OBJERROR;
 }

@@ -12,7 +12,5 @@ public:
 	~Wall();
 
 private:
-	int xStart, yStart;
-	glm::vec3 m_Scale;
 };
 

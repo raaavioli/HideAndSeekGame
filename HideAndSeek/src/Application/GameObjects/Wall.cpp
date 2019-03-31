@@ -2,8 +2,7 @@
 
 
 Wall::Wall(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
-	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false)),
-	m_Scale(scale), xStart(x), yStart(y)
+	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
 {
 	DoScale(scale);
 
@@ -16,8 +15,7 @@ Wall::Wall(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
 
 
 Wall::Wall()
-	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false)), 
-	xStart(0), yStart(0), m_Scale(glm::vec3(0))
+	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
 {};
 
 Wall::~Wall()

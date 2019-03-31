@@ -7,6 +7,7 @@
 #include "Utils/MazeGenerator.h"
 #include "GameObjects/GroundPlane.h"
 #include "GameObjects/Wall.h"
+#include "GameObjects/Flag.h"
 
 void Server::Init()
 {
@@ -33,7 +34,7 @@ void Server::Run()
 	Collider::Add(&m_Plane, MovementType::STATIC);
 	gameMapProtocolString.append(m_Plane.ToProtocolString());
 
-	MazeGenerator mg(12, 8);
+	MazeGenerator mg(20, 10);
 	mg.GenerateMaze();
 	mg.CutLongerWalls(3);
 	mg.PrintMaze();
@@ -44,14 +45,29 @@ void Server::Run()
 		w->Update();
 	}
 
+	Flag *red = new Flag(m_Plane, 0);
+	gameMapProtocolString.append(red->ToProtocolString());
+	Flag *blue = new Flag(m_Plane, 1);
+	gameMapProtocolString.append(blue->ToProtocolString());
+	Collider::Add(red, MovementType::STATIC);
+	Collider::Add(blue, MovementType::STATIC);
+
 	for (Client* client : m_Clients)
 	{
 		SOCKET s = client->GetSocket();
 		Send(s, gameMapProtocolString);
+
 		//Receive handshake that client is done reading map
 		Receive(client->GetSocket());
+
 		//Send player details.
+		//First player sent is the client's main player, the rest are sent for player positions
 		std::string playerData = client->GetPlayer()->ToProtocolString();
+		for (Client* other : m_Clients)
+		{
+			if (other->GetSocket() == client->GetSocket()) continue;
+			playerData.append(other->GetPlayer()->ToProtocolString());
+		}
 		Send(s, playerData);
 	}
 
@@ -62,7 +78,11 @@ void Server::Run()
 		{
 			std::string playerData = Receive(client->GetSocket());
 			client->GetPlayer()->UpdatePlayerData(playerData);
+			/*TODO
 			
+				Make sure UpdatePlayerData not only updates player data, 
+				but also parses any Action-requests.
+			*/
 		}
 
 		Collider::Interact();
@@ -70,6 +90,11 @@ void Server::Run()
 		for (Client* client : m_Clients)
 		{
 			std::string playerData = client->GetPlayer()->ToProtocolString();
+			for (Client* other : m_Clients)
+			{
+				if (other->GetSocket() == client->GetSocket()) continue;
+				playerData.append(other->GetPlayer()->ToProtocolString());
+			}
 			SOCKET s = client->GetSocket();
 			Send(s, playerData);
 		}
@@ -89,7 +114,7 @@ SOCKET Server::CreateSocket()
 		sockaddr_in hint;
 		hint.sin_family = AF_INET;
 		hint.sin_port = htons(m_Port);
-		hint.sin_addr.S_un.S_addr = inet_addr(m_Address.c_str());
+		hint.sin_addr.S_un.S_addr = ADDR_ANY;
 		if (setsockopt(m_ServerFD, SOL_SOCKET, SO_REUSEADDR, &m_Opt, sizeof(m_Opt)) < 0)
 		{
 			std::cerr << "Socket opt could not be set!" << std::endl;
@@ -110,7 +135,7 @@ void Server::Wait()
 		int clientSize = sizeof(client);
 		std::cout << "Trying to accept a client..." << std::endl;
 		//CHANGE PLAYER POSITION LATER, NOW IT WILL NOT WORK FOR MORE THAN TWO PLAYERS
-		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), (i*2-1)*27.5, -18.5);
+		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), -27.5 + i * 20, -18.5);
 		m_Clients.push_back(c);
 		std::cout << "Client was accepted successfully" << std::endl;
 	}
@@ -149,8 +174,8 @@ void Server::Send(SOCKET &client, std::string &message)
 
 std::string Server::Receive(SOCKET client)
 {
-	int valread = 0, accum = 0, buffersize = 4096;
-	char buffer[4096] = { 0 };
+	int valread = 0, accum = 0, buffersize = 16384;
+	char buffer[16384] = { 0 };
 
 	if (valread = recv(client, buffer, buffersize, 0))
 		return std::string(buffer, valread);

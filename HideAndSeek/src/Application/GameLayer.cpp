@@ -1,12 +1,14 @@
 #include "GameLayer.h"
 
 #include <glm/gtc/constants.hpp>
+
 #include "Engine/Application.h"
 #include "Engine/Renderer/ShaderProgram.h"
 #include <Engine/Objects/Camera.h>
+
 #include "GameObjects/Wall.h"
 #include "GameObjects/Player.h"
-#include "Engine/Objects/Collision/Collider.h"
+
 
 void GameLayer::OnAttach() 
 {
@@ -28,8 +30,10 @@ void GameLayer::OnAttach()
 		
 	m_Player = new Player();
 	std::string playerData = ServerHandler::Recieve();
-	updatePlayer(playerData);
-	PushModel(m_Player);
+	Protocol playerProtocol(&playerData);
+	do {
+		updatePlayer(playerProtocol);
+	} while (playerProtocol.Next());
 }
 
 void GameLayer::OnDetach() {}
@@ -56,26 +60,40 @@ void GameLayer::OnUpdate()
 	m_Player->ChangeVelocity(dir);
 
 	//Send local player attributes and wait for server to respond
-	ServerHandler::Send(m_Player->BuildProtocolString());
+	std::string playerSend = m_Player->BuildProtocolString();
+	playerSend.append(m_Player->BuildActionString());
+	ServerHandler::Send(playerSend);
 	std::string playerData = ServerHandler::Recieve();
-
-	updatePlayer(playerData);
+	Protocol playerProtocol(&playerData);
+	do {
+		updatePlayer(playerProtocol);
+	} while (playerProtocol.Next());
 }
 
 void GameLayer::OnEvent(Engine::Event &e)
 {
 	Engine::EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<Engine::KeyPressedEvent>(
-		std::bind(&GameLayer::toggleCamera, this, std::placeholders::_1)
+		std::bind(&GameLayer::gameKeyEvent, this, std::placeholders::_1)
 	);
 }
 
-bool GameLayer::toggleCamera(Engine::KeyPressedEvent &e)
+bool GameLayer::gameKeyEvent(Engine::KeyPressedEvent &e)
 {
 	if (e.GetKeyCode() == GLFW_KEY_T)
 	{
 		setWindowsMouseCenter();
 		Engine::Application::Get().GetCamera().ToggleRotatable();
+		return true;
+	}
+	else if (e.GetKeyCode() == GLFW_KEY_E)
+	{
+		m_Player->SetAction(InstructionType::PICKUP);
+		return true;
+	}
+	else if (e.GetKeyCode() == GLFW_KEY_Q)
+	{
+		m_Player->SetAction(InstructionType::DROP);
 		return true;
 	}
 	return false;
@@ -126,7 +144,7 @@ void GameLayer::setWindowsMouseCenter()
 	);
 }
 
-Engine::Entity* GameLayer::getNewEntityPointerFromType(ObjectType ot)
+Engine::Entity* GameLayer::getNewEntityPointerFromType(InstructionType ot)
 {
 	switch (ot)
 	{
@@ -134,8 +152,8 @@ Engine::Entity* GameLayer::getNewEntityPointerFromType(ObjectType ot)
 		return new GroundPlane();
 	case WALL:
 		return new Wall();
-	case ITEM:
-		//To be implemented
+	case ITEM: 
+		return new Flag();
 	default:
 		return nullptr;
 	}
@@ -143,7 +161,7 @@ Engine::Entity* GameLayer::getNewEntityPointerFromType(ObjectType ot)
 
 bool GameLayer::parseNextEntity(Protocol &protocol)
 {
-	ObjectType ot = protocol.GetObjectType();
+	InstructionType ot = protocol.GetInstructionType();
 	Attribute attrib = protocol.GetAttribute();
 	APP_ASSERT(attrib == NUMATTRIBS, "First attribute of object is not NUMATTRIBS.");
 	Numattribs na;
@@ -173,8 +191,19 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 				protocol.GetData(&s);
 				entity->SetScale(glm::vec3(s.X, s.Y, s.Z));
 			}
+			else if (attribToSet == ID) {
+				Id i;
+				protocol.GetData(&i);
+
+				if (ot == ITEM && m_Items.find(i.Value) == m_Items.end())
+				{
+					m_Items.insert(std::make_pair(i.Value, (Flag*)entity));
+				}
+				
+				entity->SetId(i.Value);
+			}
 			else {
-				APP_ERROR("There should not be anything but scaled and translated entities here...");
+				APP_ERROR("Data from server must be wrong. Or something is not working properly");
 				delete entity;
 				entity = nullptr;
 				return false;
@@ -189,29 +218,29 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 	return true;
 }
 
-void GameLayer::updatePlayer(std::string &playerData)
+void GameLayer::updatePlayer(Protocol &protocol)
 {
-	Protocol protocol(&playerData);
-	ObjectType ot = protocol.GetObjectType();
+	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
-	if (ot != ObjectType::PLAYER || at != Attribute::NUMATTRIBS)
+	if (ot != InstructionType::PLAYER || at != Attribute::NUMATTRIBS)
 		return;
 
 	Numattribs na;
 	protocol.GetData(&na);
 
 	int player_id = UNDEFINED;
-	glm::vec3 position = m_Player->GetPosition();
-	glm::vec3 scale = m_Player->GetScale();
+	Player* player = nullptr;
+	glm::vec3 position;
+	glm::vec3 scale;
 	for (int i = 0; i < na.Value; i++)
 	{
 		if (!protocol.HasNext()) {
 			return;
 		}
 		protocol.Next();
-		ot = protocol.GetObjectType();
+		ot = protocol.GetInstructionType();
 		at = protocol.GetAttribute();
-		if (ot != ObjectType::PLAYER)
+		if (ot != InstructionType::PLAYER)
 			return;
 
 		if (at == Attribute::ID)
@@ -219,14 +248,26 @@ void GameLayer::updatePlayer(std::string &playerData)
 			Id i;
 			protocol.GetData(&i);
 			player_id = i.Value;
-			if (m_Player->GetId() == UNDEFINED)
+			//Assuming the first player updated is m_Player, otherwise game will not work properly.
+			if (m_Player->GetId() == UNDEFINED || m_Player->GetId() == player_id)
 			{
-				m_Player->SetId(player_id);
+				if (m_Player->GetId() == UNDEFINED)
+				{
+					PushModel(m_Player);
+				}
+				player = m_Player;
+				player->SetId(player_id);
 			}
-			else if (m_Player->GetId() != player_id)
+			else if (m_Opponents.find(player_id) == m_Opponents.end())
 			{
-				APP_ERROR("Player with wrong ID was sent from server.");
-				return;
+				player = new Player();
+				m_Opponents.insert(std::make_pair(player_id, player));
+				PushModel(player);
+				player->SetId(player_id);
+			}
+			else
+			{
+				player = m_Opponents.at(player_id);
 			}
 		}
 		else if (at == Attribute::POSITION)
@@ -244,10 +285,10 @@ void GameLayer::updatePlayer(std::string &playerData)
 		//Ignore any other attributes
 	}
 
-	if (player_id != UNDEFINED) 
+	if (player_id != UNDEFINED && player != nullptr) 
 	{
-		m_Player->SetScale(scale);
-		m_Player->SetPosition(position);
-		m_Player->Update();
+		player->SetScale(scale);
+		player->SetPosition(position);
+		player->Update();
 	}
 }

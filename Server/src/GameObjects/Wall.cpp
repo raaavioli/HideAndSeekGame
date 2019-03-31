@@ -20,7 +20,7 @@ Wall::~Wall()
 
 const std::string &Wall::ToProtocolString()
 {
-	static ObjectType ot = ObjectType::WALL;
+	static InstructionType ot = InstructionType::WALL;
 	static Attribute attrcount = Attribute::NUMATTRIBS;
 	static Attribute scale = Attribute::SCALE;
 	static Attribute pos = Attribute::POSITION;

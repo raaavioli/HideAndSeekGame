@@ -1,12 +1,18 @@
 #pragma once
 
+#include <map>
+
 #include "ServerHandler/ServerHandler.h"
 #include "ServerHandler/Protocol.h"
 
 #include "Engine/Layer.h"
 #include "Engine/Event/KeyEvent.h"
+
+
+#include "Engine/Objects/Collision/Collider.h"
 #include "GameObjects/GroundPlane.h"
 #include "GameObjects/Player.h"
+#include "GameObjects/Flag.h"
 
 class GameLayer : public Engine::Layer
 {
@@ -23,14 +29,16 @@ public:
 private:
 	GroundPlane *m_Plane;
 	Player *m_Player;
+	std::map<int, Player*> m_Opponents;
+	std::map<int, Flag*> m_Items;
 	glm::vec3 m_LightSource;
 
-	bool toggleCamera(Engine::KeyPressedEvent &e);
+	bool gameKeyEvent(Engine::KeyPressedEvent &e);
 	unsigned char getWASDDirection();
 	void handleCameraMovement(unsigned char dir, float mouseX, float mouseY);
 	void setWindowsMouseCenter();
-	Engine::Entity* getNewEntityPointerFromType(ObjectType ot);
+	Engine::Entity* getNewEntityPointerFromType(InstructionType ot);
 	bool parseNextEntity(Protocol &protocol);
-	void updatePlayer(std::string &playerData);
+	void updatePlayer(Protocol &protocol);
 
 };

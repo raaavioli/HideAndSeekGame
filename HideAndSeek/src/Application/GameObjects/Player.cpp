@@ -1,9 +1,7 @@
 #include "Player.h"
 
-#include "Application/ServerHandler/Protocol.h"
-
 Player::Player()
-	: Entity(Engine::OBJLoader::GetModel("monkey", true, true))
+	: Entity(Engine::OBJLoader::GetModel("monkey", true, true)), m_Action(InstructionType::OBJERROR)
 {
 	float charScale = 3;
 	DoScale(charScale);
@@ -37,7 +35,7 @@ void Player::ChangeVelocity(unsigned int directions)
 
 const std::string &Player::BuildProtocolString()
 {
-	static ObjectType ot = ObjectType::PLAYER;
+	static InstructionType ot = InstructionType::PLAYER;
 	Numattribs n{ 4 };
 	int entity_id = GetId();
 	Id i{ entity_id };
@@ -63,3 +61,25 @@ const std::string &Player::BuildProtocolString()
 
 	return m_ProtocolString;
 };
+
+inline std::string & Player::BuildActionString()
+{
+	if (m_Action == PICKUP || m_Action == DROP)
+	{
+		Numattribs n{ 1 };
+		int entity_id = GetId();
+		Id i{ entity_id };
+
+		m_ProtocolString.clear();
+		m_ProtocolString.reserve(sizeof(Numattribs) + sizeof(int));
+		m_ProtocolString.append(Protocol::Stringify(m_Action, Attribute::NUMATTRIBS, &n));
+		m_ProtocolString.append(Protocol::Stringify(m_Action, Attribute::ID, &i));
+
+		return m_ProtocolString;
+	}
+	else
+	{
+		m_ProtocolString = "";
+		return m_ProtocolString;
+	}
+}
