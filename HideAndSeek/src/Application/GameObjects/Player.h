@@ -15,9 +15,9 @@ public:
 
 	void ChangeVelocity(unsigned int dir);
 	const std::string &BuildProtocolString();
+	const std::string &BuildActionString();
 
 	inline void SetAction(InstructionType i) { m_Action = i; }
-	inline std::string &BuildActionString();
 
 private:
 	int m_Score;

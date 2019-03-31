@@ -8,9 +8,9 @@ enum InstructionType {
 	PLANE,
 	WALL,
 	ITEM,
-	NUMOBJTYPES,
 	PICKUP,
 	DROP,
+	NUMOBJTYPES,
 };
 
 enum Attribute {

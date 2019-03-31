@@ -2,14 +2,12 @@
 
 #include <map>
 
-#include "ServerHandler/ServerHandler.h"
-#include "ServerHandler/Protocol.h"
-
 #include "Engine/Layer.h"
 #include "Engine/Event/KeyEvent.h"
-
-
 #include "Engine/Objects/Collision/Collider.h"
+
+#include "Application/ServerHandler/ServerHandler.h"
+#include "Application/ServerHandler/Protocol.h"
 #include "GameObjects/GroundPlane.h"
 #include "GameObjects/Player.h"
 #include "GameObjects/Flag.h"

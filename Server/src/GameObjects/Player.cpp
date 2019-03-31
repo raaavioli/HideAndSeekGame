@@ -13,8 +13,9 @@ Player::Player()
 	SetId(-1);
 }
 
-Player::Player(int id, float xPos, float yPos, float scale)
-	: Entity(OBJLoader::GetAABB("monkey", true, true)), m_Score(0), m_Speed(0.25)
+Player::Player(int id, int team, float xPos, float yPos, float scale)
+	: Entity(OBJLoader::GetAABB("monkey", true, true)), m_Score(0), m_Speed(0.25),
+	m_Team(team)
 {
 	DoScale(scale);
 	float depth = scale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
@@ -27,14 +28,31 @@ Player::~Player()
 {
 }
 
-void Player::UpdatePlayerData(std::string & pData)
+void Player::UpdatePlayerData(Protocol &protocol)
 {
-	Protocol protocol(&pData);
 	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
-	if (ot != InstructionType::PLAYER || at != Attribute::NUMATTRIBS)
+	if (ot != PICKUP && ot != DROP && ot != PLAYER || at != Attribute::NUMATTRIBS)
 		return;
 
+	if (ot == PLAYER)
+	{
+		ParsePlayerAttribs(protocol);
+	}
+	else if (ot == PICKUP)
+	{
+		ParsePlayerPickup(protocol);
+	}
+	else if (ot == DROP)
+	{
+		ParsePlayerDrop(protocol);
+	}
+}
+
+void Player::ParsePlayerAttribs(Protocol &protocol)
+{
+	InstructionType ot = protocol.GetInstructionType();
+	Attribute at = protocol.GetAttribute();
 	Numattribs na;
 	protocol.GetData(&na);
 
@@ -74,12 +92,79 @@ void Player::UpdatePlayerData(std::string & pData)
 	{
 		SetVelocity(velocity * m_Speed);
 	}
+	protocol.Next();
+	UpdatePlayerData(protocol);
+}
+
+void Player::ParsePlayerPickup(Protocol & protocol)
+{
+	int player_id = -1;
+	if (!protocol.Next()) return;
+
+	InstructionType ot = protocol.GetInstructionType();
+	Attribute at = protocol.GetAttribute();
+	if (ot != InstructionType::PICKUP)
+		return;
+
+	if (at == Attribute::ID)
+	{
+		Id i;
+		protocol.GetData(&i);
+		player_id = i.Value;
+		if (GetId() != player_id)
+		{
+			std::cout << "Player " << GetId() << " tries to pickup for Player " << player_id << std::endl;
+			return;
+		}
+	}
+	
+	if (player_id > 0)
+	{
+		m_Action = PICKUP;
+	}
+	protocol.Next();
+	UpdatePlayerData(protocol);
+}
+
+void Player::ParsePlayerDrop(Protocol & protocol)
+{
+	int player_id = -1;
+	if (!protocol.Next()) return;
+
+	InstructionType ot = protocol.GetInstructionType();
+	Attribute at = protocol.GetAttribute();
+	if (ot != InstructionType::DROP)
+		return;
+
+	if (at == Attribute::ID)
+	{
+		Id i;
+		protocol.GetData(&i);
+		player_id = i.Value;
+		if (GetId() != player_id)
+		{
+			std::cout << "Player " << GetId() << " tries to pickup for Player " << player_id << std::endl;
+			return;
+		}
+	}
+
+	if (player_id > 0)
+	{
+		//Drop the latest picked up item. Should probably be changed later to
+		//Drop what the player wants.
+		for (auto item : m_Items) {
+			m_Items.erase(item);
+			break;
+		}
+	}
+	protocol.Next();
+	UpdatePlayerData(protocol);
 }
 
 const std::string &Player::ToProtocolString()
 {
 	static InstructionType ot = InstructionType::PLAYER;
-	Numattribs n{ 3 };
+	Numattribs n{ 3 + m_Items.size() };
 	int entity_id = GetId();
 	Id i{ entity_id };
 	glm::vec3 &entity_scale = GetScale();
@@ -93,11 +178,21 @@ const std::string &Player::ToProtocolString()
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::ID, &i));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::POSITION, &p));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::SCALE, &s));
-	/*
-	Send a message of the items a player is carrying.
-	My thought is to make items map to a binary string, where
-	i.e 000101 means a player is currently carrying item 0 and 2. Etc.
-	*/
+
+	for (auto item : m_Items)
+	{
+		Id itemId{ item->GetId() };
+		m_ProtocolString.append(Protocol::Stringify(ITEM, ID, &itemId));
+	}
 
 	return m_ProtocolString;
+}
+void Player::DropItem(Flag * f)
+{
+	for (auto it = m_Items.begin(); it != m_Items.end(); it++) {
+		if((*it) == f)
+		{
+			m_Items.erase(it);
+		}
+	}
 };

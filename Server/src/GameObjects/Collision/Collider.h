@@ -6,7 +6,8 @@
 
 enum MovementType {
 	DYNAMIC,
-	STATIC
+	STATIC,
+	LOOTABLE,
 };
 
 class Collider {
@@ -27,4 +28,5 @@ private:
 
 	static std::vector<Entity*> dynamicEntities;
 	static std::vector<Entity*> staticEntities;
+	static std::vector<Entity*> lootableEntities;
 };

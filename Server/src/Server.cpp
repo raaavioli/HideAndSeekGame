@@ -45,12 +45,14 @@ void Server::Run()
 		w->Update();
 	}
 
-	Flag *red = new Flag(m_Plane, 0);
+	Flag *red = new Flag(m_Plane, 1);
 	gameMapProtocolString.append(red->ToProtocolString());
-	Flag *blue = new Flag(m_Plane, 1);
+	red->Update();
+	Flag *blue = new Flag(m_Plane, 2);
 	gameMapProtocolString.append(blue->ToProtocolString());
-	Collider::Add(red, MovementType::STATIC);
-	Collider::Add(blue, MovementType::STATIC);
+	blue->Update();
+	Collider::Add(red, MovementType::LOOTABLE);
+	Collider::Add(blue, MovementType::LOOTABLE);
 
 	for (Client* client : m_Clients)
 	{
@@ -77,12 +79,8 @@ void Server::Run()
 		for (Client* client : m_Clients)
 		{
 			std::string playerData = Receive(client->GetSocket());
-			client->GetPlayer()->UpdatePlayerData(playerData);
-			/*TODO
-			
-				Make sure UpdatePlayerData not only updates player data, 
-				but also parses any Action-requests.
-			*/
+			Protocol protocol(&playerData);
+			client->GetPlayer()->UpdatePlayerData(protocol);
 		}
 
 		Collider::Interact();
@@ -135,7 +133,7 @@ void Server::Wait()
 		int clientSize = sizeof(client);
 		std::cout << "Trying to accept a client..." << std::endl;
 		//CHANGE PLAYER POSITION LATER, NOW IT WILL NOT WORK FOR MORE THAN TWO PLAYERS
-		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), -27.5 + i * 20, -18.5);
+		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), 1 + i % 2, -27.5 + i * 20, -18.5);
 		m_Clients.push_back(c);
 		std::cout << "Client was accepted successfully" << std::endl;
 	}

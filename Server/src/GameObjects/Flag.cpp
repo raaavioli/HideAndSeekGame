@@ -1,9 +1,9 @@
 #include "Flag.h"
 
 Flag::Flag(GroundPlane &gp, char team)
-	: Entity(OBJLoader::GetAABB("flag", true, true))
+	: Entity(OBJLoader::GetAABB("flag", false, false))
 {
-	if (team == 0) 
+	if (team == 1) 
 	{
 		SetPosition(glm::vec3(- gp.GetWidth() / 2 + 2, -gp.GetHeight() / 2 + 1, 0.1));
 	}
@@ -12,6 +12,7 @@ Flag::Flag(GroundPlane &gp, char team)
 		SetPosition(glm::vec3(gp.GetWidth() / 2 - 1, gp.GetHeight() / 2 - 2, 0.1));
 	}
 	DoScale(glm::vec3(3, 3, 2));
+	SetId(team);
 }
 
 Flag::~Flag()

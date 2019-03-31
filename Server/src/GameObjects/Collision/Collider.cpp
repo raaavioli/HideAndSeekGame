@@ -1,14 +1,19 @@
 #include "Collider.h"
 
+#include "GameObjects/Flag.h"
+#include "GameObjects/Player.h"
+
 Collider *Collider::s_Instance = nullptr;
 std::vector<Entity*> Collider::dynamicEntities;
 std::vector<Entity*>  Collider::staticEntities;
+std::vector<Entity*> Collider::lootableEntities;
 
 void Collider::Init()
 {
 	s_Instance = new Collider();
 	dynamicEntities = std::vector<Entity*>();
 	staticEntities = std::vector<Entity*>();
+	lootableEntities = std::vector<Entity*>();
 }
 
 void Collider::Shutdown()
@@ -43,9 +48,9 @@ void Collider::Interact()
 
 					dynamicEntities.at(i)->SetVelocity(dynamicCopy.GetVelocity());
 				}
-			}
-					
+			}		
 		}
+
 		for (int j = 0; j < staticEntities.size(); j++) {
 			Entity staticOther = *staticEntities.at(j);
 
@@ -61,6 +66,16 @@ void Collider::Interact()
 
 		dynamicEntities.at(i)->Move();
 		dynamicEntities.at(i)->Update();
+
+		Entity* closest;
+		for (Entity* lootable : lootableEntities) {
+			if (dynamicEntities.at(i)->CollidesWith(*lootable)) {
+				Flag* flag = (Flag*)lootable;
+				Player* player = (Player*)dynamicEntities.at(i);
+				if (player->GetAction() == PICKUP)
+					player->PushItem(flag);
+			}
+		}
 	}
 }
 
@@ -115,6 +130,8 @@ void Collider::Add(Entity *entity, MovementType c_Type)
 		staticEntities.push_back(entity);
 	else if (c_Type == DYNAMIC)
 		dynamicEntities.push_back(entity);
+	else if (c_Type == LOOTABLE)
+		lootableEntities.push_back(entity);
 }
 
 void Collider::Remove(Entity *entity)

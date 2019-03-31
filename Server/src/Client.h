@@ -15,7 +15,7 @@ typedef int SOCKET
 
 class Client {
 public:
-	Client(SOCKET s, float playerX, float playerY);
+	Client(SOCKET s, int team, float playerX, float playerY);
 	~Client();
 
 	inline SOCKET GetSocket() { return m_Socket; }

@@ -62,7 +62,7 @@ const std::string &Player::BuildProtocolString()
 	return m_ProtocolString;
 };
 
-inline std::string & Player::BuildActionString()
+const std::string &Player::BuildActionString()
 {
 	if (m_Action == PICKUP || m_Action == DROP)
 	{

@@ -5,10 +5,7 @@
 #include "Engine/Application.h"
 #include "Engine/Renderer/ShaderProgram.h"
 #include <Engine/Objects/Camera.h>
-
 #include "GameObjects/Wall.h"
-#include "GameObjects/Player.h"
-
 
 void GameLayer::OnAttach() 
 {
@@ -59,10 +56,11 @@ void GameLayer::OnUpdate()
 	float speed = 0.1f;
 	m_Player->ChangeVelocity(dir);
 
-	//Send local player attributes and wait for server to respond
+	//Send local player attributes (and action(s)) and wait for server to respond
 	std::string playerSend = m_Player->BuildProtocolString();
 	playerSend.append(m_Player->BuildActionString());
 	ServerHandler::Send(playerSend);
+	m_Player->SetAction(OBJERROR);
 	std::string playerData = ServerHandler::Recieve();
 	Protocol playerProtocol(&playerData);
 	do {
@@ -229,6 +227,7 @@ void GameLayer::updatePlayer(Protocol &protocol)
 	protocol.GetData(&na);
 
 	int player_id = UNDEFINED;
+	std::vector<int> items;
 	Player* player = nullptr;
 	glm::vec3 position;
 	glm::vec3 scale;
@@ -240,7 +239,15 @@ void GameLayer::updatePlayer(Protocol &protocol)
 		protocol.Next();
 		ot = protocol.GetInstructionType();
 		at = protocol.GetAttribute();
-		if (ot != InstructionType::PLAYER)
+		if (ot == ITEM && at == ID)
+		{
+			Id id;
+			protocol.GetData(&id);
+			if (m_Items.find(id.Value) != m_Items.end())
+				items.push_back(id.Value);
+			continue;
+		}
+		else if (ot != InstructionType::PLAYER)
 			return;
 
 		if (at == Attribute::ID)
@@ -290,5 +297,10 @@ void GameLayer::updatePlayer(Protocol &protocol)
 		player->SetScale(scale);
 		player->SetPosition(position);
 		player->Update();
+		for (int id : items) {
+			Flag *item = (*m_Items.find(id)).second;
+			item->SetPosition(position);
+			item->Update();
+		}
 	}
 }
