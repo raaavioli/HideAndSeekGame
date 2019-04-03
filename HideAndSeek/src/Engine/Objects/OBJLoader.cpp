@@ -50,7 +50,6 @@ namespace Engine {
 		std::map<std::string, Model*>::const_iterator iter = modelCache.find(std::string(filename));
 
 		if (iter != modelCache.end()) {
-			CORE_INFO("Reuse Model: {0}", (*iter).first);
 			return (*iter).second;
 		} 
 		else 
@@ -162,9 +161,6 @@ namespace Engine {
 			v_MaxCoords = v_MaxTemp;
 			v_MinCoords = v_MinTemp;
 		}
-
-		CORE_INFO("Max: {0},{1},{2}", v_MaxCoords.x, v_MaxCoords.y, v_MaxCoords.z);
-		CORE_INFO("Min: {0},{1},{2}", v_MinCoords.x, v_MinCoords.y, v_MinCoords.z);
 
 		Model* m = new Model(vao, vbos, v_MinCoords, v_MaxCoords);
 		modelCache.insert(std::make_pair(std::string(filename), m));

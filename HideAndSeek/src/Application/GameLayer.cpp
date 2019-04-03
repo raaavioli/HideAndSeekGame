@@ -10,7 +10,7 @@
 void GameLayer::OnAttach() 
 {
 	std::string received = ServerHandler::Recieve();
-	APP_INFO("Received {0} bytes of data from server", received.size());
+	APP_INFO("Received {0} bytes of data from server (Game map data)", received.size());
 
 	Protocol protocol(&received);
 	bool validEntity = true;
