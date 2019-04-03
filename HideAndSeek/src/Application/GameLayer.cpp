@@ -52,9 +52,7 @@ void GameLayer::OnUpdate()
 	//Move and rotate camera based on mouse-movement and key-presses
 	handleCameraMovement(dir, (float)mouseX, (float)mouseY);
 
-	//Set player velocity based on input
-	float speed = 0.1f;
-	m_Player->ChangeVelocity(dir);
+	handlePlayerVelocity();
 
 	//Send local player attributes (and action(s)) and wait for server to respond
 	std::string playerSend = m_Player->BuildProtocolString();
@@ -66,6 +64,11 @@ void GameLayer::OnUpdate()
 	do {
 		updatePlayer(playerProtocol);
 	} while (playerProtocol.Next());
+
+	
+	Engine::Camera& cam = Engine::Application::Get().GetCamera();
+	//Set camera position to player's head
+	*cam.GetPosition() = m_Player->GetPosition() * glm::vec3(1,1,1.9);
 }
 
 void GameLayer::OnEvent(Engine::Event &e)
@@ -130,6 +133,26 @@ void GameLayer::handleCameraMovement(unsigned char dir, float mouseX, float mous
 
 	Engine::ShaderProgram::Get().BindViewProjectionMatrices(&cam);
 	Engine::ShaderProgram::Get().BindLightSource(cam.GetPosition());
+}
+
+void GameLayer::handlePlayerVelocity()
+{
+	Engine::Camera& cam = Engine::Application::Get().GetCamera();
+
+	/******************************************/
+	glm::vec3 camfrw = cam.GetForwardDirection();
+	glm::vec3 camrigh = cam.getRightDirection();
+
+	m_Player->SetVelocity(glm::vec3(0));
+	if (Engine::Input::IsKeyPressed(GLFW_KEY_W))
+		m_Player->GetVelocity() += glm::vec3(camfrw.x, camfrw.y, 0);
+	if (Engine::Input::IsKeyPressed(GLFW_KEY_S))
+		m_Player->GetVelocity() -= glm::vec3(camfrw.x, camfrw.y, 0);
+	if (Engine::Input::IsKeyPressed(GLFW_KEY_A))
+		m_Player->GetVelocity() -= glm::vec3(camrigh.x, camrigh.y, 0);
+	if (Engine::Input::IsKeyPressed(GLFW_KEY_D))
+		m_Player->GetVelocity() += glm::vec3(camrigh.x, camrigh.y, 0);
+	/****************************************/
 }
 
 void GameLayer::setWindowsMouseCenter()
@@ -299,7 +322,7 @@ void GameLayer::updatePlayer(Protocol &protocol)
 		player->Update();
 		for (int id : items) {
 			Flag *item = (*m_Items.find(id)).second;
-			item->SetPosition(position);
+			item->SetPosition(glm::vec3(position.x, position.y, 1.5));
 			item->Update();
 		}
 	}

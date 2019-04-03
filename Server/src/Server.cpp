@@ -34,9 +34,9 @@ void Server::Run()
 	Collider::Add(&m_Plane, MovementType::STATIC);
 	gameMapProtocolString.append(m_Plane.ToProtocolString());
 
-	MazeGenerator mg(20, 10);
+	MazeGenerator mg(5, 4);
 	mg.GenerateMaze();
-	mg.CutLongerWalls(3);
+	//mg.CutLongerWalls(3);
 	mg.PrintMaze();
 
 	for (Wall* w : mg.GetGameWalls(m_Plane)) {
@@ -133,7 +133,7 @@ void Server::Wait()
 		int clientSize = sizeof(client);
 		std::cout << "Trying to accept a client..." << std::endl;
 		//CHANGE PLAYER POSITION LATER, NOW IT WILL NOT WORK FOR MORE THAN TWO PLAYERS
-		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), 1 + i % 2, -27.5 + i * 20, -18.5);
+		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), 1 + i % 2, -15.5 + i * 10, -18.5);
 		m_Clients.push_back(c);
 		std::cout << "Client was accepted successfully" << std::endl;
 	}
@@ -167,7 +167,6 @@ void Server::Shutdown()
 void Server::Send(SOCKET &client, std::string &message)
 {
 	int data = send(client, message.c_str(), message.size(), 0);
-	std::cout << data << " bytes were sent to client " << client << std::endl;
 }
 
 std::string Server::Receive(SOCKET client)

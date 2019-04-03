@@ -4,7 +4,7 @@
 #include "OBJLoader.h"
 
 Player::Player()
-	: Entity(OBJLoader::GetAABB("monkey", true, true)), m_Score(0), m_Speed(0.1)
+	: Entity(OBJLoader::GetAABB("character", true, true)), m_Score(0), m_Speed(0.1)
 {
 	float charScale = 1.5;
 	DoScale(charScale);
@@ -14,12 +14,12 @@ Player::Player()
 }
 
 Player::Player(int id, int team, float xPos, float yPos, float scale)
-	: Entity(OBJLoader::GetAABB("monkey", true, true)), m_Score(0), m_Speed(0.25),
+	: Entity(OBJLoader::GetAABB("character", true, true)), m_Score(0), m_Speed(0.05),
 	m_Team(team)
 {
 	DoScale(scale);
 	float depth = scale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
-	SetPosition(glm::vec3(xPos, yPos, scale));
+	SetPosition(glm::vec3(xPos, yPos, depth));
 	SetId(id);
 }
 
@@ -150,12 +150,12 @@ void Player::ParsePlayerDrop(Protocol & protocol)
 
 	if (player_id > 0)
 	{
-		//Drop the latest picked up item. Should probably be changed later to
-		//Drop what the player wants.
-		for (auto item : m_Items) {
-			m_Items.erase(item);
-			break;
-		}
+		auto firstItem = m_Items.begin();
+
+		if(firstItem != m_Items.end())
+			m_Items.erase(firstItem);
+
+		m_Action = InstructionType::OBJERROR;
 	}
 	protocol.Next();
 	UpdatePlayerData(protocol);
@@ -187,6 +187,16 @@ const std::string &Player::ToProtocolString()
 
 	return m_ProtocolString;
 }
+void Player::Move()
+{
+	v_Transition += v_Velocity; 
+	for (auto item : m_Items)
+	{
+		item->SetPosition(glm::vec3(v_Transition.x, v_Transition.y, 0));
+		item->Update();
+	}
+}
+
 void Player::DropItem(Flag * f)
 {
 	for (auto it = m_Items.begin(); it != m_Items.end(); it++) {

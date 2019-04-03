@@ -1,5 +1,6 @@
 #include "Camera.h"
 
+#include "glm/gtc/matrix_transform.hpp"
 #include "Engine/Application.h"
 
 namespace Engine {
@@ -42,6 +43,11 @@ namespace Engine {
 			m_Pitch	+= scale_factor * -pitch;
 			m_Yaw	+= scale_factor * -yaw;
 			m_Roll	+= scale_factor * -roll;
+
+			if (m_Pitch > glm::half_pi<float>())
+				m_Pitch = glm::half_pi<float>();
+			else if(m_Pitch < -glm::half_pi<float>())
+				m_Pitch = -glm::half_pi<float>();
 		}
 	}
 
@@ -55,9 +61,6 @@ namespace Engine {
 	{
 		glm::vec3 direction = GetForwardDirection();
 		glm::vec3 right = getRightDirection();
-
-
-		// Up vector : perpendicular to both direction and right
 		glm::vec3 up = glm::cross(right, direction);
 
 		// Returns the View-matrix consisting of: The camera position, it's direction and the up-vector.
@@ -68,11 +71,18 @@ namespace Engine {
 	// Camera's forward facing direction depending on it's angles
 	glm::vec3 Camera::GetForwardDirection() 
 	{
-		return glm::vec3(
+		return getCameraBaseRotation() * glm::vec3(
 			cos(m_Pitch) * sin(m_Yaw),
 			sin(m_Pitch),
 			cos(m_Pitch) * cos(m_Yaw)
 		);
+	}
+
+	glm::vec3 Camera::GetUpDirection()
+	{
+		glm::vec3 direction = GetForwardDirection();
+		glm::vec3 right = getRightDirection();
+		return glm::cross(right, direction);
 	}
 
 	// Camera's local right pointing direction. i.e camera's local z-vector.
@@ -85,7 +95,18 @@ namespace Engine {
 		);
 
 		//Rotate to apply m_Roll onto the right-axis
-		return glm::rotate(right, (glm::mediump_float32)glm::degrees(m_Roll), GetForwardDirection());
+		return getCameraBaseRotation() * glm::rotate(right, (glm::mediump_float32)glm::degrees(m_Roll), GetForwardDirection());
+	}
+
+	glm::mat3 Camera::getCameraBaseRotation()
+	{
+		if (m_2DView)
+			return glm::mat3(1.0);
+		else
+			return glm::mat3(
+				glm::vec3(1, 0, 0),
+				glm::vec3(0, cos(-3.1415 / 2), -sin(-3.1415 / 2)),
+				glm::vec3(0, sin(-3.1415 / 2), cos(-3.1415 / 2)));
 	}
 
 }

@@ -34,6 +34,7 @@ private:
 	bool gameKeyEvent(Engine::KeyPressedEvent &e);
 	unsigned char getWASDDirection();
 	void handleCameraMovement(unsigned char dir, float mouseX, float mouseY);
+	void handlePlayerVelocity();
 	void setWindowsMouseCenter();
 	Engine::Entity* getNewEntityPointerFromType(InstructionType ot);
 	bool parseNextEntity(Protocol &protocol);

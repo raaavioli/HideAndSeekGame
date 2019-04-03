@@ -33,9 +33,10 @@ namespace Engine {
 			:	m_Position(position), m_Yaw(yaw),
 				m_Pitch(pitch), m_Roll(roll), m_Fov(fov),
 				m_NearPlane(near_plane), m_FarPlane(far_plane),
-				m_PerspectiveRatio(perspective_ratio) 
+				m_PerspectiveRatio(perspective_ratio)
 		{
 			m_IsRotatable = false;
+			m_2DView = false;
 		};	
 
 		~Camera();
@@ -46,6 +47,8 @@ namespace Engine {
 		glm::mat4 *GetProjectionMatrix();
 		glm::mat4 *GetViewMatrix();
 		glm::vec3 GetForwardDirection();
+		glm::vec3 getRightDirection();
+		glm::vec3 GetUpDirection();
 
 		inline void ToggleRotatable() { m_IsRotatable = !m_IsRotatable; }
 		inline bool IsRotatable() { return m_IsRotatable; }
@@ -61,11 +64,13 @@ namespace Engine {
 		double m_PerspectiveRatio;	// ScreenWidth / ScreenHeight
 
 		bool m_IsRotatable;
+		bool m_2DView;
+
+		glm::mat3 getCameraBaseRotation();
 
 		glm::mat4 m_ProjectionMatrix;
 		glm::mat4 m_ViewMatrix;
 
-		glm::vec3 getRightDirection();
 
 	};
 

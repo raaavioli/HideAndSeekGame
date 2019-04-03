@@ -64,18 +64,25 @@ void Collider::Interact()
 			}
 		}
 
+
 		dynamicEntities.at(i)->Move();
 		dynamicEntities.at(i)->Update();
 
 		Entity* closest;
 		for (Entity* lootable : lootableEntities) {
-			if (dynamicEntities.at(i)->CollidesWith(*lootable)) {
-				Flag* flag = (Flag*)lootable;
-				Player* player = (Player*)dynamicEntities.at(i);
-				if (player->GetAction() == PICKUP)
+			Flag* flag = (Flag*)lootable;
+			Player* player = (Player*)dynamicEntities.at(i);
+			if (player->GetAction() == PICKUP)
+			{
+
+				if (dynamicEntities.at(i)->CollidesWith(*lootable)) {
 					player->PushItem(flag);
+					player->SetAction(InstructionType::OBJERROR);
+				}
 			}
 		}
+		Player* player = (Player*)dynamicEntities.at(i);
+		player->SetAction(InstructionType::OBJERROR);
 	}
 }
 

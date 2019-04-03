@@ -3,7 +3,7 @@
 #include "GameObjects/Collision/Collider.h"
 
 Client::Client(SOCKET s, int team, float playerX, float playerY)
-	: m_Socket(s), m_Player(new Player(s, team, playerX, playerY, 2))
+	: m_Socket(s), m_Player(new Player(s, team, playerX, playerY, 3))
 {
 	Collider::Add(m_Player, MovementType::DYNAMIC);
 }

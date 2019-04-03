@@ -30,7 +30,7 @@ MazeGenerator::MazeGenerator(int width, int height)
 				c->Neighbors.insert(std::pair<Cardinal, Cell*>(NORTH, m_Maze.at((y - 1)*m_Width + x)));
 				m_Maze.at((y - 1)*m_Width + x)->Neighbors.insert(std::pair<Cardinal, Cell*>(SOUTH, c));
 				if (y == m_Height - 1)
-					c->Neighbors.insert(std::pair<Cardinal, Cell*>(SOUTH, m_Maze.at((y - 1)*m_Width + x)));
+					c->Neighbors.insert(std::pair<Cardinal, Cell*>(SOUTH, nullptr));
 			}
 			else {
 				c->Neighbors.insert(std::pair<Cardinal, Cell*>(NORTH, nullptr));
@@ -159,16 +159,28 @@ std::vector<Wall*> MazeGenerator::GetGameWalls(GroundPlane &gp)
 		int inRow = 0;
 		for (int x = 0; x < m_Width; x++)
 		{
-			if (y < m_Height - 1 && m_Maze.at(y*m_Width + x)->Neighbors.at(SOUTH) != nullptr)
+			if (m_Maze.at(y*m_Width + x)->Neighbors.at(SOUTH) != nullptr)
+			{
 				inRow++;
+				if (x == m_Width - 1) 
+				{
+					walls.push_back(new Wall(gp, xToPlane(x + 1 - inRow), yToPlane(y + 1 + 0.5), glm::vec3(xToPlane(inRow), 0.5, 3)));
+				}
+			}
 			else if(inRow > 0)
 			{
 				walls.push_back(new Wall(gp, xToPlane(x - inRow), yToPlane(y + 1 + 0.5), glm::vec3(xToPlane(inRow), 0.5, 3)));
 				inRow = 0;
 			}
 
-			if (x < m_Width - 1 && m_Maze.at(y*m_Width + x)->Neighbors.at(EAST) != nullptr)
+			if (m_Maze.at(y*m_Width + x)->Neighbors.at(EAST) != nullptr)
+			{
 				columnRowCount.at(x)++;
+				if (y == m_Height - 1)
+				{
+					walls.push_back(new Wall(gp, xToPlane(x + 1 + 0.5), yToPlane(y + 1 - columnRowCount.at(x)), glm::vec3(0.5, yToPlane(columnRowCount.at(x)), 3)));
+				}
+			}
 			else if (columnRowCount.at(x) > 0)
 			{
 				walls.push_back(new Wall(gp, xToPlane(x + 1 + 0.5), yToPlane(y - columnRowCount.at(x)), glm::vec3(0.5, yToPlane(columnRowCount.at(x)), 3)));

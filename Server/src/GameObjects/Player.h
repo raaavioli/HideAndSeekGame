@@ -14,10 +14,12 @@ public:
 	void UpdatePlayerData(Protocol &protocol);
 	const std::string &ToProtocolString() override;
 
+	void Move() override;
 	InstructionType GetAction() { return m_Action; }
 	int GetTeam() { return m_Team; }
-	inline void PushItem(Flag* f) { m_Items.insert(f); }
 	void DropItem(Flag* f);
+	inline void PushItem(Flag* f) { m_Items.insert(f); }
+	inline void SetAction(InstructionType it) { m_Action = it; }
 
 private:
 	int m_Score;

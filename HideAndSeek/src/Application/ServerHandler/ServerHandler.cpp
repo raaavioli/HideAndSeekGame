@@ -28,7 +28,6 @@ void ServerHandler::Init(std::string addr, int port)
 void ServerHandler::Send(const std::string message)
 {
 	int i = send(m_Socket, message.c_str(), message.size(), 0);
-	APP_INFO("Client sent {0} bytes", i);
 }
 
 std::string ServerHandler::Recieve()

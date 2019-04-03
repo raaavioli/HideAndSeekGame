@@ -1,7 +1,7 @@
 #include "Player.h"
 
 Player::Player()
-	: Entity(Engine::OBJLoader::GetModel("monkey", true, true)), m_Action(InstructionType::OBJERROR)
+	: Entity(Engine::OBJLoader::GetModel("character", true, true)), m_Action(InstructionType::OBJERROR)
 {
 	float charScale = 3;
 	DoScale(charScale);
