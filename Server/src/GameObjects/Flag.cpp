@@ -1,7 +1,7 @@
 #include "Flag.h"
 
-Flag::Flag(GroundPlane &gp, char team)
-	: Entity(OBJLoader::GetAABB("flag", false, false))
+Flag::Flag(GroundPlane &gp, char team, char status)
+	: Entity("flag", false, false), m_Status(status)
 {
 	if (team == 1) 
 	{
@@ -11,7 +11,7 @@ Flag::Flag(GroundPlane &gp, char team)
 	{
 		SetPosition(glm::vec3(gp.GetWidth() / 2 - 1, gp.GetHeight() / 2 - 2, 0.1));
 	}
-	DoScale(glm::vec3(3, 3, 2));
+	DoScale(glm::vec3(3, 3, 3));
 	SetId(team);
 }
 
@@ -22,16 +22,16 @@ Flag::~Flag()
 const std::string & Flag::ToProtocolString()
 {
 	static InstructionType ot = InstructionType::ITEM;
-	Numattribs n{ 3 };
+	pChar n{ 3 };
 	int entity_id = GetId();
-	Id i{ entity_id };
+	pInt i{ entity_id };
 	glm::vec3 &entity_scale = GetScale();
-	Scale s{ entity_scale.x, entity_scale.y, entity_scale.z };
+	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
 	glm::vec3 &entity_pos = GetPosition();
-	Position p{ entity_pos.x, entity_pos.y, entity_pos.z };
+	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
 
 	m_ProtocolString.clear();
-	m_ProtocolString.reserve(sizeof(Numattribs) + sizeof(Position) + sizeof(Scale) + 3 * sizeof(int));
+	m_ProtocolString.reserve(sizeof(pChar) + 2 * sizeof(pVector3) + 3 * sizeof(int));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::NUMATTRIBS, &n));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::ID, &i));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::POSITION, &p));

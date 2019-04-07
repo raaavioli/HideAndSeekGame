@@ -72,17 +72,13 @@ void Collider::Interact()
 		for (Entity* lootable : lootableEntities) {
 			Flag* flag = (Flag*)lootable;
 			Player* player = (Player*)dynamicEntities.at(i);
-			if (player->GetAction() == PICKUP)
+			if (player->GetAction() == PICKUP && dynamicEntities.at(i)->CollidesWith(*lootable))
 			{
-
-				if (dynamicEntities.at(i)->CollidesWith(*lootable)) {
-					player->PushItem(flag);
-					player->SetAction(InstructionType::OBJERROR);
-				}
+				player->PushItem(flag);
+				player->SetAction(InstructionType::OBJERROR);
 			}
 		}
-		Player* player = (Player*)dynamicEntities.at(i);
-		player->SetAction(InstructionType::OBJERROR);
+		((Player*)dynamicEntities.at(i))->SetAction(InstructionType::OBJERROR);
 	}
 }
 

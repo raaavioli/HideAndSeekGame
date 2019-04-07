@@ -20,11 +20,12 @@ enum Attribute {
 	SCALE,
 	DIRECTION,
 	STATUS,
+	MODEL,
 	NUMATTRIBS,
 };
 
 //Requires 4*3 bytes of memory
-struct Position
+struct pVector3
 {
 	float X = 0;
 	float Y = 0;
@@ -32,44 +33,28 @@ struct Position
 };
 
 //Requires 4 bytes of memory
-struct Id
+struct pInt
 {
 	int Value = 0;
 };
 
-//Requires 4 bytes of memory
-struct Numattribs
+//Requires 1 byte of memory
+struct pChar
 {
 	char Value = 0;
 };
 
-//Requires 4*3 bytes of memory
-struct Scale
-{
-	float X = 1; 
-	float Y = 1; 
-	float Z = 1;
-};
-
-//Requires 4*3 bytes of memory
-struct Direction
-{
-	float X = 0;
-	float Y = 0;
-	float Z = 0;
-};
-
 //Requires 64 bytes of memory
-struct Status
+struct pString
 {
-	char Message[64]; 
+	char Message[64];
 };
 
 class Protocol {
 
 public:
 	Protocol(std::string* string)
-		:m_BeingParsed(string) 
+		:m_BeingParsed(string)
 	{
 		m_DataPointer = 0;
 	};

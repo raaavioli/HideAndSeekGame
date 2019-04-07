@@ -39,5 +39,6 @@ private:
 	Engine::Entity* getNewEntityPointerFromType(InstructionType ot);
 	bool parseNextEntity(Protocol &protocol);
 	void updatePlayer(Protocol &protocol);
+	Player *getPlayerFromID(int);
 
 };

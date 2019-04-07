@@ -20,6 +20,8 @@
 
 #include "Client.h"
 
+#include "KeepTheFlag.h"
+
 class Server
 {
 public:
@@ -62,5 +64,8 @@ private:
 
 	void Send(SOCKET &client, std::string &message);
 	std::string Receive(SOCKET client);
+	void sendSetupData(KeepTheFlag &ktf, Client* client);
+	void processClientReceived(Client* client);
+	void processClientSend(Client* client);
 };
 

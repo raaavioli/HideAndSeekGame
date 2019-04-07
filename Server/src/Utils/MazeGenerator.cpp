@@ -79,6 +79,9 @@ void MazeGenerator::GenerateMaze() {
 }
 
 void MazeGenerator::CutLongerWalls(int wallLength) {
+	if (wallLength <= 0)
+		return;
+
 	std::vector<int> columns(m_Width, 1);
 
 	for (int y = 0; y < m_Height; y++)

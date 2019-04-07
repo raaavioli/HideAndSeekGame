@@ -36,8 +36,9 @@ namespace Engine {
 	{
 		ShaderProgram::BindVertexColor(&v_Color);
 		ShaderProgram::BindEntityWorldMatrix(&m_Transformation);
-		m_ColliderBox->Draw();
 		m_Model->DrawModel();
+		//Enable if we want to draw collision boxes. For debug.
+		//m_ColliderBox->Draw();
 	}
 
 	glm::mat4 *Entity::UpdateWorldTransformation() 

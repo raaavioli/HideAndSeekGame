@@ -4,6 +4,7 @@
 
 #include "glm/glm/glm.hpp"
 
+#include "OBJLoader.h"
 #include "Protocol.h"
 
 #include "GameObjects/Collision/BoundingBox.h"
@@ -18,7 +19,7 @@ public:
 		Update();
 	}
 
-	Entity(BoundingBox *bb);
+	Entity(const char* modelName, bool normalize, bool center);
 	~Entity();
 
 	virtual const std::string &ToProtocolString() { return ""; };
@@ -47,6 +48,7 @@ protected:
 	glm::vec3 v_Velocity;
 	glm::mat4 m_Transformation;
 	BoundingBox *m_ColliderBox;
+	std::string m_ModelName;
 	std::string m_ProtocolString;
 private:
 

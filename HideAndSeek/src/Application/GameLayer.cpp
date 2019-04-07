@@ -12,6 +12,8 @@ void GameLayer::OnAttach()
 	std::string received = ServerHandler::Recieve();
 	APP_INFO("Received {0} bytes of data from server (Game map data)", received.size());
 
+	m_Player = new Player();
+
 	Protocol protocol(&received);
 	bool validEntity = true;
 	do {
@@ -22,15 +24,6 @@ void GameLayer::OnAttach()
 		Engine::Collider::Add(e, Engine::STATIC);
 		e->Update();
 	}
-	//Needs to be rewritten, should not have to do a handshake for playerData
-	ServerHandler::Send("handshake");
-		
-	m_Player = new Player();
-	std::string playerData = ServerHandler::Recieve();
-	Protocol playerProtocol(&playerData);
-	do {
-		updatePlayer(playerProtocol);
-	} while (playerProtocol.Next());
 }
 
 void GameLayer::OnDetach() {}
@@ -184,8 +177,14 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 {
 	InstructionType ot = protocol.GetInstructionType();
 	Attribute attrib = protocol.GetAttribute();
-	APP_ASSERT(attrib == NUMATTRIBS, "First attribute of object is not NUMATTRIBS.");
-	Numattribs na;
+	if (ot == PLAYER)
+	{
+		updatePlayer(protocol);
+		return parseNextEntity(protocol);
+	}
+
+	if (attrib != NUMATTRIBS || ot == OBJERROR) return false;
+	pChar na;
 	protocol.GetData(&na);
 	APP_ASSERT(na.Value > 0 && na.Value <= NUMATTRIBS, "Invalid number of attributes");
 
@@ -203,17 +202,17 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 
 			Attribute attribToSet = protocol.GetAttribute();
 			if (attribToSet == POSITION) {
-				Position p;
+				pVector3 p;
 				protocol.GetData(&p);
 				entity->SetPosition(glm::vec3(p.X, p.Y, p.Z));
 			}
 			else if (attribToSet == SCALE) {
-				Scale s;
+				pVector3 s;
 				protocol.GetData(&s);
 				entity->SetScale(glm::vec3(s.X, s.Y, s.Z));
 			}
 			else if (attribToSet == ID) {
-				Id i;
+				pInt i;
 				protocol.GetData(&i);
 
 				if (ot == ITEM && m_Items.find(i.Value) == m_Items.end())
@@ -241,89 +240,99 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 
 void GameLayer::updatePlayer(Protocol &protocol)
 {
-	InstructionType ot = protocol.GetInstructionType();
-	Attribute at = protocol.GetAttribute();
-	if (ot != InstructionType::PLAYER || at != Attribute::NUMATTRIBS)
-		return;
+	do {
+		InstructionType ot = protocol.GetInstructionType();
+		Attribute at = protocol.GetAttribute();
+		if (ot != InstructionType::PLAYER || at != Attribute::NUMATTRIBS)
+		{
+			parseNextEntity(protocol);
+			return;
+		}
 
-	Numattribs na;
-	protocol.GetData(&na);
+		pChar na; //number attribs, change name later
+		protocol.GetData(&na);
 
-	int player_id = UNDEFINED;
-	std::vector<int> items;
-	Player* player = nullptr;
-	glm::vec3 position;
-	glm::vec3 scale;
-	for (int i = 0; i < na.Value; i++)
+		int player_id = UNDEFINED;
+		std::vector<int> items;
+		Player* player = nullptr;
+		glm::vec3 position;
+		glm::vec3 scale;
+		for (int i = 0; i < na.Value; i++)
+		{
+			if (!protocol.HasNext()) {
+				return;
+			}
+			protocol.Next();
+			ot = protocol.GetInstructionType();
+			at = protocol.GetAttribute();
+			if (ot == ITEM && at == ID)
+			{
+				pInt id;
+				protocol.GetData(&id);
+				if (m_Items.find(id.Value) != m_Items.end())
+					items.push_back(id.Value);
+				continue;
+			}
+			else if (ot != InstructionType::PLAYER)
+				return;
+
+			if (at == Attribute::ID)
+			{
+				pInt i;
+				protocol.GetData(&i);
+				player_id = i.Value;
+				player = getPlayerFromID(player_id);
+			}
+			else if (at == Attribute::POSITION)
+			{
+				pVector3 p;
+				protocol.GetData(&p);
+				position = glm::vec3(p.X, p.Y, p.Z);
+			}
+			else if (at == Attribute::SCALE)
+			{
+				pVector3 s;
+				protocol.GetData(&s);
+				scale = glm::vec3(s.X, s.Y, s.Z);
+			}
+			//Ignore any other attributes
+		}
+
+		if (player_id != UNDEFINED && player != nullptr) 
+		{
+			player->SetScale(scale);
+			player->SetPosition(position);
+			player->Update();
+			for (int id : items) {
+				Flag *item = (*m_Items.find(id)).second;
+				item->SetPosition(glm::vec3(position.x, position.y, 1.5));
+				item->Update();
+			}
+		}
+	} while (protocol.Next());
+}
+
+Player *GameLayer::getPlayerFromID(int player_id)
+{
+	if (m_Player->GetId() == UNDEFINED || m_Player->GetId() == player_id)
 	{
-		if (!protocol.HasNext()) {
-			return;
-		}
-		protocol.Next();
-		ot = protocol.GetInstructionType();
-		at = protocol.GetAttribute();
-		if (ot == ITEM && at == ID)
+		if (m_Player->GetId() == UNDEFINED)
 		{
-			Id id;
-			protocol.GetData(&id);
-			if (m_Items.find(id.Value) != m_Items.end())
-				items.push_back(id.Value);
-			continue;
+			PushModel(m_Player);
 		}
-		else if (ot != InstructionType::PLAYER)
-			return;
-
-		if (at == Attribute::ID)
-		{
-			Id i;
-			protocol.GetData(&i);
-			player_id = i.Value;
-			//Assuming the first player updated is m_Player, otherwise game will not work properly.
-			if (m_Player->GetId() == UNDEFINED || m_Player->GetId() == player_id)
-			{
-				if (m_Player->GetId() == UNDEFINED)
-				{
-					PushModel(m_Player);
-				}
-				player = m_Player;
-				player->SetId(player_id);
-			}
-			else if (m_Opponents.find(player_id) == m_Opponents.end())
-			{
-				player = new Player();
-				m_Opponents.insert(std::make_pair(player_id, player));
-				PushModel(player);
-				player->SetId(player_id);
-			}
-			else
-			{
-				player = m_Opponents.at(player_id);
-			}
-		}
-		else if (at == Attribute::POSITION)
-		{
-			Position p;
-			protocol.GetData(&p);
-			position = glm::vec3(p.X, p.Y, p.Z);
-		}
-		else if (at == Attribute::SCALE)
-		{
-			Scale s;
-			protocol.GetData(&s);
-			scale = glm::vec3(s.X, s.Y, s.Z);
-		}
-		//Ignore any other attributes
+		m_Player->SetId(player_id);
+		return m_Player;
 	}
-
-	if (player_id != UNDEFINED && player != nullptr) 
+	else if (m_Opponents.find(player_id) == m_Opponents.end())
 	{
-		player->SetScale(scale);
-		player->SetPosition(position);
-		player->Update();
-		for (int id : items) {
-			Flag *item = (*m_Items.find(id)).second;
-			item->SetPosition(glm::vec3(position.x, position.y, 1.5));
-			item->Update();
-		}
+		Player* player = new Player();
+		m_Opponents.insert(std::make_pair(player_id, player));
+		PushModel(player);
+		player->SetId(player_id);
+		return player;
+	}
+	else
+	{
+		return m_Opponents.at(player_id);
 	}
 }

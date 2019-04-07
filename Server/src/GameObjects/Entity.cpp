@@ -2,8 +2,9 @@
 
 #include "glm/glm/gtc/matrix_transform.hpp"
 	
-Entity::Entity(BoundingBox *bb)
-	: m_ColliderBox(bb)
+Entity::Entity(const char* modelName, bool normalize, bool center)
+	: m_ColliderBox(OBJLoader::GetAABB(modelName, normalize, center)),
+	m_ModelName(modelName)
 {
 	v_Rotation		= glm::vec3(0.0, 0.0, 0.0);
 	v_Transition	= glm::vec3(0.0, 0.0, 0.0);

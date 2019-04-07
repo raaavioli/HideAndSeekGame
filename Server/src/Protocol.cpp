@@ -12,46 +12,32 @@ std::string Protocol::Stringify(InstructionType object, Attribute attrib, void *
 		{
 			case ID: 
 			{
-				Id *id = ((Id*)data);
+				pInt *id = ((pInt*)data);
 				ret.append((char*)&(id->Value), 4);
 				break;
 
 			}
 			case POSITION:
+			case DIRECTION:
+			case SCALE:
 			{
-				Position *pos = ((Position*)data);
+				pVector3 *pos = ((pVector3*)data);
 				ret.append((char*)&pos->X, 4);
 				ret.append((char*)&pos->Y, 4);
 				ret.append((char*)&pos->Z, 4);
 				break;
 			}
-			case DIRECTION:
-			{
-				Direction *dir = ((Direction*)data);
-				ret.append((char*)&dir->X, 4);
-				ret.append((char*)&dir->Y, 4);
-				ret.append((char*)&dir->Z, 4);
-				break;
-			}
-			case SCALE:
-			{
-				Scale *scale = ((Scale*)data);
-				ret.append((char*)&scale->X, 4);
-				ret.append((char*)&scale->Y, 4);
-				ret.append((char*)&scale->Z, 4);
-				break;
-			}
 			case STATUS:
 			{
-				Status *stat = ((Status*)data);
-				ret.append(stat->Message, sizeof(Status));
+				pString *stat = ((pString*)data);
+				ret.append(stat->Message, sizeof(pString));
 				break;
 			}
 			case NUMATTRIBS:
 			{
-				Numattribs *stat = ((Numattribs*)data);
-				int s = sizeof(Numattribs);
-				ret.append((char*)&stat->Value, sizeof(Numattribs));
+				pChar *stat = ((pChar*)data);
+				int s = sizeof(pChar);
+				ret.append((char*)&stat->Value, sizeof(pChar));
 				break;
 			}
 			default:
@@ -112,38 +98,28 @@ int Protocol::GetData(void *out_data)
 	{
 		case ID:
 		{
-			*((Id*)out_data) = *((Id*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(Id);
+			*((pInt*)out_data) = *((pInt*)&m_BeingParsed->at(m_DataPointer + 2));
+			size = sizeof(pInt);
 			break;
 		}
 		case POSITION:
-		{
-			*((Position*)out_data) = *((Position*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(Position);
-			break;
-		}
 		case SCALE:
-		{
-			*((Scale*)out_data) = *((Scale*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(Scale);
-			break;
-		}
 		case DIRECTION:
 		{
-			*((Direction*)out_data) = *((Direction*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(Direction);
+			*((pVector3*)out_data) = *((pVector3*)&m_BeingParsed->at(m_DataPointer + 2));
+			size = sizeof(pVector3);
 			break;
 		}
 		case STATUS:
 		{
-			*((Status*)out_data) = *((Status*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(Status);
+			*((pString*)out_data) = *((pString*)&m_BeingParsed->at(m_DataPointer + 2));
+			size = sizeof(pString);
 			break;
 		}
 		case NUMATTRIBS:
 		{
-			*((Numattribs*)out_data) = *((Numattribs*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(Numattribs);
+			*((pChar*)out_data) = *((pChar*)&m_BeingParsed->at(m_DataPointer + 2));
+			size = sizeof(pChar);
 			break;
 		}
 		default:
@@ -165,27 +141,21 @@ int Protocol::getObjectSize()
 	{
 		case ID:
 		{
-			return sizeof(Id) + 2;
+			return sizeof(pInt) + 2;
 		}
 		case POSITION:
-		{
-			return sizeof(Position) + 2;
-		}
 		case SCALE:
-		{
-			return sizeof(Scale) + 2;
-		}
 		case DIRECTION:
 		{
-			return sizeof(Direction) + 2;
+			return sizeof(pVector3) + 2;
 		}
 		case STATUS:
 		{
-			return sizeof(Status) + 2;
+			return sizeof(pString) + 2;
 		}
 		case NUMATTRIBS:
 		{
-			return sizeof(Numattribs) + 2;
+			return sizeof(pChar) + 2;
 		}
 		default:
 			return ATTRIBERROR;

@@ -4,7 +4,7 @@
 #include "OBJLoader.h"
 
 Player::Player()
-	: Entity(OBJLoader::GetAABB("character", true, true)), m_Score(0), m_Speed(0.1)
+	: Entity("character", true, true), m_Score(0), m_Speed(0.1)
 {
 	float charScale = 1.5;
 	DoScale(charScale);
@@ -14,7 +14,7 @@ Player::Player()
 }
 
 Player::Player(int id, int team, float xPos, float yPos, float scale)
-	: Entity(OBJLoader::GetAABB("character", true, true)), m_Score(0), m_Speed(0.05),
+	: Entity("character", true, true), m_Score(0), m_Speed(0.05),
 	m_Team(team)
 {
 	DoScale(scale);
@@ -53,7 +53,7 @@ void Player::ParsePlayerAttribs(Protocol &protocol)
 {
 	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
-	Numattribs na;
+	pChar na;
 	protocol.GetData(&na);
 
 	int player_id = -1;
@@ -71,7 +71,7 @@ void Player::ParsePlayerAttribs(Protocol &protocol)
 
 		if (at == Attribute::ID)
 		{
-			Id i;
+			pInt i;
 			protocol.GetData(&i);
 			player_id = i.Value;
 			if (GetId() != player_id)
@@ -82,7 +82,7 @@ void Player::ParsePlayerAttribs(Protocol &protocol)
 		}
 		if (at == Attribute::DIRECTION)
 		{
-			Direction v;
+			pVector3 v;
 			protocol.GetData(&v);
 			velocity = glm::vec3(v.X, v.Y, v.Z);
 		}
@@ -108,7 +108,7 @@ void Player::ParsePlayerPickup(Protocol & protocol)
 
 	if (at == Attribute::ID)
 	{
-		Id i;
+		pInt i;
 		protocol.GetData(&i);
 		player_id = i.Value;
 		if (GetId() != player_id)
@@ -138,7 +138,7 @@ void Player::ParsePlayerDrop(Protocol & protocol)
 
 	if (at == Attribute::ID)
 	{
-		Id i;
+		pInt i;
 		protocol.GetData(&i);
 		player_id = i.Value;
 		if (GetId() != player_id)
@@ -150,11 +150,11 @@ void Player::ParsePlayerDrop(Protocol & protocol)
 
 	if (player_id > 0)
 	{
-		auto firstItem = m_Items.begin();
-
-		if(firstItem != m_Items.end())
-			m_Items.erase(firstItem);
-
+		if(m_Items.size() > 0)
+		{
+			auto firstItem = m_Items.begin();
+			DropItem(*firstItem);
+		}
 		m_Action = InstructionType::OBJERROR;
 	}
 	protocol.Next();
@@ -164,29 +164,33 @@ void Player::ParsePlayerDrop(Protocol & protocol)
 const std::string &Player::ToProtocolString()
 {
 	static InstructionType ot = InstructionType::PLAYER;
-	Numattribs n{ 3 + m_Items.size() };
+	pChar n{ 4 + m_Items.size() };
 	int entity_id = GetId();
-	Id i{ entity_id };
+	pInt i{ entity_id };
 	glm::vec3 &entity_scale = GetScale();
-	Scale s{ entity_scale.x, entity_scale.y, entity_scale.z };
+	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
 	glm::vec3 &entity_pos = GetPosition();
-	Position p{ entity_pos.x, entity_pos.y, entity_pos.z };
+	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
+	std::string score = std::to_string(GetScore());
+	pString sc;
+	std::strcpy(sc.Message, score.c_str());
 
 	m_ProtocolString.clear();
-	m_ProtocolString.reserve(sizeof(Numattribs) + sizeof(Position) + sizeof(Scale) + 3 * sizeof(int));
+	m_ProtocolString.reserve(sizeof(pChar) + 2 * sizeof(pVector3) + 3 * sizeof(int));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::NUMATTRIBS, &n));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::ID, &i));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::POSITION, &p));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::SCALE, &s));
+	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::STATUS, &sc));
 
 	for (auto item : m_Items)
 	{
-		Id itemId{ item->GetId() };
+		pInt itemId{ item->GetId() };
 		m_ProtocolString.append(Protocol::Stringify(ITEM, ID, &itemId));
 	}
-
 	return m_ProtocolString;
 }
+
 void Player::Move()
 {
 	v_Transition += v_Velocity; 
@@ -199,10 +203,24 @@ void Player::Move()
 
 void Player::DropItem(Flag * f)
 {
-	for (auto it = m_Items.begin(); it != m_Items.end(); it++) {
-		if((*it) == f)
+	if (m_Items.size() > 0) 
+	{
+		for (auto it = m_Items.begin(); it != m_Items.end(); it++) 
 		{
-			m_Items.erase(it);
+			if ((*it) == f)
+			{
+				m_Items.erase(it);
+				f->RemoveStatus(Flag::OWNED);
+				break;
+			}
 		}
+	}
+}
+void Player::PushItem(Flag * f)
+{
+	if (!f->isOwned())
+	{
+		m_Items.insert(f);
+		f->SetStatus(Flag::OWNED);
 	}
 };

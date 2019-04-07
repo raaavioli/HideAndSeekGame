@@ -1,13 +1,9 @@
 #include "Server.h"
-#include <sstream>
 #include <iostream>
+#include <thread>
 
 #include "GameObjects/Collision/Collider.h"
 #include "Protocol.h"
-#include "Utils/MazeGenerator.h"
-#include "GameObjects/GroundPlane.h"
-#include "GameObjects/Wall.h"
-#include "GameObjects/Flag.h"
 
 void Server::Init()
 {
@@ -23,81 +19,6 @@ void Server::Init()
 	}
 
 	if (CreateSocket() == INVALID_SOCKET) std::cerr << "Socket was not successfully created" << std::endl;
-}
-
-void Server::Run()
-{
-	m_Running = true;
-	std::string gameMapProtocolString = std::string();
-
-	GroundPlane &m_Plane = GroundPlane(60, 40);
-	Collider::Add(&m_Plane, MovementType::STATIC);
-	gameMapProtocolString.append(m_Plane.ToProtocolString());
-
-	MazeGenerator mg(5, 4);
-	mg.GenerateMaze();
-	//mg.CutLongerWalls(3);
-	mg.PrintMaze();
-
-	for (Wall* w : mg.GetGameWalls(m_Plane)) {
-		Collider::Add(w, MovementType::STATIC);
-		gameMapProtocolString.append(w->ToProtocolString());
-		w->Update();
-	}
-
-	Flag *red = new Flag(m_Plane, 1);
-	gameMapProtocolString.append(red->ToProtocolString());
-	red->Update();
-	Flag *blue = new Flag(m_Plane, 2);
-	gameMapProtocolString.append(blue->ToProtocolString());
-	blue->Update();
-	Collider::Add(red, MovementType::LOOTABLE);
-	Collider::Add(blue, MovementType::LOOTABLE);
-
-	for (Client* client : m_Clients)
-	{
-		SOCKET s = client->GetSocket();
-		Send(s, gameMapProtocolString);
-
-		//Receive handshake that client is done reading map
-		Receive(client->GetSocket());
-
-		//Send player details.
-		//First player sent is the client's main player, the rest are sent for player positions
-		std::string playerData = client->GetPlayer()->ToProtocolString();
-		for (Client* other : m_Clients)
-		{
-			if (other->GetSocket() == client->GetSocket()) continue;
-			playerData.append(other->GetPlayer()->ToProtocolString());
-		}
-		Send(s, playerData);
-	}
-
-	while (m_Running)
-	{
-		//Receive instructions from each client
-		for (Client* client : m_Clients)
-		{
-			std::string playerData = Receive(client->GetSocket());
-			Protocol protocol(&playerData);
-			client->GetPlayer()->UpdatePlayerData(protocol);
-		}
-
-		Collider::Interact();
-
-		for (Client* client : m_Clients)
-		{
-			std::string playerData = client->GetPlayer()->ToProtocolString();
-			for (Client* other : m_Clients)
-			{
-				if (other->GetSocket() == client->GetSocket()) continue;
-				playerData.append(other->GetPlayer()->ToProtocolString());
-			}
-			SOCKET s = client->GetSocket();
-			Send(s, playerData);
-		}
-	}
-	std::cout << "The server got shut down!" << std::endl;
 }
 
 SOCKET Server::CreateSocket()
@@ -127,7 +48,7 @@ SOCKET Server::CreateSocket()
 
 void Server::Wait()
 {
-	for (int i = 0; i < m_ClientCount; i++) 
+	for (int i = 0; i < m_ClientCount; i++)
 	{
 		sockaddr_in client;
 		int clientSize = sizeof(client);
@@ -139,7 +60,73 @@ void Server::Wait()
 	}
 }
 
-/* Note: For POSIX, typedef SOCKET as an int. */
+void Server::Run()
+{
+	m_Running = true;
+
+	KeepTheFlag ktf(60, 40, 20, 12, 2);
+
+	for (Client* client : m_Clients)
+	{
+		sendSetupData(ktf, client);
+	}
+
+	while (m_Running)
+	{
+		//Receive instructions from each client
+		for (Client* client : m_Clients)
+		{
+			processClientReceived(client);
+		}
+
+		Collider::Interact();
+
+		for (Client* client : m_Clients)
+		{
+			processClientSend(client);
+		}
+	}
+
+	Shutdown();
+	std::cout << "The server got shut down!" << std::endl;
+}
+
+void Server::processClientReceived(Client* client) 
+{
+	std::string playerData = Receive(client->GetSocket());
+	Protocol protocol(&playerData);
+	client->GetPlayer()->UpdatePlayerData(protocol);
+}
+
+void Server::processClientSend(Client* client) 
+{
+	std::string playerData = client->GetPlayer()->ToProtocolString();
+	for (Client* other : m_Clients)
+	{
+		if (other->GetSocket() == client->GetSocket()) continue;
+		playerData.append(other->GetPlayer()->ToProtocolString());
+	}
+	SOCKET s = client->GetSocket();
+	Send(s, playerData);
+}
+
+void Server::sendSetupData(KeepTheFlag &ktf, Client* client)
+{
+	SOCKET s = client->GetSocket();
+	//Add KTF-game mode initial data
+	std::string initialDataTransfer = ktf.GetGameMap();
+
+	//Add player data to the data transfer
+	initialDataTransfer.append(client->GetPlayer()->ToProtocolString());
+	for (Client* other : m_Clients)
+	{
+		if (other->GetSocket() == client->GetSocket()) continue;
+		//Add data about the other players to the data transfer
+		initialDataTransfer.append(other->GetPlayer()->ToProtocolString());
+	}
+	Send(s, initialDataTransfer);
+}
+
 int Server::CloseSocket()
 {
 	int status = 0;

@@ -7,11 +7,25 @@
 class Flag : public Entity 
 {
 public:
-	Flag(GroundPlane &gp, char team);
+	enum ItemStatus
+	{
+		OWNED = 1,
+		ACTIVE = 2,
+		USABLE = 4,
+	};
+
+	Flag(GroundPlane &gp, char team, char status);
 	~Flag();
 
 	const std::string &ToProtocolString() override;
 
+	inline bool isOwned() { return m_Status & OWNED; }
+	inline bool isActive() { return m_Status & ACTIVE; }
+	inline bool isUsable() { return m_Status & USABLE; }
+	inline void SetStatus(ItemStatus is) { m_Status |= is; }
+	inline void RemoveStatus(ItemStatus is) { m_Status &= ~is; }
+
 private:
+	char m_Status;
 	char m_Team;
 };

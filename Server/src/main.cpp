@@ -8,7 +8,10 @@ void main()
 {
 	OBJLoader::Init();
 	Collider::Init();
-	Server server = Server("127.0.0.1", 8080, 1);
+	int clients;
+	std::cout << "Enter number of participating clients: ";
+	std::cin >> clients;
+	Server server = Server("127.0.0.1", 8080, clients);
 	
 	server.Run();
 
