@@ -1,4 +1,5 @@
 #include "Collider.h"
+#include "BoundingBox.h"
 
 #include "GameObjects/Flag.h"
 #include "GameObjects/Player.h"
@@ -26,19 +27,27 @@ void Collider::Interact()
 
 	for (int i = 0; i < dynamicEntities.size(); i++) 
 	{
-		Entity dynamicCopy = *dynamicEntities.at(i);
+		Player dynamicCopy = *((Player*)dynamicEntities.at(i));
 		float x = dynamicCopy.GetVelocity().x;
 		dynamicCopy.Move();
-
-		//Probably don't want to update this for every object every time.
 		dynamicCopy.Update();
 
 		for (int j = 0; j < dynamicEntities.size(); j++) {
 			if (i == j) continue;
-			Entity dynamicOtherCopy = *dynamicEntities.at(j);
+			Player dynamicOtherCopy = *((Player*)dynamicEntities.at(j));
 			dynamicOtherCopy.Move();
 			//Probably don't want to update this for every object every time.
 			dynamicOtherCopy.Update();
+
+			if (dynamicCopy.GetAction() == ATTACK && !dynamicCopy.IsFlying() && !dynamicOtherCopy.IsFlying())
+			{
+				static int hitRange = 2; //Should not be hard-coded here
+				if (glm::distance(dynamicCopy.GetPosition(), dynamicOtherCopy.GetPosition()) < hitRange)
+				{
+					((Player*)dynamicEntities.at(j))->SetFlying();
+					((Player*)dynamicEntities.at(i))->AddScore(10);
+				}
+			}
 
 			if (dynamicCopy.CollidesWith(dynamicOtherCopy)) {
 				if (dynamicCopy.GetColliderBox().GetColliderType() == tAABB
@@ -48,7 +57,7 @@ void Collider::Interact()
 
 					dynamicEntities.at(i)->SetVelocity(dynamicCopy.GetVelocity());
 				}
-			}		
+			}
 		}
 
 		for (int j = 0; j < staticEntities.size(); j++) {
@@ -68,7 +77,6 @@ void Collider::Interact()
 		dynamicEntities.at(i)->Move();
 		dynamicEntities.at(i)->Update();
 
-		Entity* closest;
 		for (Entity* lootable : lootableEntities) {
 			Flag* flag = (Flag*)lootable;
 			Player* player = (Player*)dynamicEntities.at(i);

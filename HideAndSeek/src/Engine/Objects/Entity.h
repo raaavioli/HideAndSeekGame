@@ -41,11 +41,11 @@ namespace Engine {
 	protected:
 		Model * m_Model;
 		BoundingBox *m_ColliderBox;
+		glm::vec3 v_Color;
 	private:
 		int m_Id;
 		glm::vec3 v_Rotation;
 		glm::vec3 v_Transition;
-		glm::vec3 v_Color;
 		glm::vec3 v_Scale;
 		glm::vec3 v_Velocity;
 		glm::mat4 m_Transformation;

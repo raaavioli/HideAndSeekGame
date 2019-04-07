@@ -54,7 +54,7 @@ void Server::Wait()
 		int clientSize = sizeof(client);
 		std::cout << "Trying to accept a client..." << std::endl;
 		//CHANGE PLAYER POSITION LATER, NOW IT WILL NOT WORK FOR MORE THAN TWO PLAYERS
-		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize), 1 + i % 2, -15.5 + i * 10, -18.5);
+		Client *c = new Client(accept(m_ServerFD, (sockaddr*)&client, &clientSize));
 		m_Clients.push_back(c);
 		std::cout << "Client was accepted successfully" << std::endl;
 	}
@@ -64,7 +64,7 @@ void Server::Run()
 {
 	m_Running = true;
 
-	KeepTheFlag ktf(60, 40, 20, 12, 2);
+	KeepTheFlag ktf(60, 40, 15, 10, 3);
 
 	for (Client* client : m_Clients)
 	{
@@ -76,14 +76,14 @@ void Server::Run()
 		//Receive instructions from each client
 		for (Client* client : m_Clients)
 		{
-			processClientReceived(client);
+			processClientReceived(ktf, client);
 		}
 
-		Collider::Interact();
+		ktf.Update();
 
 		for (Client* client : m_Clients)
 		{
-			processClientSend(client);
+			processClientSend(ktf, client);
 		}
 	}
 
@@ -91,21 +91,23 @@ void Server::Run()
 	std::cout << "The server got shut down!" << std::endl;
 }
 
-void Server::processClientReceived(Client* client) 
+void Server::processClientReceived(KeepTheFlag &ktf, Client* client)
 {
 	std::string playerData = Receive(client->GetSocket());
 	Protocol protocol(&playerData);
-	client->GetPlayer()->UpdatePlayerData(protocol);
+	ktf.GetPlayer(client->GetSocket())->UpdatePlayerData(protocol);
 }
 
-void Server::processClientSend(Client* client) 
+void Server::processClientSend(KeepTheFlag &ktf, Client* client)
 {
-	std::string playerData = client->GetPlayer()->ToProtocolString();
+	int socketValue = (int)client->GetSocket();
+	std::string playerData = ktf.GetPlayer(socketValue)->ToProtocolString();
 	for (Client* other : m_Clients)
 	{
 		if (other->GetSocket() == client->GetSocket()) continue;
-		playerData.append(other->GetPlayer()->ToProtocolString());
+		playerData.append(ktf.GetPlayer((int)other->GetSocket())->ToProtocolString());
 	}
+	playerData.append(ktf.GetGameStatus());
 	SOCKET s = client->GetSocket();
 	Send(s, playerData);
 }
@@ -113,16 +115,17 @@ void Server::processClientSend(Client* client)
 void Server::sendSetupData(KeepTheFlag &ktf, Client* client)
 {
 	SOCKET s = client->GetSocket();
+	int sockValue = (int)s;
 	//Add KTF-game mode initial data
 	std::string initialDataTransfer = ktf.GetGameMap();
 
 	//Add player data to the data transfer
-	initialDataTransfer.append(client->GetPlayer()->ToProtocolString());
+	initialDataTransfer.append(ktf.GetPlayer(sockValue)->ToProtocolString());
 	for (Client* other : m_Clients)
 	{
 		if (other->GetSocket() == client->GetSocket()) continue;
 		//Add data about the other players to the data transfer
-		initialDataTransfer.append(other->GetPlayer()->ToProtocolString());
+		initialDataTransfer.append(ktf.GetPlayer((int)other->GetSocket())->ToProtocolString());
 	}
 	Send(s, initialDataTransfer);
 }

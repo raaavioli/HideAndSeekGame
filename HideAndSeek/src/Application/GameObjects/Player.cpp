@@ -3,6 +3,7 @@
 Player::Player()
 	: Entity(Engine::OBJLoader::GetModel("character", true, true)), m_Action(InstructionType::OBJERROR)
 {
+	v_Color = glm::vec3(0.1, 0.1, 0.1);
 	float charScale = 3;
 	DoScale(charScale);
 	float depth = charScale * m_Model->GetMaxPos().z;
@@ -62,7 +63,7 @@ const std::string &Player::BuildProtocolString()
 ********/
 const std::string &Player::BuildActionString()
 {
-	if (m_Action == PICKUP || m_Action == DROP)
+	if (m_Action == PICKUP || m_Action == DROP || m_Action == ATTACK)
 	{
 		pChar n{ 1 };
 		int entity_id = GetId();

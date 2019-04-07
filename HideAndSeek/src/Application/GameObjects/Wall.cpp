@@ -1,5 +1,5 @@
 #include "Wall.h"
-
+#include <random>
 
 Wall::Wall(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
 	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
@@ -16,7 +16,9 @@ Wall::Wall(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
 
 Wall::Wall()
 	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
-{};
+{
+	v_Color = glm::vec3(0.05, 0, 0);
+};
 
 Wall::~Wall()
 {

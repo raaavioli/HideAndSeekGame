@@ -31,23 +31,7 @@ namespace Engine {
 
 	void Application::Run()
 	{
-		long currentTime = std::clock();
-		long elapsed = 0;
-		int frameCounter = 0;
-
 		while (m_Running) {
-			long now = std::clock();
-			elapsed += (now - currentTime);
-			currentTime = now;
-			frameCounter++;
-			if (elapsed > 1000)
-			{
-				CORE_INFO("FPS: {0}", frameCounter);
-				frameCounter = 0;
-				elapsed = 0;
-			}
-
-
 			for (auto it = m_LayerStack.StackEnd(); it != m_LayerStack.StackBegin(); )
 			{
 				(*--it)->OnUpdate();

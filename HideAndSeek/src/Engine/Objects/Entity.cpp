@@ -11,7 +11,7 @@ namespace Engine {
 		m_ColliderBox	= new AABB(model->GetMinPos(), model->GetMaxPos());
 		v_Rotation		= glm::vec3(0.0, 0.0, 0.0);
 		v_Transition	= glm::vec3(0.0, 0.0, 0.0);
-		v_Color			= glm::vec3(1.0, 0.0, 1.0);
+		v_Color			= glm::vec3(1.0, 1.0, 1.0);
 		v_Scale			= glm::vec3(1.0, 1.0, 1.0);
 		v_Velocity		= glm::vec3(0.0, 0.0, 0.0);
 

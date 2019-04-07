@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "GameObjects/Entity.h"
+class Entity;
 
 enum MovementType {
 	DYNAMIC,

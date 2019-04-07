@@ -15,11 +15,10 @@ typedef int SOCKET
 
 class Client {
 public:
-	Client(SOCKET s, int team, float playerX, float playerY);
+	Client(SOCKET s);
 	~Client();
 
 	inline SOCKET GetSocket() { return m_Socket; }
-	inline Player *GetPlayer() { return m_Player; }
 
 private:
 	SOCKET m_Socket;

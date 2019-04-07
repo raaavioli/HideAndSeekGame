@@ -4,20 +4,25 @@
 #include "Entity.h"
 #include "Flag.h"
 
+static const double m_NormalSpeed = 0.1f;
+static const double m_FlagSpeed = 0.15f;
+
 class Player : public Entity
 {
 public:
 	Player();
-	Player(int id, int team, float xPos, float yPos, float scale);
+	Player(int id, double xPos, double yPos, float scale);
 	~Player();
 
 	void UpdatePlayerData(Protocol &protocol);
 	const std::string &ToProtocolString() override;
 
-	void DropItem(Flag* f);
+	std::set<Flag*>::iterator DropItem(Flag* f);
 	void PushItem(Flag* f);
+	bool HasItem(Flag* f);
 	void Move() override;
-	inline int GetTeam() { return m_Team; }
+	void SetFlying();
+	inline bool IsFlying() { return m_IsFlying;  }
 	inline int GetScore() { return m_Score; }
 	inline void AddScore(int score) { m_Score += score; }
 	inline void SetAction(InstructionType it) { m_Action = it; }
@@ -25,13 +30,12 @@ public:
 
 private:
 	int m_Score;
-	int m_Team;
 	float m_Speed;
+	bool m_IsFlying;
 	InstructionType m_Action;
 	std::set<Flag*> m_Items;
 
 	void ParsePlayerAttribs(Protocol &protocol);
-	void ParsePlayerPickup(Protocol &protocol);
-	void ParsePlayerDrop(Protocol &protocol);
+	void ParsePlayerAction(Protocol &protocol);
 };
 

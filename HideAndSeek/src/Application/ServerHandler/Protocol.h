@@ -10,6 +10,8 @@ enum InstructionType {
 	ITEM,
 	PICKUP,
 	DROP,
+	ATTACK,
+	MESSAGE,
 	NUMOBJTYPES,
 };
 
@@ -44,10 +46,10 @@ struct pChar
 	char Value = 0;
 };
 
-//Requires 64 bytes of memory
+//Requires 256 bytes of memory
 struct pString
 {
-	char Message[64];
+	char Message[256];
 };
 
 class Protocol {

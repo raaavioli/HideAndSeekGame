@@ -30,15 +30,21 @@ private:
 	std::map<int, Player*> m_Opponents;
 	std::map<int, Flag*> m_Items;
 	glm::vec3 m_LightSource;
+	std::string m_GameStatus;
+	long currentTime;
+	long elapsed;
+	int frameCounter;
 
 	bool gameKeyEvent(Engine::KeyPressedEvent &e);
 	unsigned char getWASDDirection();
-	void handleCameraMovement(unsigned char dir, float mouseX, float mouseY);
+	void updateConsole();
+	void handleCameraMovement();
 	void handlePlayerVelocity();
 	void setWindowsMouseCenter();
 	Engine::Entity* getNewEntityPointerFromType(InstructionType ot);
 	bool parseNextEntity(Protocol &protocol);
 	void updatePlayer(Protocol &protocol);
+	void printMessage(Protocol& protocol);
 	Player *getPlayerFromID(int);
 
 };

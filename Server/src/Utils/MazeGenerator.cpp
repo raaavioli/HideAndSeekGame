@@ -1,9 +1,38 @@
 #include "MazeGenerator.h"
 
 #include <stack>
-#include <stdlib.h>
 #include <iostream>
 #include <ctime>
+
+enum Cardinal {
+	UNKNOWN = -1,
+	NORTH,
+	EAST,
+	SOUTH,
+	WEST,
+};
+
+Cardinal MazeGenerator::Opposite(Cardinal d)
+{
+	switch (d) {
+	case NORTH:
+		return SOUTH;
+	case SOUTH:
+		return NORTH;
+	case EAST:
+		return WEST;
+	case WEST:
+		return EAST;
+	default:
+		return UNKNOWN;
+	}
+}
+
+struct Cell {
+	int X, Y;
+	std::map<Cardinal, Cell*> Neighbors;
+	bool isVisited = false;
+};
 
 MazeGenerator::MazeGenerator(int width, int height)
 	: m_Width(width), m_Height(height), m_Size(width*height)
@@ -49,7 +78,7 @@ MazeGenerator::~MazeGenerator()
 
 void MazeGenerator::GenerateMaze() {
 	std::stack<Cell> queue;
-	std::srand(std::time(0));
+	std::srand((unsigned int)std::time(0));
 	int xStart = rand() % m_Width;
 	int yStart = rand() % m_Height;
 
@@ -60,8 +89,8 @@ void MazeGenerator::GenerateMaze() {
 
 	while (queue.size() > 0)
 	{
-		Cell& neighbor = GotoUnvisitedNeighbor(current);
-		if (neighbor.isVisited)
+		Cell *neighbor = GotoUnvisitedNeighbor(current);
+		if (neighbor == nullptr || neighbor->isVisited)
 		{
 			//All valid neighbors for current were visited
 			queue.pop();
@@ -71,8 +100,8 @@ void MazeGenerator::GenerateMaze() {
 		}
 		else
 		{
-			m_Maze.at(neighbor.Y * m_Width + neighbor.X)->isVisited = true;
-			current = neighbor;
+			m_Maze.at(neighbor->Y * m_Width + neighbor->X)->isVisited = true;
+			current = *neighbor;
 			queue.push(current);
 		}
 	}
@@ -203,7 +232,7 @@ std::vector<Wall*> MazeGenerator::GetGameWalls(GroundPlane &gp)
 	return walls;
 }
 
-Cell &MazeGenerator::GotoUnvisitedNeighbor(const Cell from)
+Cell* MazeGenerator::GotoUnvisitedNeighbor(Cell from)
 {
 	static Cardinal dirs[4] = { NORTH, EAST, SOUTH, WEST };
 
@@ -222,13 +251,13 @@ Cell &MazeGenerator::GotoUnvisitedNeighbor(const Cell from)
 				//Break wall between 'from' and the non visited neighbor
 				//return the neighbor and use it as the new 'current'
 				destroyWall(dir, m_Maze.at(from.Y*m_Width + from.X));
-				return *neighbor;
+				return neighbor;
 			}
 		}
 		//Otherwise, try next direction if that one is valid
 	}
 	//If no directions were valid, return invalid cell which is already "visited"
-	return Cell{ -1,-1, std::map<Cardinal, Cell*>(), true };
+	return nullptr;
 }
 
 void MazeGenerator::destroyWall(Cardinal d, Cell* cell)

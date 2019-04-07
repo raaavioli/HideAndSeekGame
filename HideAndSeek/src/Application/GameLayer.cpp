@@ -1,4 +1,6 @@
 #include "GameLayer.h"
+#include <ctime>
+#include <stdlib.h>
 
 #include <glm/gtc/constants.hpp>
 
@@ -24,27 +26,18 @@ void GameLayer::OnAttach()
 		Engine::Collider::Add(e, Engine::STATIC);
 		e->Update();
 	}
+
+	currentTime = std::clock();
+	elapsed = 0;
+	frameCounter = 0;
 }
 
 void GameLayer::OnDetach() {}
 
 void GameLayer::OnUpdate()
 {
-	//Check mouse movement
-	Engine::Window *window = &Engine::Application::Get().GetWindow();
-	double windowHalfWidth = window->GetWidth() / 2;
-	double windowHalfHeight = window->GetHeight() / 2;
-	auto[mouseX, mouseY] = Engine::Input::GetMousePosition();
-
-	mouseX -= windowHalfWidth;
-	mouseY -= windowHalfHeight;
-
-	//Check WASD-keys pressed
-	unsigned char dir = getWASDDirection();
-
 	//Move and rotate camera based on mouse-movement and key-presses
-	handleCameraMovement(dir, (float)mouseX, (float)mouseY);
-
+	handleCameraMovement();
 	handlePlayerVelocity();
 
 	//Send local player attributes (and action(s)) and wait for server to respond
@@ -52,15 +45,20 @@ void GameLayer::OnUpdate()
 	playerSend.append(m_Player->BuildActionString());
 	ServerHandler::Send(playerSend);
 	m_Player->SetAction(OBJERROR);
+
+	//Receive response with new data from server
 	std::string playerData = ServerHandler::Recieve();
+
+	//Run the data through the protocol and parse the instructions
 	Protocol playerProtocol(&playerData);
 	do {
 		updatePlayer(playerProtocol);
 	} while (playerProtocol.Next());
 
+	updateConsole();
 	
-	Engine::Camera& cam = Engine::Application::Get().GetCamera();
 	//Set camera position to player's head
+	Engine::Camera& cam = Engine::Application::Get().GetCamera();
 	*cam.GetPosition() = m_Player->GetPosition() * glm::vec3(1,1,1.9);
 }
 
@@ -90,6 +88,10 @@ bool GameLayer::gameKeyEvent(Engine::KeyPressedEvent &e)
 		m_Player->SetAction(InstructionType::DROP);
 		return true;
 	}
+	else if (e.GetKeyCode() == GLFW_KEY_SPACE)
+	{
+		m_Player->SetAction(InstructionType::ATTACK);
+	}
 	return false;
 }
 
@@ -106,10 +108,35 @@ unsigned char GameLayer::getWASDDirection() {
 	return dir;
 }
 
+void GameLayer::updateConsole()
+{
+	long now = std::clock();
+	elapsed += (now - currentTime);
+	currentTime = now;
+	frameCounter++;
+	if (elapsed > 1000)
+	{
+		system("CLS");
+		int myID = m_Player->GetId();
+		APP_INFO("--ServerMessage--\nFPS: {0}\nYou are: Player {1}\n\n{2}", frameCounter, myID, m_GameStatus);
+		frameCounter = 0;
+		elapsed %= 1000;
+	}
+}
+
 /*
 	Currently also binds light source. Camera position is source of light
 */
-void GameLayer::handleCameraMovement(unsigned char dir, float mouseX, float mouseY) {
+void GameLayer::handleCameraMovement() {
+	//Check WASD-keys pressed
+	unsigned char dir = getWASDDirection();
+
+	//Check mouse movement
+	Engine::Window *window = &Engine::Application::Get().GetWindow();
+	auto[mouseX, mouseY] = Engine::Input::GetMousePosition();
+	mouseX -= window->GetWidth() / 2;
+	mouseY -= window->GetHeight() / 2;
+
 	Engine::Camera& cam = Engine::Application::Get().GetCamera();
 	if (cam.IsRotatable()) {
 		if (dir > 0)
@@ -180,6 +207,11 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 	if (ot == PLAYER)
 	{
 		updatePlayer(protocol);
+		return parseNextEntity(protocol);
+	}
+	else if (ot == MESSAGE && attrib == Attribute::STATUS)
+	{
+		printMessage(protocol);
 		return parseNextEntity(protocol);
 	}
 
@@ -318,9 +350,8 @@ Player *GameLayer::getPlayerFromID(int player_id)
 	{
 		if (m_Player->GetId() == UNDEFINED)
 		{
-			PushModel(m_Player);
+			m_Player->SetId(player_id);
 		}
-		m_Player->SetId(player_id);
 		return m_Player;
 	}
 	else if (m_Opponents.find(player_id) == m_Opponents.end())
@@ -335,4 +366,17 @@ Player *GameLayer::getPlayerFromID(int player_id)
 	{
 		return m_Opponents.at(player_id);
 	}
+}
+
+void GameLayer::printMessage(Protocol& protocol)
+{
+	InstructionType ot = protocol.GetInstructionType();
+	Attribute at = protocol.GetAttribute();
+	if (ot == MESSAGE && at == STATUS)
+	{
+		pString message; 
+		protocol.GetData(&message);
+		m_GameStatus = message.Message;
+	}
+	protocol.Next();
 }

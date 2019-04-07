@@ -16,7 +16,9 @@ Flag::Flag(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
 
 Flag::Flag()
 	: Entity(Engine::OBJLoader::GetModel("flag", false, false))
-{};
+{
+	v_Color = glm::vec3(1, 1, 1);
+};
 
 Flag::~Flag()
 {

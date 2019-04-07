@@ -65,7 +65,7 @@ private:
 	void Send(SOCKET &client, std::string &message);
 	std::string Receive(SOCKET client);
 	void sendSetupData(KeepTheFlag &ktf, Client* client);
-	void processClientReceived(Client* client);
-	void processClientSend(Client* client);
+	void processClientReceived(KeepTheFlag &ktf, Client* client);
+	void processClientSend(KeepTheFlag &ktf, Client* client);
 };
 

@@ -6,7 +6,6 @@ BoundingBox::~BoundingBox()
 {
 }
 
-
 bool BoundingBox::CollidesWith(BoundingBox &other)
 {
 	if (other.GetColliderType() == ColliderType::tAABB && this->GetColliderType() == ColliderType::tAABB) {

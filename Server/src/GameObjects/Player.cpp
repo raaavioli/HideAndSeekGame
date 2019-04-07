@@ -3,20 +3,11 @@
 #include <iostream>
 #include "OBJLoader.h"
 
-Player::Player()
-	: Entity("character", true, true), m_Score(0), m_Speed(0.1)
+Player::Player(int id, double xPos, double yPos, float scale)
+	: Entity("character", true, true)
 {
-	float charScale = 1.5;
-	DoScale(charScale);
-	float depth = charScale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
-	SetPosition(glm::vec3(-27.5, -18.5, depth));
-	SetId(-1);
-}
-
-Player::Player(int id, int team, float xPos, float yPos, float scale)
-	: Entity("character", true, true), m_Score(0), m_Speed(0.05),
-	m_Team(team)
-{
+	m_Score = 0;
+	m_Speed = m_NormalSpeed;
 	DoScale(scale);
 	float depth = scale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
 	SetPosition(glm::vec3(xPos, yPos, depth));
@@ -32,20 +23,14 @@ void Player::UpdatePlayerData(Protocol &protocol)
 {
 	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
-	if (ot != PICKUP && ot != DROP && ot != PLAYER || at != Attribute::NUMATTRIBS)
-		return;
 
 	if (ot == PLAYER)
 	{
 		ParsePlayerAttribs(protocol);
 	}
-	else if (ot == PICKUP)
+	else if (ot == PICKUP || ot == ATTACK || ot == DROP)
 	{
-		ParsePlayerPickup(protocol);
-	}
-	else if (ot == DROP)
-	{
-		ParsePlayerDrop(protocol);
+		ParsePlayerAction(protocol);
 	}
 }
 
@@ -90,20 +75,22 @@ void Player::ParsePlayerAttribs(Protocol &protocol)
 	}
 	if (player_id > 0)
 	{
-		SetVelocity(velocity * m_Speed);
+		if (!IsFlying()) {
+			SetVelocity(velocity * m_Speed);
+		}
 	}
 	protocol.Next();
 	UpdatePlayerData(protocol);
 }
 
-void Player::ParsePlayerPickup(Protocol & protocol)
+void Player::ParsePlayerAction(Protocol & protocol)
 {
 	int player_id = -1;
 	if (!protocol.Next()) return;
 
 	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
-	if (ot != InstructionType::PICKUP)
+	if (ot != InstructionType::PICKUP &&  ot != InstructionType::ATTACK && ot != InstructionType::DROP)
 		return;
 
 	if (at == Attribute::ID)
@@ -120,60 +107,35 @@ void Player::ParsePlayerPickup(Protocol & protocol)
 	
 	if (player_id > 0)
 	{
-		m_Action = PICKUP;
+		if (ot == DROP)
+		{
+			if (m_Items.size() > 0)
+			{
+				auto firstItem = m_Items.begin();
+				DropItem(*firstItem);
+			}
+			m_Action = InstructionType::OBJERROR;
+		}
+		else if (ot == PICKUP || ot == ATTACK)
+		{
+			m_Action = ot;
+		}
 	}
 	protocol.Next();
 	UpdatePlayerData(protocol);
 }
 
-void Player::ParsePlayerDrop(Protocol & protocol)
-{
-	int player_id = -1;
-	if (!protocol.Next()) return;
-
-	InstructionType ot = protocol.GetInstructionType();
-	Attribute at = protocol.GetAttribute();
-	if (ot != InstructionType::DROP)
-		return;
-
-	if (at == Attribute::ID)
-	{
-		pInt i;
-		protocol.GetData(&i);
-		player_id = i.Value;
-		if (GetId() != player_id)
-		{
-			std::cout << "Player " << GetId() << " tries to pickup for Player " << player_id << std::endl;
-			return;
-		}
-	}
-
-	if (player_id > 0)
-	{
-		if(m_Items.size() > 0)
-		{
-			auto firstItem = m_Items.begin();
-			DropItem(*firstItem);
-		}
-		m_Action = InstructionType::OBJERROR;
-	}
-	protocol.Next();
-	UpdatePlayerData(protocol);
-}
 
 const std::string &Player::ToProtocolString()
 {
 	static InstructionType ot = InstructionType::PLAYER;
-	pChar n{ 4 + m_Items.size() };
+	pChar n{ (char)3 + m_Items.size() };
 	int entity_id = GetId();
 	pInt i{ entity_id };
 	glm::vec3 &entity_scale = GetScale();
 	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
 	glm::vec3 &entity_pos = GetPosition();
 	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
-	std::string score = std::to_string(GetScore());
-	pString sc;
-	std::strcpy(sc.Message, score.c_str());
 
 	m_ProtocolString.clear();
 	m_ProtocolString.reserve(sizeof(pChar) + 2 * sizeof(pVector3) + 3 * sizeof(int));
@@ -181,7 +143,6 @@ const std::string &Player::ToProtocolString()
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::ID, &i));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::POSITION, &p));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::SCALE, &s));
-	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::STATUS, &sc));
 
 	for (auto item : m_Items)
 	{
@@ -194,6 +155,16 @@ const std::string &Player::ToProtocolString()
 void Player::Move()
 {
 	v_Transition += v_Velocity; 
+	if (m_IsFlying) {
+		if(v_Transition.z < (GetScale().z / 2))
+		{
+			m_IsFlying = false;
+			v_Velocity = glm::vec3(0, 0, 0);
+		}
+		else {
+			v_Velocity -= glm::vec3(0, 0, 0.01);
+		}
+	}
 	for (auto item : m_Items)
 	{
 		item->SetPosition(glm::vec3(v_Transition.x, v_Transition.y, 0));
@@ -201,7 +172,17 @@ void Player::Move()
 	}
 }
 
-void Player::DropItem(Flag * f)
+void Player::SetFlying()
+{
+	m_IsFlying = true; 
+	v_Velocity = glm::vec3(0, 0, 0.73);
+	for (auto it = m_Items.begin(); it != m_Items.end(); )
+	{
+		it = DropItem(*it);
+	}
+}
+
+std::set<Flag*>::iterator Player::DropItem(Flag * f)
 {
 	if (m_Items.size() > 0) 
 	{
@@ -209,12 +190,13 @@ void Player::DropItem(Flag * f)
 		{
 			if ((*it) == f)
 			{
-				m_Items.erase(it);
 				f->RemoveStatus(Flag::OWNED);
-				break;
+				m_Speed = m_NormalSpeed;
+				return m_Items.erase(it);
 			}
 		}
 	}
+	return m_Items.end();
 }
 void Player::PushItem(Flag * f)
 {
@@ -222,5 +204,11 @@ void Player::PushItem(Flag * f)
 	{
 		m_Items.insert(f);
 		f->SetStatus(Flag::OWNED);
+		m_Speed = m_FlagSpeed;
 	}
+}
+
+bool Player::HasItem(Flag * f)
+{
+	return m_Items.find(f) != m_Items.end();
 };

@@ -61,7 +61,7 @@ namespace Engine {
 		CORE_INFO("OpenGL version: {0}.{1}\n", GLVersion.major, GLVersion.minor);
 
 		glViewport(0, 0, props.Width, props.Height);
-		glClearColor(0.0, 1.0, 1.0, 1.0);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glEnable(GL_CULL_FACE);
