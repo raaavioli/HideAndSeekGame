@@ -6,12 +6,16 @@
 Player::Player(int id, double xPos, double yPos, float scale)
 	: Entity("character", true, true)
 {
-	m_Score = 0;
-	m_Speed = m_NormalSpeed;
 	DoScale(scale);
 	float depth = scale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
 	SetPosition(glm::vec3(xPos, yPos, depth));
 	SetId(id);
+
+	m_FlagTime = 0;
+	m_HitsGiven = 0;
+	m_HitsTaken = 0;
+	m_TakeDowns = 0;
+	m_Speed = m_NormalSpeed;
 }
 
 
@@ -180,6 +184,19 @@ void Player::SetFlying()
 	{
 		it = DropItem(*it);
 	}
+}
+
+void Player::Hit(Player * player)
+{
+	m_HitsGiven++;
+	player->IncrementHitsTaken();
+	player->SetFlying();
+	for (auto hitPlayer : m_PlayersHit) 
+	{
+		if (hitPlayer->GetId() == player->GetId())
+			return;
+	}
+	m_PlayersHit.push_back(player);
 }
 
 std::set<Flag*>::iterator Player::DropItem(Flag * f)

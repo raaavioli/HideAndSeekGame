@@ -31,6 +31,8 @@ private:
 	std::map<int, Flag*> m_Items;
 	glm::vec3 m_LightSource;
 	std::string m_GameStatus;
+	bool m_GameRunning;
+
 	long currentTime;
 	long elapsed;
 	int frameCounter;
@@ -44,7 +46,7 @@ private:
 	Engine::Entity* getNewEntityPointerFromType(InstructionType ot);
 	bool parseNextEntity(Protocol &protocol);
 	void updatePlayer(Protocol &protocol);
-	void printMessage(Protocol& protocol);
+	void setStatusMessage(Protocol& protocol);
 	Player *getPlayerFromID(int);
 
 };

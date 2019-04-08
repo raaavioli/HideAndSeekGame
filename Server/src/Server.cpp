@@ -69,6 +69,7 @@ void Server::Run()
 	for (Client* client : m_Clients)
 	{
 		sendSetupData(ktf, client);
+		processClientSend(ktf, client);
 	}
 
 	while (m_Running)
@@ -79,7 +80,7 @@ void Server::Run()
 			processClientReceived(ktf, client);
 		}
 
-		ktf.Update();
+		m_Running = ktf.Update();
 
 		for (Client* client : m_Clients)
 		{
@@ -107,6 +108,8 @@ void Server::processClientSend(KeepTheFlag &ktf, Client* client)
 		if (other->GetSocket() == client->GetSocket()) continue;
 		playerData.append(ktf.GetPlayer((int)other->GetSocket())->ToProtocolString());
 	}
+
+	ktf.UpdateGameStatus(socketValue);
 	playerData.append(ktf.GetGameStatus());
 	SOCKET s = client->GetSocket();
 	Send(s, playerData);
@@ -115,18 +118,7 @@ void Server::processClientSend(KeepTheFlag &ktf, Client* client)
 void Server::sendSetupData(KeepTheFlag &ktf, Client* client)
 {
 	SOCKET s = client->GetSocket();
-	int sockValue = (int)s;
-	//Add KTF-game mode initial data
 	std::string initialDataTransfer = ktf.GetGameMap();
-
-	//Add player data to the data transfer
-	initialDataTransfer.append(ktf.GetPlayer(sockValue)->ToProtocolString());
-	for (Client* other : m_Clients)
-	{
-		if (other->GetSocket() == client->GetSocket()) continue;
-		//Add data about the other players to the data transfer
-		initialDataTransfer.append(ktf.GetPlayer((int)other->GetSocket())->ToProtocolString());
-	}
 	Send(s, initialDataTransfer);
 }
 

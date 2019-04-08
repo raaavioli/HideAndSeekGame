@@ -30,6 +30,7 @@ namespace Engine {
 		virtual ~Window() {};
 		virtual void OnUpdate() {};
 		virtual void ClearWindow() {};
+		virtual void ClearConsole() {};
 
 		virtual double GetWidth() const = 0;
 		virtual double GetHeight() const = 0;

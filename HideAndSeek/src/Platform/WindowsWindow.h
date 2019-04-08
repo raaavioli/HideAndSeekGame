@@ -1,4 +1,9 @@
 #pragma once
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <iostream>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -14,6 +19,7 @@ namespace Engine {
 		virtual ~WindowsWindow();
 		void OnUpdate() override;
 		inline void ClearWindow() override { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); };
+		void ClearConsole() override;
 
 		double GetWidth() const override { return m_Data.Width; }
 		double GetHeight() const override { return m_Data.Height; }

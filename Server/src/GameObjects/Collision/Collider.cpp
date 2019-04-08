@@ -44,8 +44,7 @@ void Collider::Interact()
 				static int hitRange = 2; //Should not be hard-coded here
 				if (glm::distance(dynamicCopy.GetPosition(), dynamicOtherCopy.GetPosition()) < hitRange)
 				{
-					((Player*)dynamicEntities.at(j))->SetFlying();
-					((Player*)dynamicEntities.at(i))->AddScore(10);
+					((Player*)dynamicEntities.at(i))->Hit((Player*)dynamicEntities.at(j));
 				}
 			}
 

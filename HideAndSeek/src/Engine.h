@@ -3,6 +3,7 @@
 // For use by applications using the Engine
 #include "Engine/Log.h"
 #include "Engine/Application.h"
+#include "Engine/Window.h"
 #include "Engine/Input.h"
 #include "Engine/Event/Event.h"
 

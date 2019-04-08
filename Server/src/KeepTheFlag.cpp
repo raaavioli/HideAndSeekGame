@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <random>
+#include <algorithm>
 
 #include "GameObjects/Collision/Collider.h"
 
@@ -30,6 +31,7 @@ KeepTheFlag::KeepTheFlag(int boardWidth, int boardHeight,
 
 	m_CurrentTime = std::clock();
 	m_TimeAccumulated = 0;
+	m_WinnerID = 0;
 }
 
 KeepTheFlag::~KeepTheFlag()
@@ -48,39 +50,83 @@ bool KeepTheFlag::Update()
 
 	Collider::Interact();
 
-	if (m_TimeAccumulated > 1000)
+	for (auto[id, player] : m_Players)
 	{
-		m_TimeAccumulated %= 1000;
-		for (auto[id, player] : m_Players)
+		if (m_TimeAccumulated > 1000)
 		{
 			if (player->HasItem(m_Flag))
 			{
-				player->AddScore(1);
+				player->IncrementFlagTime();
 			}
 		}
+		// Player wins if he/she has more than 100 points and have hit all other players.
+		if (player->GetScore() >= 100 && player->GetPlayersHit().size() > m_Players.size() - 1) 
+		{
+			if (!m_WinnerID || player->GetScore() > m_Players.at(m_WinnerID)->GetScore())
+				m_WinnerID = id;
+		}
 	}
-	return true; //Later changed to return status of game state
+	m_TimeAccumulated %= 1000;
+	//Continue playing if there's still no winner.
+	return m_WinnerID == 0;
 }
 
-std::string KeepTheFlag::GetGameStatus()
+void KeepTheFlag::UpdateGameStatus(int clientID)
 {
 	std::stringstream status;
-	status << "SCORE" << std::endl;
-	status << "---------------" << std::endl;
+	InstructionType it = m_WinnerID == 0 ? InstructionType::MESSAGE : InstructionType::ENDGAME; 
+
+	if (it == ENDGAME)
+	{
+		if (m_WinnerID == clientID)
+			status << "Congratulations, you won!\n\n";
+		else
+			status << "You lost... Player " << m_WinnerID << " won this time.\n\n";
+	}
+
+	status << "\t\tSCOREBOARD" << std::endl;
+	status << "--------------------------------------------------------------" << std::endl;
+	status << "| ID\t| SCORE\t| HIT_GIVEN\t| HITS_TAKEN\t| FLAGTIME\t| REMAINING TARGETS" << std::endl;
+
 	for (auto [id, player] : m_Players)
 	{
-		status << "Player " << id << ": " << player->GetScore() << std::endl;
+		if (id == clientID)
+			status << "| You";
+		else
+			status << "| " << id;
+		status << "\t| " << player->GetScore();
+		status << "\t| " << player->GetHitsGiven();
+		status << "\t\t| " << player->GetHitsTaken();
+		status << "\t\t| " << player->GetFlagTime();
+		status << "\t\t| [ - ";
+		for (auto[oid, oplayer] : m_Players)
+		{
+			bool found = false;
+			for (auto hitPlayer : player->GetPlayersHit())
+			{
+				if (oid == hitPlayer->GetId())
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found && oid != clientID && id != oid)
+				status << oid << " - ";
+			else if (!found && oid == clientID && id != clientID)
+				status << "You - ";
+		}
+		status << "]" << std::endl;
 	}
+
 	std::string s = status.str();
 	if (s.size() > sizeof(pString))
 		std::cout << "Error: GameStatus larger than pString size" << std::endl;
-	else 
+	else
 	{
 		pString sc;
 		std::strcpy(sc.Message, s.c_str());
-		return Protocol::Stringify(InstructionType::MESSAGE, Attribute::STATUS, &sc);
+		m_GameStatus = Protocol::Stringify(it, Attribute::STATUS, &sc);
 	}
-	return "";
 }
 
 Player* KeepTheFlag::GetPlayer(int id)

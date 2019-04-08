@@ -11,6 +11,7 @@
 
 void GameLayer::OnAttach() 
 {
+	m_GameRunning = true;
 	std::string received = ServerHandler::Recieve();
 	APP_INFO("Received {0} bytes of data from server (Game map data)", received.size());
 
@@ -36,30 +37,33 @@ void GameLayer::OnDetach() {}
 
 void GameLayer::OnUpdate()
 {
-	//Move and rotate camera based on mouse-movement and key-presses
-	handleCameraMovement();
-	handlePlayerVelocity();
+	if (m_GameRunning)
+	{
+		//Move and rotate camera based on mouse-movement and key-presses
+		handleCameraMovement();
+		handlePlayerVelocity();
 
-	//Send local player attributes (and action(s)) and wait for server to respond
-	std::string playerSend = m_Player->BuildProtocolString();
-	playerSend.append(m_Player->BuildActionString());
-	ServerHandler::Send(playerSend);
-	m_Player->SetAction(OBJERROR);
+		//Send local player attributes (and action(s)) and wait for server to respond
+		std::string playerSend = m_Player->BuildProtocolString();
+		playerSend.append(m_Player->BuildActionString());
+		ServerHandler::Send(playerSend);
+		m_Player->SetAction(OBJERROR);
 
-	//Receive response with new data from server
-	std::string playerData = ServerHandler::Recieve();
+		//Receive response with new data from server
+		std::string playerData = ServerHandler::Recieve();
 
-	//Run the data through the protocol and parse the instructions
-	Protocol playerProtocol(&playerData);
-	do {
-		updatePlayer(playerProtocol);
-	} while (playerProtocol.Next());
+		//Run the data through the protocol and parse the instructions
+		Protocol playerProtocol(&playerData);
+		do {
+			updatePlayer(playerProtocol);
+		} while (playerProtocol.Next());
 
-	updateConsole();
+		updateConsole();
 	
-	//Set camera position to player's head
-	Engine::Camera& cam = Engine::Application::Get().GetCamera();
-	*cam.GetPosition() = m_Player->GetPosition() * glm::vec3(1,1,1.9);
+		//Set camera position to player's head
+		Engine::Camera& cam = Engine::Application::Get().GetCamera();
+		*cam.GetPosition() = m_Player->GetPosition() * glm::vec3(1,1,1.9);
+	}
 }
 
 void GameLayer::OnEvent(Engine::Event &e)
@@ -111,16 +115,15 @@ unsigned char GameLayer::getWASDDirection() {
 void GameLayer::updateConsole()
 {
 	long now = std::clock();
-	elapsed += (now - currentTime);
+	long diff = now - currentTime;
+	elapsed += diff;
 	currentTime = now;
-	frameCounter++;
-	if (elapsed > 1000)
+	if (elapsed > 100 || !m_GameRunning)
 	{
-		system("CLS");
+		Engine::Application::Get().GetWindow().ClearConsole();
 		int myID = m_Player->GetId();
-		APP_INFO("--ServerMessage--\nFPS: {0}\nYou are: Player {1}\n\n{2}", frameCounter, myID, m_GameStatus);
-		frameCounter = 0;
-		elapsed %= 1000;
+		APP_INFO("--ServerMessage--\nFPS: {0}\nYou are: Player {1}\n\n{2}", 1000/diff, myID, m_GameStatus);
+		elapsed %= 100;
 	}
 }
 
@@ -209,9 +212,14 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 		updatePlayer(protocol);
 		return parseNextEntity(protocol);
 	}
-	else if (ot == MESSAGE && attrib == Attribute::STATUS)
+	else if ((ot == MESSAGE || ot == ENDGAME) && attrib == Attribute::STATUS)
 	{
-		printMessage(protocol);
+		setStatusMessage(protocol);
+		if (ot == ENDGAME)
+		{
+			m_GameRunning = false;
+			return false;
+		}
 		return parseNextEntity(protocol);
 	}
 
@@ -368,11 +376,11 @@ Player *GameLayer::getPlayerFromID(int player_id)
 	}
 }
 
-void GameLayer::printMessage(Protocol& protocol)
+void GameLayer::setStatusMessage(Protocol& protocol)
 {
 	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
-	if (ot == MESSAGE && at == STATUS)
+	if ((ot == MESSAGE || ot == ENDGAME) && at == STATUS)
 	{
 		pString message; 
 		protocol.GetData(&message);
