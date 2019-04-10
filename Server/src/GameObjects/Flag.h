@@ -17,8 +17,6 @@ public:
 	Flag(GroundPlane &gp, char team, char status);
 	~Flag();
 
-	const std::string &ToProtocolString() override;
-
 	inline bool isOwned() { return m_Status & OWNED; }
 	inline bool isActive() { return m_Status & ACTIVE; }
 	inline bool isUsable() { return m_Status & USABLE; }

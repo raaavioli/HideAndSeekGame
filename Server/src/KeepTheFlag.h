@@ -17,21 +17,22 @@ public:
 	~KeepTheFlag();
 
 	bool Update();
+	Player* GetPlayer(int id);
 	int GetWinner() { return m_WinnerID; }
 	std::string GetGameMap() { return m_GameMap; }
-	Player* GetPlayer(int id);
-	std::string &GetGameStatus(int clientID);
+	std::string GetGameState(int clientID);
 	inline bool HasWinner() { return m_WinnerID != 0; }
 
 private:
 	MazeGenerator m_MazeGenerator;
 	GroundPlane m_Floor;
 	Flag* m_Flag;
+	std::map<int, Flag*> m_Items;
 	std::map<int, Player*> m_Players;
 	int m_WinnerID;
 	std::string m_GameMap;
-	std::string m_GameStatus;
 
+	std::string getGameMessage(int clientID);
 	long m_CurrentTime;
 	long m_TimeAccumulated;
 

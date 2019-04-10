@@ -43,7 +43,7 @@ namespace Engine {
 
 	void Entity::UpdateModel(const char * modelname)
 	{
-		m_Model = OBJLoader::GetModel(modelname, true, true);
+		m_Model = OBJLoader::GetModel(modelname, false, false);
 		delete m_ColliderBox;
 		m_ColliderBox = new AABB(m_Model->GetMinPos(), m_Model->GetMaxPos());
 	}

@@ -16,7 +16,7 @@ public:
 	~Player();
 
 	void UpdatePlayerData(Protocol &protocol);
-	const std::string &ToProtocolString() override;
+	const std::string ToProtocolString(InstructionType it) override;
 
 	std::set<Flag*>::iterator DropItem(Flag* f);
 	void PushItem(Flag* f);

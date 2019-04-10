@@ -18,24 +18,4 @@ Wall::~Wall()
 {
 }
 
-const std::string &Wall::ToProtocolString()
-{
-	static InstructionType ot = InstructionType::WALL;
-	static Attribute attrcount = Attribute::NUMATTRIBS;
-	static Attribute scale = Attribute::SCALE;
-	static Attribute pos = Attribute::POSITION;
-	pChar n{ 2 };
-	glm::vec3 &entity_scale = GetScale();
-	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
-	glm::vec3 &entity_pos = GetPosition();
-	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
-
-	m_ProtocolString.clear();
-	m_ProtocolString.reserve(sizeof(pChar) + 2 * sizeof(pVector3) + 3 * sizeof(int));
-	m_ProtocolString.append(Protocol::Stringify(ot, attrcount, &n));
-	m_ProtocolString.append(Protocol::Stringify(ot, pos, &p));
-	m_ProtocolString.append(Protocol::Stringify(ot, scale, &s));
-
-	return m_ProtocolString;
-};
 

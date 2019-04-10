@@ -16,11 +16,12 @@ void GameLayer::OnAttach()
 	APP_INFO("Received {0} bytes of data from server (Game map data)", received.size());
 
 	m_Player = new Player();
+	m_Player->SetId(UNDEFINED);
 
 	Protocol protocol(&received);
 	bool validEntity = true;
 	do {
-		validEntity = parseNextEntity(protocol);
+		validEntity = parseNextInstruction(protocol);
 	} while (validEntity && protocol.Next());
 
 	for (Engine::Entity* e : m_Objects) {
@@ -53,10 +54,10 @@ void GameLayer::OnUpdate()
 		std::string playerData = ServerHandler::Recieve();
 
 		//Run the data through the protocol and parse the instructions
-		Protocol playerProtocol(&playerData);
+		Protocol receivedData(&playerData);
 		do {
-			updatePlayer(playerProtocol);
-		} while (playerProtocol.Next());
+			parseNextInstruction(receivedData);
+		} while (receivedData.Next());
 
 		updateConsole();
 	
@@ -188,210 +189,164 @@ void GameLayer::setWindowsMouseCenter()
 	);
 }
 
-Engine::Entity* GameLayer::getNewEntityPointerFromType(InstructionType ot)
+Engine::Entity* GameLayer::getEntity(int entity_id, InstructionType it)
 {
-	switch (ot)
+	Engine::Entity *entity = nullptr;
+	switch (it)
 	{
 	case PLANE:
-		return new GroundPlane();
-	case WALL:
-		return new Wall();
-	case ITEM: 
-		return new Flag();
-	default:
-		return nullptr;
-	}
-}
-
-bool GameLayer::parseNextEntity(Protocol &protocol)
-{
-	InstructionType ot = protocol.GetInstructionType();
-	Attribute attrib = protocol.GetAttribute();
-	if (ot == PLAYER)
 	{
-		updatePlayer(protocol);
-		return parseNextEntity(protocol);
-	}
-	else if ((ot == MESSAGE || ot == ENDGAME) && attrib == Attribute::STATUS)
-	{
-		setStatusMessage(protocol);
-		if (ot == ENDGAME)
-		{
-			m_GameRunning = false;
-			return false;
-		}
-		return parseNextEntity(protocol);
-	}
-
-	if (attrib != NUMATTRIBS || ot == OBJERROR) return false;
-	pChar na;
-	protocol.GetData(&na);
-	APP_ASSERT(na.Value > 0 && na.Value <= NUMATTRIBS, "Invalid number of attributes");
-
-	Engine::Entity *entity;
-	if ((entity = getNewEntityPointerFromType(ot)) != nullptr)
-	{
-		for (int i = 0; i < na.Value; i++)
-		{
-			if (!protocol.HasNext()) {
-				delete entity;
-				entity = nullptr;
-				return false;
-			}
-			protocol.Next();
-
-			Attribute attribToSet = protocol.GetAttribute();
-			if (attribToSet == POSITION) {
-				pVector3 p;
-				protocol.GetData(&p);
-				entity->SetPosition(glm::vec3(p.X, p.Y, p.Z));
-			}
-			else if (attribToSet == SCALE) {
-				pVector3 s;
-				protocol.GetData(&s);
-				entity->SetScale(glm::vec3(s.X, s.Y, s.Z));
-			}
-			else if (attribToSet == ID) {
-				pInt i;
-				protocol.GetData(&i);
-
-				if (ot == ITEM && m_Items.find(i.Value) == m_Items.end())
-				{
-					m_Items.insert(std::make_pair(i.Value, (Flag*)entity));
-				}
-				
-				entity->SetId(i.Value);
-			}
-			else if (attribToSet == MODEL)
-			{
-				pString64 m;
-				protocol.GetData(&m);
-				entity->UpdateModel(m.Message);
-			}
-			else {
-				APP_ERROR("Data from server must be wrong. Or something is not working properly");
-				delete entity;
-				entity = nullptr;
-				return false;
-			}
-		}
+		entity = new GroundPlane();
 		PushModel(entity);
+		break;
 	}
-	else
+	case WALL:
 	{
-		return false;
+		entity = new Wall();
+		PushModel(entity);
+		break;
 	}
-	return true;
+	case ITEM: 
+	case PLAYER:
+	{
+		if (entity_id > 0)
+		{
+			entity = getEntityFromID(entity_id, it);
+			if (entity == nullptr)
+			{
+				if (it == PLAYER) 
+					entity = new Player();
+				else
+					entity = new Flag();
+
+				m_Entities.insert(std::make_pair(entity_id, entity));
+				PushModel(entity);
+				entity->SetId(entity_id);
+			}
+		}
+		break;
+	} 
+	}
+	return entity;
 }
 
-void GameLayer::updatePlayer(Protocol &protocol)
+bool GameLayer::parseNextInstruction(Protocol &protocol)
 {
-	do {
-		InstructionType ot = protocol.GetInstructionType();
-		Attribute at = protocol.GetAttribute();
-		if (ot != InstructionType::PLAYER || at != Attribute::NUMATTRIBS)
+	InstructionType it = protocol.GetInstructionType();
+	switch (it)
+	{
+		case PLAYER:
+		case ITEM:
+		case PLANE:
+		case WALL:
 		{
-			parseNextEntity(protocol);
-			return;
+			return parseEntity(protocol);
 		}
-
-		pChar na; //number attribs, change name later
-		protocol.GetData(&na);
-
-		int player_id = UNDEFINED;
-		std::vector<int> items;
-		Player* player = nullptr;
-		glm::vec3 position;
-		glm::vec3 scale;
-		for (int i = 0; i < na.Value; i++)
+		case MESSAGE:
+		case ENDGAME:
 		{
-			if (!protocol.HasNext()) {
-				return;
-			}
-			protocol.Next();
-			ot = protocol.GetInstructionType();
-			at = protocol.GetAttribute();
-			if (ot == ITEM && at == ID)
-			{
-				pInt id;
-				protocol.GetData(&id);
-				//If item is an existing object in the client
-				if (m_Items.find(id.Value) != m_Items.end())
-					items.push_back(id.Value);
-				continue;
-			}
-			else if (ot != InstructionType::PLAYER)
-				return;
-
-			if (at == Attribute::ID)
-			{
-				pInt i;
-				protocol.GetData(&i);
-				player_id = i.Value;
-				player = getPlayerFromID(player_id);
-			}
-			else if (at == Attribute::POSITION)
-			{
-				pVector3 p;
-				protocol.GetData(&p);
-				position = glm::vec3(p.X, p.Y, p.Z);
-			}
-			else if (at == Attribute::SCALE)
-			{
-				pVector3 s;
-				protocol.GetData(&s);
-				scale = glm::vec3(s.X, s.Y, s.Z);
-			}
-			//Ignore any other attributes
+			return setStatusMessage(protocol);
 		}
-
-		if (player_id != UNDEFINED && player != nullptr) 
-		{
-			player->SetScale(scale);
-			player->SetPosition(position);
-			player->Update();
-			for (int id : items) {
-				Flag *item = (*m_Items.find(id)).second;
-				item->SetPosition(position);
-				item->Update();
-			}
-		}
-	} while (protocol.Next());
+	}
+	return false;
 }
 
-Player *GameLayer::getPlayerFromID(int player_id)
+bool GameLayer::parseEntity(Protocol &protocol) 
 {
-	if (m_Player->GetId() == UNDEFINED || m_Player->GetId() == player_id)
+	InstructionType it = protocol.GetInstructionType();
+	Attribute at = protocol.GetAttribute();
+	if (it != PLAYER && it != WALL && it != PLANE && it != ITEM) return false;
+	if (at != Attribute::NUMATTRIBS) return false;
+
+	pChar na; 
+	protocol.GetData(&na);
+	int entity_id = UNDEFINED;
+	Engine::Entity* entity = nullptr;
+	glm::vec3 position = glm::vec3(FLT_MAX);
+	glm::vec3 scale = glm::vec3(FLT_MAX);
+	glm::vec3 rotation = glm::vec3(FLT_MAX);
+	char* model = "";
+	for (int i = 0; i < na.Value; i++)
 	{
-		if (m_Player->GetId() == UNDEFINED)
+		if (!protocol.HasNext()) return false;
+		protocol.Next();
+		InstructionType current = protocol.GetInstructionType();
+		if (current != it) return false;
+		at = protocol.GetAttribute();
+
+		if (at == Attribute::ID)
 		{
-			m_Player->SetId(player_id);
+			pInt i;
+			protocol.GetData(&i);
+			entity_id = i.Value;
+			entity = getEntity(entity_id, it);
 		}
+		else if (at == Attribute::POSITION)
+		{
+			pVector3 p;
+			protocol.GetData(&p);
+			position = glm::vec3(p.X, p.Y, p.Z);
+		}
+		else if (at == Attribute::SCALE)
+		{
+			pVector3 s;
+			protocol.GetData(&s);
+			scale = glm::vec3(s.X, s.Y, s.Z);
+		}
+		else if (at == Attribute::MODEL)
+		{
+			pString64 m;
+			protocol.GetData(&m);
+			model = m.Message;
+		}
+		//Ignore any other attributes
+	}
+
+	return entity_id != UNDEFINED && updateEntity(entity, position, scale, rotation, model);
+}
+
+bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, const char * modelName)
+{
+	if (entity != nullptr)
+	{
+		if (scale.x != FLT_MAX)
+			entity->SetScale(scale);
+		if (position.x != FLT_MAX)
+			entity->SetPosition(position);
+		if (rotation.x != FLT_MAX)
+			entity->SetRotation(rotation);
+		if (modelName != "")
+			entity->UpdateModel(modelName);
+		entity->Update();
+		return true;
+	}
+	return false;
+}
+
+Engine::Entity *GameLayer::getEntityFromID(int entity_id, InstructionType it)
+{
+	if ((m_Player->GetId() == UNDEFINED && it == PLAYER) || m_Player->GetId() == entity_id)
+	{
+		m_Player->SetId(entity_id);
 		return m_Player;
 	}
-	else if (m_Opponents.find(player_id) == m_Opponents.end())
-	{
-		Player* player = new Player();
-		m_Opponents.insert(std::make_pair(player_id, player));
-		PushModel(player);
-		player->SetId(player_id);
-		return player;
-	}
-	else
-	{
-		return m_Opponents.at(player_id);
-	}
+	else if (m_Entities.find(entity_id) != m_Entities.end())
+		return m_Entities.at(entity_id);
+	else return nullptr;
 }
 
-void GameLayer::setStatusMessage(Protocol& protocol)
+bool GameLayer::setStatusMessage(Protocol& protocol)
 {
 	InstructionType ot = protocol.GetInstructionType();
 	Attribute at = protocol.GetAttribute();
 	if ((ot == MESSAGE || ot == ENDGAME) && at == STATUS)
 	{
+		if (ot == ENDGAME) m_GameRunning = false;
+
 		pString512 message; 
 		protocol.GetData(&message);
 		m_GameStatus = message.Message;
+		return true;
 	}
-	protocol.Next();
+	return false;
 }

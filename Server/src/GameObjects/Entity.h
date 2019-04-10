@@ -22,7 +22,7 @@ public:
 	Entity(const char* modelName, bool normalize, bool center);
 	~Entity();
 
-	virtual const std::string &ToProtocolString() { return ""; };
+	virtual const std::string ToProtocolString(InstructionType it);
 
 	void Update();
 	inline void SetPosition(const glm::vec3 transition) { v_Transition = transition; }
@@ -50,7 +50,6 @@ protected:
 	glm::mat4 m_Transformation;
 	BoundingBox *m_ColliderBox;
 	std::string m_ModelName;
-	std::string m_ProtocolString;
 private:
 
 };

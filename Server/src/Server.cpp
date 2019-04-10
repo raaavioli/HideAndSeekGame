@@ -64,7 +64,7 @@ void Server::Run()
 {
 	m_Running = true;
 
-	KeepTheFlag ktf(60, 40, 15, 10, 1);
+	KeepTheFlag ktf(60, 40, 6, 4, 2);
 
 	for (Client* client : m_Clients)
 	{
@@ -101,17 +101,9 @@ void Server::processClientReceived(KeepTheFlag &ktf, Client* client)
 
 void Server::processClientSend(KeepTheFlag &ktf, Client* client)
 {
-	int socketValue = (int)client->GetSocket();
-	std::string playerData = ktf.GetPlayer(socketValue)->ToProtocolString();
-	for (Client* other : m_Clients)
-	{
-		if (other->GetSocket() == client->GetSocket()) continue;
-		playerData.append(ktf.GetPlayer((int)other->GetSocket())->ToProtocolString());
-	}
-
-	playerData.append(ktf.GetGameStatus(socketValue));
 	SOCKET s = client->GetSocket();
-	Send(s, playerData);
+	std::string clientData = ktf.GetGameState((int)s);
+	Send(s, clientData);
 }
 
 void Server::sendSetupData(KeepTheFlag &ktf, Client* client)

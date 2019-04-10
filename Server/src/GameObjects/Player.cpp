@@ -130,30 +130,15 @@ void Player::ParsePlayerAction(Protocol & protocol)
 }
 
 
-const std::string &Player::ToProtocolString()
+const std::string Player::ToProtocolString(InstructionType it)
 {
-	static InstructionType ot = InstructionType::PLAYER;
-	pChar n{ (char)3 + m_Items.size() };
-	int entity_id = GetId();
-	pInt i{ entity_id };
-	glm::vec3 &entity_scale = GetScale();
-	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
-	glm::vec3 &entity_pos = GetPosition();
-	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
-
-	m_ProtocolString.clear();
-	m_ProtocolString.reserve(sizeof(pChar) + 2 * sizeof(pVector3) + 3 * sizeof(int));
-	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::NUMATTRIBS, &n));
-	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::ID, &i));
-	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::POSITION, &p));
-	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::SCALE, &s));
+	std::string string = Entity::ToProtocolString(it);
 
 	for (auto item : m_Items)
 	{
-		pInt itemId{ item->GetId() };
-		m_ProtocolString.append(Protocol::Stringify(ITEM, ID, &itemId));
+		string.append(item->ToProtocolString(ITEM));
 	}
-	return m_ProtocolString;
+	return string;
 }
 
 void Player::Move()
@@ -171,7 +156,7 @@ void Player::Move()
 	}
 	for (auto item : m_Items)
 	{
-		item->SetPosition(glm::vec3(v_Transition.x, v_Transition.y, 0));
+		item->SetPosition(v_Transition);
 		item->Update();
 	}
 }

@@ -25,6 +25,7 @@ namespace Engine {
 		void UpdateModel(const char* modelname);
 		inline void SetPosition(const glm::vec3 transition) { v_Transition = transition; }
 		inline void SetVelocity(const glm::vec3 velocity) { v_Velocity = velocity; }
+		inline void SetRotation(const glm::vec3 rotation) { v_Rotation = rotation; }
 		inline void SetScale(const glm::vec3 scale) { v_Scale = scale; }
 		inline void DoScale(const float s) { v_Scale *= s; };
 		inline void DoScale(const glm::vec3 &s) { v_Scale *= s; };

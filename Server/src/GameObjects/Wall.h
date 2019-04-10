@@ -10,8 +10,6 @@ public:
 	Wall(GroundPlane &gp, const double x, const double y, const glm::vec3 scale);
 	~Wall();
 
-	const std::string &ToProtocolString() override;
-
 private:
 };
 

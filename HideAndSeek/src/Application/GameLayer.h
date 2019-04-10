@@ -27,8 +27,7 @@ public:
 private:
 	GroundPlane *m_Plane;
 	Player *m_Player;
-	std::map<int, Player*> m_Opponents;
-	std::map<int, Flag*> m_Items;
+	std::map<int, Engine::Entity*> m_Entities;
 	glm::vec3 m_LightSource;
 	std::string m_GameStatus;
 	bool m_GameRunning;
@@ -43,10 +42,17 @@ private:
 	void handleCameraMovement();
 	void handlePlayerVelocity();
 	void setWindowsMouseCenter();
-	Engine::Entity* getNewEntityPointerFromType(InstructionType ot);
-	bool parseNextEntity(Protocol &protocol);
-	void updatePlayer(Protocol &protocol);
-	void setStatusMessage(Protocol& protocol);
-	Player *getPlayerFromID(int);
+
+	bool parseNextInstruction(Protocol &protocol);
+	bool parseEntity(Protocol &protocol);
+
+	Engine::Entity* getEntity(int entity_id, InstructionType ot);
+	Engine::Entity *getEntityFromID(int, InstructionType);
+
+	bool updateEntity(Engine::Entity* entity, 
+		glm::vec3 position, glm::vec3 scale, glm::vec3 rotation,
+		const char* modelName);
+
+	bool setStatusMessage(Protocol& protocol);
 
 };

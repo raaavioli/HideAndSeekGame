@@ -1,4 +1,5 @@
 #pragma once
+#define NEW 2147483647
 
 #include <string>
 

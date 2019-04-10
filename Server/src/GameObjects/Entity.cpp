@@ -17,6 +17,27 @@ Entity::Entity(const char* modelName, bool normalize, bool center)
 Entity::~Entity() {
 }
 
+const std::string Entity::ToProtocolString(InstructionType it)
+{
+	pChar n{ 4 };
+	pInt i{ GetId() };
+	glm::vec3 &entity_scale = GetScale();
+	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
+	glm::vec3 &entity_pos = GetPosition();
+	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
+	pString64 m;
+	strcpy(m.Message, m_ModelName.c_str());
+
+	std::string m_ProtocolString;
+	m_ProtocolString.append(Protocol::Stringify(it, Attribute::NUMATTRIBS, &n));
+	m_ProtocolString.append(Protocol::Stringify(it, Attribute::ID, &i));
+	m_ProtocolString.append(Protocol::Stringify(it, Attribute::POSITION, &p));
+	m_ProtocolString.append(Protocol::Stringify(it, Attribute::SCALE, &s));
+	m_ProtocolString.append(Protocol::Stringify(it, Attribute::MODEL, &m));
+
+	return m_ProtocolString;
+}
+
 void Entity::Update()
 {
 	UpdateWorldTransformation();

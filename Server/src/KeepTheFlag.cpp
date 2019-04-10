@@ -12,7 +12,7 @@ KeepTheFlag::KeepTheFlag(int boardWidth, int boardHeight,
 	m_MazeGenerator(mazeWidth, mazeHeight)
 {
 	Collider::Add(&m_Floor, MovementType::STATIC);
-	m_GameMap.append(m_Floor.ToProtocolString());
+	m_GameMap.append(m_Floor.ToProtocolString(PLANE));
 
 	m_MazeGenerator.GenerateMaze();
 	m_MazeGenerator.CutLongerWalls(mazeSpace);
@@ -20,12 +20,12 @@ KeepTheFlag::KeepTheFlag(int boardWidth, int boardHeight,
 
 	for (Wall* w : m_MazeGenerator.GetGameWalls(m_Floor)) {
 		Collider::Add(w, MovementType::STATIC);
-		m_GameMap.append(w->ToProtocolString());
+		m_GameMap.append(w->ToProtocolString(WALL));
 		w->Update();
 	}
 
 	m_Flag = new Flag(m_Floor, 1, (Flag::ACTIVE));
-	m_GameMap.append(m_Flag->ToProtocolString());
+	m_GameMap.append(m_Flag->ToProtocolString(ITEM));
 	Collider::Add(m_Flag, MovementType::LOOTABLE);
 	m_Flag->Update();
 
@@ -64,10 +64,47 @@ bool KeepTheFlag::Update()
 	return m_WinnerID == 0;
 }
 
-std::string &KeepTheFlag::GetGameStatus(int clientID)
+std::string KeepTheFlag::GetGameState(int clientID)
+{
+	Player *clientPlayer = GetPlayer(clientID);
+	std::string gameState;
+	gameState.append(clientPlayer->ToProtocolString(PLAYER));
+	for (auto[id, player] : m_Players) 
+	{
+		if (id == clientID) continue;
+		gameState.append(player->ToProtocolString(PLAYER));
+	}
+	gameState.append(m_Flag->ToProtocolString(ITEM));
+	for (auto[id, item] : m_Items)
+	{
+		gameState.append(item->ToProtocolString(ITEM));
+	}
+	gameState.append(getGameMessage(clientID));
+	return gameState;
+}
+
+Player* KeepTheFlag::GetPlayer(int id)
+{
+	auto p = m_Players.find(id);
+	if (p != m_Players.end())
+		return (*p).second;
+	else {
+		Player *player = new Player(
+			id,
+			-m_Floor.GetWidth() / 2 + (m_Floor.GetWidth() / (m_MazeGenerator.GetWidth())) * ((std::rand() % m_MazeGenerator.GetWidth()) + 0.5),
+			-m_Floor.GetHeight() / 2 + (m_Floor.GetHeight() / (2 * m_MazeGenerator.GetHeight())) * ((std::rand() % m_MazeGenerator.GetHeight()) + 0.5),
+			3
+		);
+		Collider::Add(player, MovementType::DYNAMIC);
+		m_Players.insert(std::make_pair(id, player));
+		return player;
+	}
+}
+
+std::string KeepTheFlag::getGameMessage(int clientID)
 {
 	std::stringstream status;
-	InstructionType it = m_WinnerID == 0 ? InstructionType::MESSAGE : InstructionType::ENDGAME; 
+	InstructionType it = m_WinnerID == 0 ? InstructionType::MESSAGE : InstructionType::ENDGAME;
 
 	if (it == ENDGAME)
 	{
@@ -81,7 +118,7 @@ std::string &KeepTheFlag::GetGameStatus(int clientID)
 	status << "--------------------------------------------------------------" << std::endl;
 	status << "| ID\t| SCORE\t| HIT_GIVEN\t| HITS_TAKEN\t| FLAGTIME\t| REMAINING TARGETS" << std::endl;
 
-	for (auto [id, player] : m_Players)
+	for (auto[id, player] : m_Players)
 	{
 		if (id == clientID)
 			status << "| You";
@@ -118,25 +155,6 @@ std::string &KeepTheFlag::GetGameStatus(int clientID)
 	{
 		pString512 sc;
 		std::strcpy(sc.Message, s.c_str());
-		m_GameStatus = Protocol::Stringify(it, Attribute::STATUS, &sc);
-		return m_GameStatus;
-	}
-}
-
-Player* KeepTheFlag::GetPlayer(int id)
-{
-	auto p = m_Players.find(id);
-	if (p != m_Players.end())
-		return (*p).second;
-	else {
-		Player *player = new Player(
-			id, 
-			-m_Floor.GetWidth() / 2 + (m_Floor.GetWidth() / (m_MazeGenerator.GetWidth())) * ((std::rand()%m_MazeGenerator.GetWidth()) + 0.5),
-			-m_Floor.GetHeight() / 2 + (m_Floor.GetHeight() / (2 * m_MazeGenerator.GetHeight())) * ((std::rand() % m_MazeGenerator.GetHeight()) + 0.5),
-			3
-		);
-		Collider::Add(player, MovementType::DYNAMIC);
-		m_Players.insert(std::make_pair(id, player));
-		return player;
+		return Protocol::Stringify(it, Attribute::STATUS, &sc);
 	}
 }
