@@ -29,8 +29,14 @@ std::string Protocol::Stringify(InstructionType object, Attribute attrib, void *
 		}
 		case STATUS:
 		{
-			pString *stat = ((pString*)data);
-			ret.append(stat->Message, sizeof(pString));
+			pString512 *stat = ((pString512*)data);
+			ret.append(stat->Message, sizeof(pString512));
+			break;
+		}
+		case MODEL:
+		{
+			pString64 *stat = ((pString64*)data);
+			ret.append(stat->Message, sizeof(pString64));
 			break;
 		}
 		case NUMATTRIBS:
@@ -112,8 +118,14 @@ int Protocol::GetData(void *out_data)
 	}
 	case STATUS:
 	{
-		*((pString*)out_data) = *((pString*)&m_BeingParsed->at(m_DataPointer + 2));
-		size = sizeof(pString);
+		*((pString512*)out_data) = *((pString512*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pString512);
+		break;
+	}
+	case MODEL:
+	{
+		*((pString64*)out_data) = *((pString64*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pString64);
 		break;
 	}
 	case NUMATTRIBS:
@@ -151,7 +163,11 @@ int Protocol::getObjectSize()
 	}
 	case STATUS:
 	{
-		return sizeof(pString) + 2;
+		return sizeof(pString512) + 2;
+	}
+	case MODEL:
+	{
+		return sizeof(pString64) + 2;
 	}
 	case NUMATTRIBS:
 	{

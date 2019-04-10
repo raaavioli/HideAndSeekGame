@@ -34,7 +34,7 @@ public:
 	inline int GetHitsTaken() { return m_HitsTaken; }
 	inline int GetHitsGiven() { return m_HitsGiven; }
 	inline int GetTakeDowns() { return m_TakeDowns; }
-	inline std::vector<Player*> &GetPlayersHit() { return m_PlayersHit; }
+	inline std::set<Player*> &GetUniquePlayersHit() { return m_PlayersHit; }
 
 private:
 	int m_FlagTime;
@@ -45,7 +45,7 @@ private:
 	bool m_IsFlying;
 	InstructionType m_Action;
 	std::set<Flag*> m_Items;
-	std::vector<Player*> m_PlayersHit;
+	std::set<Player*> m_PlayersHit;
 
 	void ParsePlayerAttribs(Protocol &protocol);
 	void ParsePlayerAction(Protocol &protocol);

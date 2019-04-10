@@ -4,6 +4,7 @@
 
 #include "Engine/Core.h"
 #include "Model.h"
+#include "OBJLoader.h"
 #include "Collision/BoundingBox.h"
 
 namespace Engine {
@@ -21,6 +22,7 @@ namespace Engine {
 
 		void Update();
 		void Draw();
+		void UpdateModel(const char* modelname);
 		inline void SetPosition(const glm::vec3 transition) { v_Transition = transition; }
 		inline void SetVelocity(const glm::vec3 velocity) { v_Velocity = velocity; }
 		inline void SetScale(const glm::vec3 scale) { v_Scale = scale; }

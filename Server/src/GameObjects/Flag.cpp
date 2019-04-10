@@ -1,7 +1,7 @@
 #include "Flag.h"
 
 Flag::Flag(GroundPlane &gp, char team, char status)
-	: Entity("flag", false, false), m_Status(status)
+	: Entity("character", false, false), m_Status(status)
 {
 	if (team == 1) 
 	{
@@ -22,13 +22,16 @@ Flag::~Flag()
 const std::string & Flag::ToProtocolString()
 {
 	static InstructionType ot = InstructionType::ITEM;
-	pChar n{ 3 };
+	pChar n{ 4 };
 	int entity_id = GetId();
 	pInt i{ entity_id };
 	glm::vec3 &entity_scale = GetScale();
 	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
 	glm::vec3 &entity_pos = GetPosition();
 	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
+	std::string &modelName = GetModelName();
+	pString64 m;
+	std::strcpy(m.Message, modelName.c_str());
 
 	m_ProtocolString.clear();
 	m_ProtocolString.reserve(sizeof(pChar) + 2 * sizeof(pVector3) + 3 * sizeof(int));
@@ -36,6 +39,7 @@ const std::string & Flag::ToProtocolString()
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::ID, &i));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::POSITION, &p));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::SCALE, &s));
+	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::MODEL, &m));
 	/*
 	Send a message of the items a player is carrying.
 	My thought is to make items map to a binary string, where

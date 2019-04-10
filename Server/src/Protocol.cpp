@@ -29,8 +29,14 @@ std::string Protocol::Stringify(InstructionType object, Attribute attrib, void *
 			}
 			case STATUS:
 			{
-				pString *stat = ((pString*)data);
-				ret.append(stat->Message, sizeof(pString));
+				pString512 *stat = ((pString512*)data);
+				ret.append(stat->Message, sizeof(pString512));
+				break;
+			}
+			case MODEL:
+			{
+				pString64 *stat = ((pString64*)data);
+				ret.append(stat->Message, sizeof(pString64));
 				break;
 			}
 			case NUMATTRIBS:
@@ -96,34 +102,40 @@ int Protocol::GetData(void *out_data)
 
 	switch (attrib)
 	{
-		case ID:
-		{
-			*((pInt*)out_data) = *((pInt*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(pInt);
-			break;
-		}
-		case POSITION:
-		case SCALE:
-		case DIRECTION:
-		{
-			*((pVector3*)out_data) = *((pVector3*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(pVector3);
-			break;
-		}
-		case STATUS:
-		{
-			*((pString*)out_data) = *((pString*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(pString);
-			break;
-		}
-		case NUMATTRIBS:
-		{
-			*((pChar*)out_data) = *((pChar*)&m_BeingParsed->at(m_DataPointer + 2));
-			size = sizeof(pChar);
-			break;
-		}
-		default:
-			return ATTRIBERROR;
+	case ID:
+	{
+		*((pInt*)out_data) = *((pInt*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pInt);
+		break;
+	}
+	case POSITION:
+	case SCALE:
+	case DIRECTION:
+	{
+		*((pVector3*)out_data) = *((pVector3*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pVector3);
+		break;
+	}
+	case STATUS:
+	{
+		*((pString512*)out_data) = *((pString512*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pString512);
+		break;
+	}
+	case MODEL:
+	{
+		*((pString64*)out_data) = *((pString64*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pString64);
+		break;
+	}
+	case NUMATTRIBS:
+	{
+		*((pChar*)out_data) = *((pChar*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pChar);
+		break;
+	}
+	default:
+		return ATTRIBERROR;
 	};
 
 	return size;
@@ -139,25 +151,29 @@ int Protocol::getObjectSize()
 
 	switch (attrib)
 	{
-		case ID:
-		{
-			return sizeof(pInt) + 2;
-		}
-		case POSITION:
-		case SCALE:
-		case DIRECTION:
-		{
-			return sizeof(pVector3) + 2;
-		}
-		case STATUS:
-		{
-			return sizeof(pString) + 2;
-		}
-		case NUMATTRIBS:
-		{
-			return sizeof(pChar) + 2;
-		}
-		default:
-			return ATTRIBERROR;
+	case ID:
+	{
+		return sizeof(pInt) + 2;
+	}
+	case POSITION:
+	case SCALE:
+	case DIRECTION:
+	{
+		return sizeof(pVector3) + 2;
+	}
+	case STATUS:
+	{
+		return sizeof(pString512) + 2;
+	}
+	case MODEL:
+	{
+		return sizeof(pString64) + 2;
+	}
+	case NUMATTRIBS:
+	{
+		return sizeof(pChar) + 2;
+	}
+	default:
+		return ATTRIBERROR;
 	};
 }

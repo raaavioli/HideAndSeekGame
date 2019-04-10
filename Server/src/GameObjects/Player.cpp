@@ -63,7 +63,7 @@ void Player::ParsePlayerAttribs(Protocol &protocol)
 			pInt i;
 			protocol.GetData(&i);
 			player_id = i.Value;
-			if (GetId() != player_id)
+			if (GetId() != player_id && player_id > 0)
 			{
 				std::cout << "Player " << GetId() << " tries to move Player " << player_id << std::endl;
 				return;
@@ -191,12 +191,7 @@ void Player::Hit(Player * player)
 	m_HitsGiven++;
 	player->IncrementHitsTaken();
 	player->SetFlying();
-	for (auto hitPlayer : m_PlayersHit) 
-	{
-		if (hitPlayer->GetId() == player->GetId())
-			return;
-	}
-	m_PlayersHit.push_back(player);
+	m_PlayersHit.insert(player);
 }
 
 std::set<Flag*>::iterator Player::DropItem(Flag * f)
@@ -208,6 +203,8 @@ std::set<Flag*>::iterator Player::DropItem(Flag * f)
 			if ((*it) == f)
 			{
 				f->RemoveStatus(Flag::OWNED);
+				//Reset flag to ground position;
+				f->GetPosition() *= glm::vec3(1, 1, 0);
 				m_Speed = m_NormalSpeed;
 				return m_Items.erase(it);
 			}
@@ -221,6 +218,8 @@ void Player::PushItem(Flag * f)
 	{
 		m_Items.insert(f);
 		f->SetStatus(Flag::OWNED);
+		//Raise flag from floor position
+		f->GetPosition() += glm::vec3(0, 0, 1.5);
 		m_Speed = m_FlagSpeed;
 	}
 }

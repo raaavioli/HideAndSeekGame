@@ -47,10 +47,16 @@ struct pChar
 	char Value = 0;
 };
 
-//Requires 256 bytes of memory
-struct pString
+//Requires 512 bytes of memory
+struct pString512
 {
 	char Message[512];
+};
+
+//Requires 64 bytes of memory
+struct pString64
+{
+	char Message[64];
 };
 
 class Protocol {

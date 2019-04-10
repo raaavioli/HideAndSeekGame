@@ -90,7 +90,7 @@ namespace Engine {
 		vbos[VertexAttrib::VERTEX] = new VBO(&cube_vector, 3, VertexAttrib::VERTEX);
 		vbos[VertexAttrib::INDEX] = new VBO(&index_vector, VertexAttrib::INDEX);
 
-		m_Model = new Model(vao, vbos, min, max);
+		m_Model = new Model("manually_created_cube",vao, vbos, min, max);
 	}
 
 }

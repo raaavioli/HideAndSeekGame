@@ -20,8 +20,7 @@ public:
 	int GetWinner() { return m_WinnerID; }
 	std::string GetGameMap() { return m_GameMap; }
 	Player* GetPlayer(int id);
-	void UpdateGameStatus(int clientID);
-	inline std::string &GetGameStatus() { return m_GameStatus; };
+	std::string &GetGameStatus(int clientID);
 	inline bool HasWinner() { return m_WinnerID != 0; }
 
 private:

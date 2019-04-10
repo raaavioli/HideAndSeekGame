@@ -262,6 +262,12 @@ bool GameLayer::parseNextEntity(Protocol &protocol)
 				
 				entity->SetId(i.Value);
 			}
+			else if (attribToSet == MODEL)
+			{
+				pString64 m;
+				protocol.GetData(&m);
+				entity->UpdateModel(m.Message);
+			}
 			else {
 				APP_ERROR("Data from server must be wrong. Or something is not working properly");
 				delete entity;
@@ -309,6 +315,7 @@ void GameLayer::updatePlayer(Protocol &protocol)
 			{
 				pInt id;
 				protocol.GetData(&id);
+				//If item is an existing object in the client
 				if (m_Items.find(id.Value) != m_Items.end())
 					items.push_back(id.Value);
 				continue;
@@ -345,7 +352,7 @@ void GameLayer::updatePlayer(Protocol &protocol)
 			player->Update();
 			for (int id : items) {
 				Flag *item = (*m_Items.find(id)).second;
-				item->SetPosition(glm::vec3(position.x, position.y, 1.5));
+				item->SetPosition(position);
 				item->Update();
 			}
 		}
@@ -382,7 +389,7 @@ void GameLayer::setStatusMessage(Protocol& protocol)
 	Attribute at = protocol.GetAttribute();
 	if ((ot == MESSAGE || ot == ENDGAME) && at == STATUS)
 	{
-		pString message; 
+		pString512 message; 
 		protocol.GetData(&message);
 		m_GameStatus = message.Message;
 	}

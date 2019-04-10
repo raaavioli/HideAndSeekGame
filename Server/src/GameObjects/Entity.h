@@ -38,6 +38,7 @@ public:
 	inline glm::vec3 &GetScale() { return v_Scale; }
 	inline glm::vec3 &GetPosition() { return v_Transition; }
 	inline glm::vec3 &GetVelocity() { return v_Velocity; }
+	inline std::string &GetModelName() { return m_ModelName; }
 	inline BoundingBox &GetColliderBox() { return *m_ColliderBox; };
 
 protected:

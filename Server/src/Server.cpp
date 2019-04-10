@@ -64,7 +64,7 @@ void Server::Run()
 {
 	m_Running = true;
 
-	KeepTheFlag ktf(60, 40, 15, 10, 3);
+	KeepTheFlag ktf(60, 40, 15, 10, 1);
 
 	for (Client* client : m_Clients)
 	{
@@ -109,8 +109,7 @@ void Server::processClientSend(KeepTheFlag &ktf, Client* client)
 		playerData.append(ktf.GetPlayer((int)other->GetSocket())->ToProtocolString());
 	}
 
-	ktf.UpdateGameStatus(socketValue);
-	playerData.append(ktf.GetGameStatus());
+	playerData.append(ktf.GetGameStatus(socketValue));
 	SOCKET s = client->GetSocket();
 	Send(s, playerData);
 }

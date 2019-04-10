@@ -162,7 +162,7 @@ namespace Engine {
 			v_MinCoords = v_MinTemp;
 		}
 
-		Model* m = new Model(vao, vbos, v_MinCoords, v_MaxCoords);
+		Model* m = new Model(filename, vao, vbos, v_MinCoords, v_MaxCoords);
 		modelCache.insert(std::make_pair(std::string(filename), m));
 		return m;
 	}

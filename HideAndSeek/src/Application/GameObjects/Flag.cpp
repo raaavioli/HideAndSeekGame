@@ -2,7 +2,7 @@
 
 
 Flag::Flag(GroundPlane &gp, const int x, const int y, const glm::vec3 scale)
-	: Entity(Engine::OBJLoader::GetModel("flag", false, false))
+	: Entity(Engine::OBJLoader::GetModel("character", false, false))
 {
 	DoScale(scale);
 

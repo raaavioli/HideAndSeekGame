@@ -52,26 +52,19 @@ bool KeepTheFlag::Update()
 
 	for (auto[id, player] : m_Players)
 	{
-		if (m_TimeAccumulated > 1000)
-		{
-			if (player->HasItem(m_Flag))
-			{
-				player->IncrementFlagTime();
-			}
-		}
+		if (m_TimeAccumulated > 1000 && player->HasItem(m_Flag))
+			player->IncrementFlagTime();
 		// Player wins if he/she has more than 100 points and have hit all other players.
-		if (player->GetScore() >= 100 && player->GetPlayersHit().size() > m_Players.size() - 1) 
-		{
-			if (!m_WinnerID || player->GetScore() > m_Players.at(m_WinnerID)->GetScore())
+		if (player->GetScore() >= 100 && player->GetUniquePlayersHit().size() == m_Players.size() - 1) 
+			if (!m_WinnerID || player->GetScore() >= m_Players.at(m_WinnerID)->GetScore())
 				m_WinnerID = id;
-		}
 	}
 	m_TimeAccumulated %= 1000;
 	//Continue playing if there's still no winner.
 	return m_WinnerID == 0;
 }
 
-void KeepTheFlag::UpdateGameStatus(int clientID)
+std::string &KeepTheFlag::GetGameStatus(int clientID)
 {
 	std::stringstream status;
 	InstructionType it = m_WinnerID == 0 ? InstructionType::MESSAGE : InstructionType::ENDGAME; 
@@ -102,7 +95,7 @@ void KeepTheFlag::UpdateGameStatus(int clientID)
 		for (auto[oid, oplayer] : m_Players)
 		{
 			bool found = false;
-			for (auto hitPlayer : player->GetPlayersHit())
+			for (auto hitPlayer : player->GetUniquePlayersHit())
 			{
 				if (oid == hitPlayer->GetId())
 				{
@@ -119,13 +112,14 @@ void KeepTheFlag::UpdateGameStatus(int clientID)
 	}
 
 	std::string s = status.str();
-	if (s.size() > sizeof(pString))
+	if (s.size() > sizeof(pString512))
 		std::cout << "Error: GameStatus larger than pString size" << std::endl;
 	else
 	{
-		pString sc;
+		pString512 sc;
 		std::strcpy(sc.Message, s.c_str());
 		m_GameStatus = Protocol::Stringify(it, Attribute::STATUS, &sc);
+		return m_GameStatus;
 	}
 }
 

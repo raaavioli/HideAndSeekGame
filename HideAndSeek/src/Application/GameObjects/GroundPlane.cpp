@@ -14,7 +14,7 @@ GroundPlane::GroundPlane(const float width, const float height)
 GroundPlane::GroundPlane()
 	: Entity(Engine::OBJLoader::GetModel("unitcube", false, false))
 {
-	v_Color = glm::vec3(0, 0.15, 0);
+	v_Color = glm::vec3(0, 0.35, 0);
 }
 
 GroundPlane::~GroundPlane()

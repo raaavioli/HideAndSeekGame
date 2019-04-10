@@ -41,6 +41,13 @@ namespace Engine {
 		//m_ColliderBox->Draw();
 	}
 
+	void Entity::UpdateModel(const char * modelname)
+	{
+		m_Model = OBJLoader::GetModel(modelname, true, true);
+		delete m_ColliderBox;
+		m_ColliderBox = new AABB(m_Model->GetMinPos(), m_Model->GetMaxPos());
+	}
+
 	glm::mat4 *Entity::UpdateWorldTransformation() 
 	{
 		m_Transformation = glm::mat4(1.0f);
