@@ -3,10 +3,10 @@
 #include <vector>
 
 #include "Entity.h"
-#include "Flag.h"
+#include "Item.h"
 
-static const double m_NormalSpeed = 0.1f;
-static const double m_FlagSpeed = 0.15f;
+static const float m_NormalSpeed = 0.1f;
+static const float m_PlayerWeight = 75.0f;
 
 class Player : public Entity
 {
@@ -18,11 +18,12 @@ public:
 	void UpdatePlayerData(Protocol &protocol);
 	const std::string ToProtocolString(InstructionType it) override;
 
-	std::set<Flag*>::iterator DropItem(Flag* f);
-	void PushItem(Flag* f);
-	bool HasItem(Flag* f);
+	std::set<Item*>::iterator DropItem(Item* f);
+	void PushItem(Item* f);
+	bool HasItem(Item* f);
 	void Move() override;
 	void SetFlying();
+	void UpdateItems(int timemillis);
 	void Hit(Player* player);
 	inline bool IsFlying() { return m_IsFlying;  }
 	inline void IncrementFlagTime() { m_FlagTime++; }
@@ -44,7 +45,7 @@ private:
 	float m_Speed;
 	bool m_IsFlying;
 	InstructionType m_Action;
-	std::set<Flag*> m_Items;
+	std::set<Item*> m_Items;
 	std::set<Player*> m_PlayersHit;
 
 	void ParsePlayerAttribs(Protocol &protocol);

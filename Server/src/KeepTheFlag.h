@@ -6,7 +6,7 @@
 #include "Utils/MazeGenerator.h"
 #include "GameObjects/GroundPlane.h"
 #include "GameObjects/Wall.h"
-#include "GameObjects/Flag.h"
+#include "GameObjects/Item.h"
 #include "GameObjects/Player.h"
 
 class KeepTheFlag {
@@ -26,8 +26,8 @@ public:
 private:
 	MazeGenerator m_MazeGenerator;
 	GroundPlane m_Floor;
-	Flag* m_Flag;
-	std::map<int, Flag*> m_Items;
+	Item* m_Flag;
+	std::map<int, Item*> m_Items;
 	std::map<int, Player*> m_Players;
 	int m_WinnerID;
 	std::string m_GameMap;

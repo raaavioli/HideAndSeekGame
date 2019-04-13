@@ -7,7 +7,6 @@
 #include "Engine/Application.h"
 #include "Engine/Renderer/ShaderProgram.h"
 #include <Engine/Objects/Camera.h>
-#include "GameObjects/Wall.h"
 
 void GameLayer::OnAttach() 
 {
@@ -195,14 +194,9 @@ Engine::Entity* GameLayer::getEntity(int entity_id, InstructionType it)
 	switch (it)
 	{
 	case PLANE:
-	{
-		entity = new GroundPlane();
-		PushModel(entity);
-		break;
-	}
 	case WALL:
 	{
-		entity = new Wall();
+		entity = new Engine::Entity();
 		PushModel(entity);
 		break;
 	}
@@ -217,7 +211,7 @@ Engine::Entity* GameLayer::getEntity(int entity_id, InstructionType it)
 				if (it == PLAYER) 
 					entity = new Player();
 				else
-					entity = new Flag();
+					entity = new Engine::Entity();
 
 				m_Entities.insert(std::make_pair(entity_id, entity));
 				PushModel(entity);
@@ -265,6 +259,7 @@ bool GameLayer::parseEntity(Protocol &protocol)
 	glm::vec3 position = glm::vec3(FLT_MAX);
 	glm::vec3 scale = glm::vec3(FLT_MAX);
 	glm::vec3 rotation = glm::vec3(FLT_MAX);
+	glm::vec3 color = glm::vec3(FLT_MAX);
 	char* model = "";
 	for (int i = 0; i < na.Value; i++)
 	{
@@ -293,6 +288,12 @@ bool GameLayer::parseEntity(Protocol &protocol)
 			protocol.GetData(&s);
 			scale = glm::vec3(s.X, s.Y, s.Z);
 		}
+		else if (at == Attribute::COLOR)
+		{
+			pVector3 c;
+			protocol.GetData(&c);
+			color = glm::vec3(c.X, c.Y, c.Z);
+		}
 		else if (at == Attribute::MODEL)
 		{
 			pString64 m;
@@ -302,10 +303,10 @@ bool GameLayer::parseEntity(Protocol &protocol)
 		//Ignore any other attributes
 	}
 
-	return entity_id != UNDEFINED && updateEntity(entity, position, scale, rotation, model);
+	return entity_id != UNDEFINED && updateEntity(entity, position, scale, rotation, color, model);
 }
 
-bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, const char * modelName)
+bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, glm::vec3 color, char * modelName)
 {
 	if (entity != nullptr)
 	{
@@ -315,6 +316,8 @@ bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::v
 			entity->SetPosition(position);
 		if (rotation.x != FLT_MAX)
 			entity->SetRotation(rotation);
+		if (color.x != FLT_MAX)
+			entity->SetColor(color);
 		if (modelName != "")
 			entity->UpdateModel(modelName);
 		entity->Update();

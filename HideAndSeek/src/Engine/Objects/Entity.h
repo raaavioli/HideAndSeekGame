@@ -18,6 +18,7 @@ namespace Engine {
 		}
 
 		Entity(Model* model);
+		Entity();
 		~Entity();
 
 		void Update();
@@ -27,6 +28,7 @@ namespace Engine {
 		inline void SetVelocity(const glm::vec3 velocity) { v_Velocity = velocity; }
 		inline void SetRotation(const glm::vec3 rotation) { v_Rotation = rotation; }
 		inline void SetScale(const glm::vec3 scale) { v_Scale = scale; }
+		inline void SetColor(const glm::vec3 color) { v_Color = color; }
 		inline void DoScale(const float s) { v_Scale *= s; };
 		inline void DoScale(const glm::vec3 &s) { v_Scale *= s; };
 		inline void SetId(const int id) { m_Id = id; }
@@ -36,6 +38,7 @@ namespace Engine {
 		glm::mat4 *UpdateWorldTransformation();
 		inline Model &GetModel() { return *m_Model; };
 		inline int GetId() { return m_Id; }
+		inline glm::vec3 &GetColor() { return v_Color; }
 		inline glm::vec3 &GetScale() { return v_Scale; }
 		inline glm::vec3 &GetPosition() { return v_Transition; }
 		inline glm::vec3 &GetVelocity() { return v_Velocity; }

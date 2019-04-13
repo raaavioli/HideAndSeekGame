@@ -2,12 +2,14 @@
 
 #include "GameObjects/OBJLoader.h"
 #include "GameObjects/Collision/Collider.h"
+#include "GameObjects/ItemSpawner.h"
 #include "Server.h"
 
 void main() 
 {
 	OBJLoader::Init();
 	Collider::Init();
+	ItemSpawner::Init();
 	int clients;
 	std::cout << "Enter number of participating clients: ";
 	std::cin >> clients;
@@ -15,6 +17,7 @@ void main()
 	
 	server.Run();
 
+	ItemSpawner::Shutdown();
 	Collider::Shutdown();
 	OBJLoader::Shutdown();
 }

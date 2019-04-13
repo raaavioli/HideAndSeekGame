@@ -11,7 +11,8 @@ Wall::Wall(GroundPlane &gp, const double x, const double y, const glm::vec3 scal
 	double yPos = gp.GetHeight() / 2 - y - scale.y / 2;
 	double zPos = scale.z / 2;
 
-	SetPosition(glm::vec3(xPos, yPos, zPos));
+	v_Transition = glm::vec3(xPos, yPos, zPos);
+	v_Color = glm::vec3(0.25, 0, 0);
 }
 
 Wall::~Wall()

@@ -2,14 +2,16 @@
 
 #include <iostream>
 #include "OBJLoader.h"
+#include "ItemSpawner.h"
 
 Player::Player(int id, double xPos, double yPos, float scale)
 	: Entity("character", true, true)
 {
 	DoScale(scale);
 	float depth = scale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
-	SetPosition(glm::vec3(xPos, yPos, depth));
 	SetId(id);
+	v_Transition = glm::vec3(xPos, yPos, depth);
+	v_Color = glm::vec3(0.1, 0.1, 0.1);
 
 	m_FlagTime = 0;
 	m_HitsGiven = 0;
@@ -113,10 +115,14 @@ void Player::ParsePlayerAction(Protocol & protocol)
 	{
 		if (ot == DROP)
 		{
-			if (m_Items.size() > 0)
+			for (auto item : m_Items)
 			{
-				auto firstItem = m_Items.begin();
-				DropItem(*firstItem);
+				if (item->isDroppable())
+				{
+					DropItem(item);
+					break;
+				}
+				else continue;
 			}
 			m_Action = InstructionType::OBJERROR;
 		}
@@ -156,7 +162,8 @@ void Player::Move()
 	}
 	for (auto item : m_Items)
 	{
-		item->SetPosition(v_Transition);
+		item->GetPosition().x = v_Transition.x;
+		item->GetPosition().y = v_Transition.y;
 		item->Update();
 	}
 }
@@ -171,45 +178,72 @@ void Player::SetFlying()
 	}
 }
 
+void Player::UpdateItems(int timemillis)
+{
+	for (auto it = m_Items.begin(); it != m_Items.end(); )
+	{
+		if ((*it)->isUsable())
+		{
+			(*it)->IncrementSecondsCarried();
+			if ((*it)->GetTimeCarried() > 15)
+			{
+				Item *item = *it;
+				ItemSpawner::RandomRespawn(item);
+				it = DropItem(item);
+				continue;
+			}
+		}
+		it++;
+	}
+}
+
 void Player::Hit(Player * player)
 {
 	m_HitsGiven++;
 	player->IncrementHitsTaken();
 	player->SetFlying();
 	m_PlayersHit.insert(player);
+
 }
 
-std::set<Flag*>::iterator Player::DropItem(Flag * f)
+std::set<Item*>::iterator Player::DropItem(Item * item)
 {
 	if (m_Items.size() > 0) 
 	{
 		for (auto it = m_Items.begin(); it != m_Items.end(); it++) 
 		{
-			if ((*it) == f)
+			if ((*it) == item)
 			{
-				f->RemoveStatus(Flag::OWNED);
-				//Reset flag to ground position;
-				f->GetPosition() *= glm::vec3(1, 1, 0);
-				m_Speed = m_NormalSpeed;
+				item->RemoveStatus(Item::OWNED);
+				//Reset Item to ground position;
+				item->ResetSecondsCarried();
+				item->GetPosition().z = item->GetHeight() / 2;
+				item->Update();
+				m_Speed -= (-item->GetWeight() / m_PlayerWeight) * m_NormalSpeed;
 				return m_Items.erase(it);
 			}
 		}
 	}
 	return m_Items.end();
 }
-void Player::PushItem(Flag * f)
+
+void Player::PushItem(Item *item)
 {
-	if (!f->isOwned())
+	if (!item->isOwned())
 	{
-		m_Items.insert(f);
-		f->SetStatus(Flag::OWNED);
-		//Raise flag from floor position
-		f->GetPosition() += glm::vec3(0, 0, 1.5);
-		m_Speed = m_FlagSpeed;
+		m_Items.insert(item);
+		item->SetStatus(Item::OWNED);
+		//Raise Item from floor position
+		if (!item->isUsable())
+			item->GetPosition() += glm::vec3(0, 0, 1.5);
+		else item->GetPosition().z = 4;
+		item->Update();
+		//Random way for calculating speed based upon player-weight and normal speed
+		m_Speed += (-item->GetWeight() / m_PlayerWeight) * m_NormalSpeed;
 	}
 }
 
-bool Player::HasItem(Flag * f)
+bool Player::HasItem(Item * f)
 {
 	return m_Items.find(f) != m_Items.end();
 };

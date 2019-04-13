@@ -37,22 +37,16 @@ void Player::ChangeVelocity(unsigned int directions)
 const std::string &Player::BuildProtocolString()
 {
 	static InstructionType ot = InstructionType::PLAYER;
-	pChar n{ 4 };
+	pChar n{ 2 };
 	int entity_id = GetId();
 	pInt i{ entity_id };
-	glm::vec3 &entity_scale = GetScale();
-	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
-	glm::vec3 &entity_pos = GetPosition();
-	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
 	glm::vec3 &entity_velocity = GetVelocity();
 	pVector3 v{ entity_velocity.x, entity_velocity.y, entity_velocity.z };
 
 	m_ProtocolString.clear();
-	m_ProtocolString.reserve(sizeof(pChar) + 3 * sizeof(pVector3) + 3 * sizeof(int));
+	m_ProtocolString.reserve(sizeof(pChar) + 2 * sizeof(pVector3) + sizeof(int));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::NUMATTRIBS,	&n));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::ID,			&i));
-	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::POSITION,	&p));
-	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::SCALE,		&s));
 	m_ProtocolString.append(Protocol::Stringify(ot, Attribute::DIRECTION, &v));
 
 	return m_ProtocolString;

@@ -18,6 +18,19 @@ namespace Engine {
 		Update();
 	}
 
+	Entity::Entity()
+		: m_Model(OBJLoader::GetModel("unitcube", true, true))
+	{
+		m_ColliderBox = new AABB(m_Model->GetMinPos(), m_Model->GetMaxPos());
+		v_Rotation = glm::vec3(0.0, 0.0, 0.0);
+		v_Transition = glm::vec3(0.0, 0.0, 0.0);
+		v_Color = glm::vec3(1.0, 1.0, 1.0);
+		v_Scale = glm::vec3(1.0, 1.0, 1.0);
+		v_Velocity = glm::vec3(0.0, 0.0, 0.0);
+
+		Update();
+	}
+
 	Entity::~Entity() {
 	}
 
@@ -43,7 +56,7 @@ namespace Engine {
 
 	void Entity::UpdateModel(const char * modelname)
 	{
-		m_Model = OBJLoader::GetModel(modelname, false, false);
+		m_Model = OBJLoader::GetModel(modelname, true, true);
 		delete m_ColliderBox;
 		m_ColliderBox = new AABB(m_Model->GetMinPos(), m_Model->GetMaxPos());
 	}

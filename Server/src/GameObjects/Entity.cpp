@@ -19,12 +19,14 @@ Entity::~Entity() {
 
 const std::string Entity::ToProtocolString(InstructionType it)
 {
-	pChar n{ 4 };
+	pChar n{ 5 };
 	pInt i{ GetId() };
 	glm::vec3 &entity_scale = GetScale();
 	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
 	glm::vec3 &entity_pos = GetPosition();
 	pVector3 p{ entity_pos.x, entity_pos.y, entity_pos.z };
+	glm::vec3 &entity_color = GetColor();
+	pVector3 c{ entity_color.x, entity_color.y, entity_color.z };
 	pString64 m;
 	strcpy(m.Message, m_ModelName.c_str());
 
@@ -33,6 +35,7 @@ const std::string Entity::ToProtocolString(InstructionType it)
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::ID, &i));
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::POSITION, &p));
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::SCALE, &s));
+	m_ProtocolString.append(Protocol::Stringify(it, Attribute::COLOR, &c));
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::MODEL, &m));
 
 	return m_ProtocolString;
@@ -42,6 +45,11 @@ void Entity::Update()
 {
 	UpdateWorldTransformation();
 	m_ColliderBox->Update(m_Transformation);
+}
+
+float Entity::GetHeight()
+{
+	return (((AABB*)m_ColliderBox)->GetColliderMax() - ((AABB*)m_ColliderBox)->GetColliderMin()).z;
 }
 
 bool Entity::CollidesWith(Entity &other)

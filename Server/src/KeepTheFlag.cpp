@@ -5,12 +5,14 @@
 #include <algorithm>
 
 #include "GameObjects/Collision/Collider.h"
+#include "GameObjects/ItemSpawner.h"
 
 KeepTheFlag::KeepTheFlag(int boardWidth, int boardHeight, 
 	int mazeWidth, int mazeHeight, int mazeSpace)
 	: m_Floor(GroundPlane(boardWidth, boardHeight)),
-	m_MazeGenerator(mazeWidth, mazeHeight)
+	m_MazeGenerator(m_Floor, mazeWidth, mazeHeight)
 {
+	ItemSpawner::SetGroundDimensions(mazeWidth, mazeHeight, boardWidth, boardHeight);
 	Collider::Add(&m_Floor, MovementType::STATIC);
 	m_GameMap.append(m_Floor.ToProtocolString(PLANE));
 
@@ -18,16 +20,15 @@ KeepTheFlag::KeepTheFlag(int boardWidth, int boardHeight,
 	m_MazeGenerator.CutLongerWalls(mazeSpace);
 	m_MazeGenerator.PrintMaze();
 
-	for (Wall* w : m_MazeGenerator.GetGameWalls(m_Floor)) {
+	for (Wall* w : m_MazeGenerator.GetGameWalls()) {
 		Collider::Add(w, MovementType::STATIC);
 		m_GameMap.append(w->ToProtocolString(WALL));
 		w->Update();
 	}
 
-	m_Flag = new Flag(m_Floor, 1, (Flag::ACTIVE));
-	m_GameMap.append(m_Flag->ToProtocolString(ITEM));
-	Collider::Add(m_Flag, MovementType::LOOTABLE);
-	m_Flag->Update();
+	m_Flag = ItemSpawner::Spawn("flag");
+	Item* boots = ItemSpawner::Spawn("wingboots");
+	m_Items.insert(std::make_pair(boots->GetId(), boots));
 
 	m_CurrentTime = std::clock();
 	m_TimeAccumulated = 0;
@@ -45,15 +46,20 @@ KeepTheFlag::~KeepTheFlag()
 bool KeepTheFlag::Update()
 {
 	std::clock_t t = std::clock();
-	m_TimeAccumulated += (t - m_CurrentTime);
+	int diff = t - m_CurrentTime;
+	m_TimeAccumulated += diff;
 	m_CurrentTime = t;
 
 	Collider::Interact();
 
 	for (auto[id, player] : m_Players)
 	{
-		if (m_TimeAccumulated > 1000 && player->HasItem(m_Flag))
-			player->IncrementFlagTime();
+		if (m_TimeAccumulated > 1000)
+		{
+			if (player->HasItem(m_Flag))
+				player->IncrementFlagTime();
+			player->UpdateItems(1);
+		}
 		// Player wins if he/she has more than 100 points and have hit all other players.
 		if (player->GetScore() >= 100 && player->GetUniquePlayersHit().size() == m_Players.size() - 1) 
 			if (!m_WinnerID || player->GetScore() >= m_Players.at(m_WinnerID)->GetScore())
@@ -149,8 +155,11 @@ std::string KeepTheFlag::getGameMessage(int clientID)
 	}
 
 	std::string s = status.str();
-	if (s.size() > sizeof(pString512))
+	if (s.size() > sizeof(pString512)) 
+	{
 		std::cout << "Error: GameStatus larger than pString size" << std::endl;
+		return "";
+	}
 	else
 	{
 		pString512 sc;

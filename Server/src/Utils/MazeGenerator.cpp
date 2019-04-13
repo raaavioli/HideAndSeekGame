@@ -34,8 +34,8 @@ struct Cell {
 	bool isVisited = false;
 };
 
-MazeGenerator::MazeGenerator(int width, int height)
-	: m_Width(width), m_Height(height), m_Size(width*height)
+MazeGenerator::MazeGenerator(GroundPlane &ground, int width, int height)
+	: m_Width(width), m_Height(height), m_Ground(ground)
 {
 	m_Maze.reserve(width * height);
 
@@ -175,14 +175,14 @@ void MazeGenerator::PrintMaze() {
 	}
 }
 
-std::vector<Wall*> MazeGenerator::GetGameWalls(GroundPlane &gp)
+std::vector<Wall*> MazeGenerator::GetGameWalls()
 {
 	std::vector<Wall*> walls = std::vector<Wall*>();
 	int maxWalls = (m_Width - 1)*(int)m_Height / 2 + (m_Height - 1)*(int)m_Width / 2;
 	walls.reserve(maxWalls);
 
-	static auto xToPlane = [&](int x) { return x * gp.GetWidth() / m_Width; };
-	static auto yToPlane = [&](int y) { return y * gp.GetHeight() / m_Height; };
+	static auto xToPlane = [&](int x) { return x * m_Ground.GetWidth() / m_Width; };
+	static auto yToPlane = [&](int y) { return y * m_Ground.GetHeight() / m_Height; };
 
 	std::vector<int> columnRowCount(m_Width, 0);
 
@@ -196,12 +196,12 @@ std::vector<Wall*> MazeGenerator::GetGameWalls(GroundPlane &gp)
 				inRow++;
 				if (x == m_Width - 1) 
 				{
-					walls.push_back(new Wall(gp, xToPlane(x + 1 - inRow), yToPlane(y + 1 + 0.5), glm::vec3(xToPlane(inRow), 0.5, 3)));
+					walls.push_back(new Wall(m_Ground, xToPlane(x + 1 - inRow), yToPlane(y + 1 + 0.5), glm::vec3(xToPlane(inRow), 0.5, 3)));
 				}
 			}
 			else if(inRow > 0)
 			{
-				walls.push_back(new Wall(gp, xToPlane(x - inRow), yToPlane(y + 1 + 0.5), glm::vec3(xToPlane(inRow), 0.5, 3)));
+				walls.push_back(new Wall(m_Ground, xToPlane(x - inRow), yToPlane(y + 1 + 0.5), glm::vec3(xToPlane(inRow), 0.5, 3)));
 				inRow = 0;
 			}
 
@@ -210,22 +210,22 @@ std::vector<Wall*> MazeGenerator::GetGameWalls(GroundPlane &gp)
 				columnRowCount.at(x)++;
 				if (y == m_Height - 1)
 				{
-					walls.push_back(new Wall(gp, xToPlane(x + 1 + 0.5), yToPlane(y + 1 - columnRowCount.at(x)), glm::vec3(0.5, yToPlane(columnRowCount.at(x)), 3)));
+					walls.push_back(new Wall(m_Ground, xToPlane(x + 1 + 0.5), yToPlane(y + 1 - columnRowCount.at(x)), glm::vec3(0.5, yToPlane(columnRowCount.at(x)), 3)));
 				}
 			}
 			else if (columnRowCount.at(x) > 0)
 			{
-				walls.push_back(new Wall(gp, xToPlane(x + 1 + 0.5), yToPlane(y - columnRowCount.at(x)), glm::vec3(0.5, yToPlane(columnRowCount.at(x)), 3)));
+				walls.push_back(new Wall(m_Ground, xToPlane(x + 1 + 0.5), yToPlane(y - columnRowCount.at(x)), glm::vec3(0.5, yToPlane(columnRowCount.at(x)), 3)));
 				columnRowCount.at(x) = 0;
 			}
 		}
 	}
 
 	//Outer walls
-	Wall *left = new Wall(gp, -1, 0, glm::vec3(1, (int)gp.GetHeight(), 4));
-	Wall *right = new Wall(gp, (int)gp.GetWidth(), 0, glm::vec3(1, (int)gp.GetHeight(), 4));
-	Wall *upper = new Wall(gp, 0, -1, glm::vec3((int)gp.GetWidth(), 1, 4));
-	Wall *lower = new Wall(gp, 0, (int)gp.GetHeight(), glm::vec3((int)gp.GetWidth(), 1, 4));
+	Wall *left = new Wall(m_Ground, -1, 0, glm::vec3(1, (int)m_Ground.GetHeight(), 4));
+	Wall *right = new Wall(m_Ground, (int)m_Ground.GetWidth(), 0, glm::vec3(1, (int)m_Ground.GetHeight(), 4));
+	Wall *upper = new Wall(m_Ground, 0, -1, glm::vec3((int)m_Ground.GetWidth(), 1, 4));
+	Wall *lower = new Wall(m_Ground, 0, (int)m_Ground.GetHeight(), glm::vec3((int)m_Ground.GetWidth(), 1, 4));
 
 	walls.push_back(left); walls.push_back(right); walls.push_back(upper); walls.push_back(lower);
 

@@ -20,6 +20,8 @@ std::string Protocol::Stringify(InstructionType object, Attribute attrib, void *
 		case POSITION:
 		case DIRECTION:
 		case SCALE:
+		case COLOR:
+		case ROTATION:
 		{
 			pVector3 *pos = ((pVector3*)data);
 			ret.append((char*)&pos->X, 4);
@@ -111,6 +113,8 @@ int Protocol::GetData(void *out_data)
 	case POSITION:
 	case SCALE:
 	case DIRECTION:
+	case COLOR:
+	case ROTATION:
 	{
 		*((pVector3*)out_data) = *((pVector3*)&m_BeingParsed->at(m_DataPointer + 2));
 		size = sizeof(pVector3);
@@ -158,6 +162,8 @@ int Protocol::getObjectSize()
 	case POSITION:
 	case SCALE:
 	case DIRECTION:
+	case COLOR:
+	case ROTATION:
 	{
 		return sizeof(pVector3) + 2;
 	}

@@ -22,5 +22,4 @@ public:
 
 private:
 	SOCKET m_Socket;
-	Player *m_Player;
 };

@@ -1,7 +1,7 @@
 #include "Collider.h"
 #include "BoundingBox.h"
 
-#include "GameObjects/Flag.h"
+#include "GameObjects/Item.h"
 #include "GameObjects/Player.h"
 
 Collider *Collider::s_Instance = nullptr;
@@ -77,11 +77,11 @@ void Collider::Interact()
 		dynamicEntities.at(i)->Update();
 
 		for (Entity* lootable : lootableEntities) {
-			Flag* flag = (Flag*)lootable;
+			Item* item = (Item*)lootable;
 			Player* player = (Player*)dynamicEntities.at(i);
-			if (player->GetAction() == PICKUP && dynamicEntities.at(i)->CollidesWith(*lootable))
+			if (player->GetAction() == PICKUP && !player->HasItem(item) && dynamicEntities.at(i)->CollidesWith(*lootable))
 			{
-				player->PushItem(flag);
+				player->PushItem(item);
 				player->SetAction(InstructionType::OBJERROR);
 			}
 		}

@@ -8,9 +8,9 @@ GroundPlane::GroundPlane(const float width, const float height)
 {
 	m_Thickness = 0.1;
 	
-	DoScale(glm::vec3(width, height, m_Thickness));
-	SetPosition(glm::vec3(0, 0, -m_Thickness));
-
+	v_Scale = glm::vec3(width, height, m_Thickness);
+	v_Transition = glm::vec3(0, 0, -m_Thickness);
+	v_Color = glm::vec3(0, 0.35, 0);
 }
 
 GroundPlane::~GroundPlane()

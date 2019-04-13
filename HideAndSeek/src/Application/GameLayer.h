@@ -8,9 +8,7 @@
 
 #include "Application/ServerHandler/ServerHandler.h"
 #include "Application/ServerHandler/Protocol.h"
-#include "GameObjects/GroundPlane.h"
 #include "GameObjects/Player.h"
-#include "GameObjects/Flag.h"
 
 class GameLayer : public Engine::Layer
 {
@@ -25,7 +23,6 @@ public:
 	void OnEvent(Engine::Event &e) override;
 
 private:
-	GroundPlane *m_Plane;
 	Player *m_Player;
 	std::map<int, Engine::Entity*> m_Entities;
 	glm::vec3 m_LightSource;
@@ -49,9 +46,7 @@ private:
 	Engine::Entity* getEntity(int entity_id, InstructionType ot);
 	Engine::Entity *getEntityFromID(int, InstructionType);
 
-	bool updateEntity(Engine::Entity* entity, 
-		glm::vec3 position, glm::vec3 scale, glm::vec3 rotation,
-		const char* modelName);
+	bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, glm::vec3 color, char * modelName);
 
 	bool setStatusMessage(Protocol& protocol);
 

@@ -9,7 +9,7 @@ enum Cardinal;
 struct Cell;
 class MazeGenerator {
 public:
-	MazeGenerator(int width, int height);
+	MazeGenerator(GroundPlane &gp, int width, int height);
 
 	~MazeGenerator();
 
@@ -19,13 +19,14 @@ public:
 	inline int GetWidth() { return m_Width; }
 	inline int GetHeight() { return m_Height; }
 
-	std::vector<Wall*> GetGameWalls(GroundPlane &gp);
+	std::vector<Wall*> GetGameWalls();
 
 private:
 	Cardinal Opposite(Cardinal d);
 
 	Cell *GotoUnvisitedNeighbor(const Cell from);
 	void destroyWall(Cardinal d, Cell* cell);
-	int m_Width, m_Height, m_Size;
+	int m_Width, m_Height;
+	GroundPlane &m_Ground;
 	std::vector<Cell*> m_Maze;
 };
