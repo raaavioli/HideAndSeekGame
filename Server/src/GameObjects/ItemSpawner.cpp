@@ -43,9 +43,9 @@ Item* ItemSpawner::Spawn(const char* modelName)
 {
 	Item *i;
 	if (strcmp(modelName, "flag") == 0)
-		i = new Item(modelName, -40, Item::DROPPABLE);
+		i = new Item(modelName, -30, Item::DROPPABLE);
 	if (strcmp(modelName, "wingboots") == 0)
-		i = new Item(modelName, -100, Item::USABLE);
+		i = new Item(modelName, -70, Item::USABLE);
 	i->Update();
 	RandomRespawn(i);
 

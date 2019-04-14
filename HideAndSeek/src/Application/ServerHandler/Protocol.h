@@ -25,6 +25,7 @@ enum Attribute {
 	DIRECTION,
 	COLOR,
 	ROTATION,
+	VISIBILITY,
 	STATUS,
 	MODEL,
 	NUMATTRIBS,
@@ -48,6 +49,12 @@ struct pInt
 struct pChar
 {
 	char Value = 0;
+};
+
+//Requires 1 byte of memory
+struct pBool
+{
+	char Value = 1;
 };
 
 //Requires 512 bytes of memory

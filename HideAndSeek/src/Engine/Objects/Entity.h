@@ -26,6 +26,7 @@ namespace Engine {
 		void UpdateModel(const char* modelname);
 		inline void SetPosition(const glm::vec3 transition) { v_Transition = transition; }
 		inline void SetVelocity(const glm::vec3 velocity) { v_Velocity = velocity; }
+		inline void SetVisibility(const char visible) { m_IsVisible = visible; }
 		inline void SetRotation(const glm::vec3 rotation) { v_Rotation = rotation; }
 		inline void SetScale(const glm::vec3 scale) { v_Scale = scale; }
 		inline void SetColor(const glm::vec3 color) { v_Color = color; }
@@ -40,8 +41,9 @@ namespace Engine {
 		inline int GetId() { return m_Id; }
 		inline glm::vec3 &GetColor() { return v_Color; }
 		inline glm::vec3 &GetScale() { return v_Scale; }
-		inline glm::vec3 &GetPosition() { return v_Transition; }
+		inline char GetVisibility() { return m_IsVisible; }
 		inline glm::vec3 &GetVelocity() { return v_Velocity; }
+		inline glm::vec3 &GetPosition() { return v_Transition; }
 		inline BoundingBox &GetColliderBox() { return *m_ColliderBox; };
 
 	protected:
@@ -50,6 +52,7 @@ namespace Engine {
 		glm::vec3 v_Color;
 	private:
 		int m_Id;
+		char m_IsVisible;
 		glm::vec3 v_Rotation;
 		glm::vec3 v_Transition;
 		glm::vec3 v_Scale;

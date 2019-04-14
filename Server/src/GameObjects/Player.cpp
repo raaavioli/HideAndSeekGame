@@ -133,18 +133,6 @@ void Player::ParsePlayerAction(Protocol & protocol)
 	UpdatePlayerData(protocol);
 }
 
-
-const std::string Player::ToProtocolString(InstructionType it)
-{
-	std::string string = Entity::ToProtocolString(it);
-
-	for (auto item : m_Items)
-	{
-		string.append(item->ToProtocolString(ITEM));
-	}
-	return string;
-}
-
 void Player::Move()
 {
 	v_Transition += v_Velocity; 
@@ -209,6 +197,7 @@ std::set<Item*>::iterator Player::DropItem(Item * item)
 			{
 				item->RemoveStatus(Item::OWNED);
 				//Reset Item to ground position;
+				item->SetVisibility(1);
 				item->ResetSecondsCarried();
 				item->GetPosition().z = item->GetHeight() / 2;
 				item->Update();
@@ -228,8 +217,14 @@ void Player::PushItem(Item *item)
 		item->SetStatus(Item::OWNED);
 		//Raise Item from floor position
 		if (!item->isUsable())
+		{
 			item->GetPosition() += glm::vec3(0, 0, 1.5);
-		else item->GetPosition().z = 4;
+		}
+		else 
+		{
+			item->GetPosition().z = 4;
+			item->SetVisibility(0);
+		}
 		item->Update();
 		//Random way for calculating speed based upon player-weight and normal speed
 		m_Speed += (-item->GetWeight() / m_PlayerWeight) * m_NormalSpeed;

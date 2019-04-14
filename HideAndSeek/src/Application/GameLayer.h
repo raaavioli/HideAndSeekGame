@@ -46,7 +46,7 @@ private:
 	Engine::Entity* getEntity(int entity_id, InstructionType ot);
 	Engine::Entity *getEntityFromID(int, InstructionType);
 
-	bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, glm::vec3 color, char * modelName);
+	bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, glm::vec3 color, bool visibility, char * modelName);
 
 	bool setStatusMessage(Protocol& protocol);
 

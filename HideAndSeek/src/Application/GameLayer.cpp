@@ -260,6 +260,7 @@ bool GameLayer::parseEntity(Protocol &protocol)
 	glm::vec3 scale = glm::vec3(FLT_MAX);
 	glm::vec3 rotation = glm::vec3(FLT_MAX);
 	glm::vec3 color = glm::vec3(FLT_MAX);
+	char visibility = 1;
 	char* model = "";
 	for (int i = 0; i < na.Value; i++)
 	{
@@ -294,6 +295,12 @@ bool GameLayer::parseEntity(Protocol &protocol)
 			protocol.GetData(&c);
 			color = glm::vec3(c.X, c.Y, c.Z);
 		}
+		else if (at == Attribute::VISIBILITY)
+		{
+			pBool b;
+			protocol.GetData(&b);
+			visibility = b.Value;
+		}
 		else if (at == Attribute::MODEL)
 		{
 			pString64 m;
@@ -303,10 +310,10 @@ bool GameLayer::parseEntity(Protocol &protocol)
 		//Ignore any other attributes
 	}
 
-	return entity_id != UNDEFINED && updateEntity(entity, position, scale, rotation, color, model);
+	return entity_id != UNDEFINED && updateEntity(entity, position, scale, rotation, color, visibility, model);
 }
 
-bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, glm::vec3 color, char * modelName)
+bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, glm::vec3 color, bool visibility, char * modelName)
 {
 	if (entity != nullptr)
 	{
@@ -320,6 +327,7 @@ bool GameLayer::updateEntity(Engine::Entity * entity, glm::vec3 position, glm::v
 			entity->SetColor(color);
 		if (modelName != "")
 			entity->UpdateModel(modelName);
+		entity->SetVisibility(visibility);
 		entity->Update();
 		return true;
 	}

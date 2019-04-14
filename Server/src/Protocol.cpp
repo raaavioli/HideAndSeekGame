@@ -41,6 +41,12 @@ std::string Protocol::Stringify(InstructionType object, Attribute attrib, void *
 				ret.append(stat->Message, sizeof(pString64));
 				break;
 			}
+			case VISIBILITY:
+			{
+				pBool *stat = ((pBool*)data);
+				ret.append((char*)&stat->Value, sizeof(pBool));
+				break;
+			}
 			case NUMATTRIBS:
 			{
 				pChar *stat = ((pChar*)data);
@@ -132,6 +138,12 @@ int Protocol::GetData(void *out_data)
 		size = sizeof(pString64);
 		break;
 	}
+	case VISIBILITY:
+	{
+		*((pBool*)out_data) = *((pBool*)&m_BeingParsed->at(m_DataPointer + 2));
+		size = sizeof(pBool);
+		break;
+	}
 	case NUMATTRIBS:
 	{
 		*((pChar*)out_data) = *((pChar*)&m_BeingParsed->at(m_DataPointer + 2));
@@ -174,6 +186,10 @@ int Protocol::getObjectSize()
 	case MODEL:
 	{
 		return sizeof(pString64) + 2;
+	}
+	case VISIBILITY:
+	{
+		return sizeof(pBool) + 2;
 	}
 	case NUMATTRIBS:
 	{

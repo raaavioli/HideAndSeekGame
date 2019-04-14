@@ -64,7 +64,7 @@ void Server::Run()
 {
 	m_Running = true;
 
-	KeepTheFlag ktf(60, 40, 12, 8, 3);
+	KeepTheFlag ktf(60, 40, 18, 10, 3);
 
 	std::vector<std::thread*> threads;
 

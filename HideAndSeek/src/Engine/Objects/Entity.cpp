@@ -14,6 +14,7 @@ namespace Engine {
 		v_Color			= glm::vec3(1.0, 1.0, 1.0);
 		v_Scale			= glm::vec3(1.0, 1.0, 1.0);
 		v_Velocity		= glm::vec3(0.0, 0.0, 0.0);
+		m_IsVisible		= 1;
 
 		Update();
 	}
@@ -27,6 +28,7 @@ namespace Engine {
 		v_Color = glm::vec3(1.0, 1.0, 1.0);
 		v_Scale = glm::vec3(1.0, 1.0, 1.0);
 		v_Velocity = glm::vec3(0.0, 0.0, 0.0);
+		m_IsVisible = 1;
 
 		Update();
 	}
@@ -47,11 +49,14 @@ namespace Engine {
 
 	void Entity::Draw()
 	{
-		ShaderProgram::BindVertexColor(&v_Color);
-		ShaderProgram::BindEntityWorldMatrix(&m_Transformation);
-		m_Model->DrawModel();
-		//Enable if we want to draw collision boxes. For debug.
-		//m_ColliderBox->Draw();
+		if (m_IsVisible)
+		{
+			ShaderProgram::BindVertexColor(&v_Color);
+			ShaderProgram::BindEntityWorldMatrix(&m_Transformation);
+			m_Model->DrawModel();
+			//Enable if we want to draw collision boxes. For debug.
+			//m_ColliderBox->Draw();
+		}
 	}
 
 	void Entity::UpdateModel(const char * modelname)

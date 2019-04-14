@@ -5,7 +5,7 @@
 #include "Entity.h"
 #include "Item.h"
 
-static const float m_NormalSpeed = 0.015f;
+static const float m_NormalSpeed = 0.02f;
 static const float m_PlayerWeight = 75.0f;
 
 class Player : public Entity
@@ -16,7 +16,6 @@ public:
 	~Player();
 
 	void UpdatePlayerData(Protocol &protocol);
-	const std::string ToProtocolString(InstructionType it) override;
 
 	std::set<Item*>::iterator DropItem(Item* f);
 	void PushItem(Item* f);

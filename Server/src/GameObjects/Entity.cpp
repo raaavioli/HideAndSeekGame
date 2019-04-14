@@ -10,6 +10,7 @@ Entity::Entity(const char* modelName, bool normalize, bool center)
 	v_Transition	= glm::vec3(0.0, 0.0, 0.0);
 	v_Scale			= glm::vec3(1.0, 1.0, 1.0);
 	v_Velocity		= glm::vec3(0.0, 0.0, 0.0);
+	m_IsVisible		= 1;
 
 	Update();
 }
@@ -19,8 +20,9 @@ Entity::~Entity() {
 
 const std::string Entity::ToProtocolString(InstructionType it)
 {
-	pChar n{ 5 };
+	pChar n{ 6 };
 	pInt i{ GetId() };
+	pBool v{ GetVisibility() };
 	glm::vec3 &entity_scale = GetScale();
 	pVector3 s{ entity_scale.x, entity_scale.y, entity_scale.z };
 	glm::vec3 &entity_pos = GetPosition();
@@ -33,6 +35,7 @@ const std::string Entity::ToProtocolString(InstructionType it)
 	std::string m_ProtocolString;
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::NUMATTRIBS, &n));
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::ID, &i));
+	m_ProtocolString.append(Protocol::Stringify(it, Attribute::VISIBILITY, &v));
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::POSITION, &p));
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::SCALE, &s));
 	m_ProtocolString.append(Protocol::Stringify(it, Attribute::COLOR, &c));

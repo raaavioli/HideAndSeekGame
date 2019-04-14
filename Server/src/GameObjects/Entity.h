@@ -27,6 +27,7 @@ public:
 	void Update();
 	inline void SetPosition(const glm::vec3 transition) { v_Transition = transition; }
 	inline void SetVelocity(const glm::vec3 velocity) { v_Velocity = velocity; }
+	inline void SetVisibility(const char visible) { m_IsVisible = visible; }
 	inline void SetColor(const glm::vec3 color) { v_Color = color; }
 	inline void DoScale(const float s) { v_Scale *= s; };
 	inline void DoScale(const glm::vec3 &s) { v_Scale *= s; };
@@ -42,11 +43,13 @@ public:
 	inline glm::vec3 &GetColor() { return v_Color; }
 	inline glm::vec3 &GetPosition() { return v_Transition; }
 	inline glm::vec3 &GetVelocity() { return v_Velocity; }
+	inline char GetVisibility() { return m_IsVisible; }
 	inline std::string &GetModelName() { return m_ModelName; }
 	inline BoundingBox &GetColliderBox() { return *m_ColliderBox; };
 
 protected:
 	int m_Id;
+	char m_IsVisible;
 	glm::vec3 v_Rotation;
 	glm::vec3 v_Transition;
 	glm::vec3 v_Scale;
