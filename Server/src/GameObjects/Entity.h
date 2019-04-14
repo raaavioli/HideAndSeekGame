@@ -31,6 +31,7 @@ public:
 	inline void DoScale(const float s) { v_Scale *= s; };
 	inline void DoScale(const glm::vec3 &s) { v_Scale *= s; };
 	inline void SetId(const int id) { m_Id = id; };
+	inline bool IsFlying() { return abs(v_Velocity.z) > 0.02; }
 	virtual void Move() { v_Transition += v_Velocity; };
 	float GetHeight();
 	bool CollidesWith(Entity &other);

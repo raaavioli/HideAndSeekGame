@@ -29,7 +29,6 @@ AABB::~AABB()
 {
 }
 
-
 void AABB::Update(glm::mat4 & matrix)
 {
 	m_ColliderMax = glm::vec3(matrix * glm::vec4(m_ModelMax, 1.0));

@@ -64,28 +64,38 @@ void Server::Run()
 {
 	m_Running = true;
 
-	KeepTheFlag ktf(60, 40, 6, 4, 2);
+	KeepTheFlag ktf(60, 40, 12, 8, 3);
+
+	std::vector<std::thread*> threads;
+
+	auto threadFunc = [&](Client* client) {
+		while (m_Running)
+		{
+			processClientReceived(ktf, client);
+			std::this_thread::sleep_for(std::chrono::microseconds(33));
+			processClientSend(ktf, client);
+		}
+	};
 
 	for (Client* client : m_Clients)
 	{
 		sendSetupData(ktf, client);
 		processClientSend(ktf, client);
+
+		threads.push_back(new std::thread(
+			threadFunc, client
+		));
 	}
 
 	while (m_Running)
 	{
-		//Receive instructions from each client
-		for (Client* client : m_Clients)
-		{
-			processClientReceived(ktf, client);
-		}
-
+		std::this_thread::sleep_for(std::chrono::microseconds(33));
 		m_Running = ktf.Update();
+	}
 
-		for (Client* client : m_Clients)
-		{
-			processClientSend(ktf, client);
-		}
+	for (auto thread : threads)
+	{
+		thread->join();
 	}
 
 	Shutdown();

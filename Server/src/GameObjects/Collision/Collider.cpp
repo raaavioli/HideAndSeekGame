@@ -38,7 +38,7 @@ void Collider::Interact()
 			dynamicOtherCopy.Move();
 			//Probably don't want to update this for every object every time.
 			dynamicOtherCopy.Update();
-
+			
 			if (dynamicCopy.GetAction() == ATTACK && !dynamicCopy.IsFlying() && !dynamicOtherCopy.IsFlying())
 			{
 				static int hitRange = 2; //Should not be hard-coded here
@@ -84,6 +84,8 @@ void Collider::Interact()
 				player->PushItem(item);
 				player->SetAction(InstructionType::OBJERROR);
 			}
+			else if (player->GetAction() == ATTACK && player->HasItem(item) && item->GetModelName() == "wingboots")
+				player->SetFlying();
 		}
 		((Player*)dynamicEntities.at(i))->SetAction(InstructionType::OBJERROR);
 	}
@@ -120,15 +122,42 @@ void Collider::AABBvsAABB(Entity *a, Entity *b)
 		// SAT test on y axis
 		if (y_overlap > 0)
 		{
-			if (y_overlap > x_overlap) 
+
+			// Calculate half extents along z axis for each object
+			float a_extent = (abox.GetColliderMax().z - abox.GetColliderMin().z) / 2;
+			float b_extent = (bbox.GetColliderMax().z - bbox.GetColliderMin().z) / 2;
+
+			// Calculate overlap on y axis
+			float z_overlap = a_extent + b_extent - abs(v_Between.z);
+
+			if (z_overlap > 0)
 			{
-				a->GetVelocity() *= glm::vec3(0, 1, 1);
-				b->GetVelocity() *= glm::vec3(0, 1, 1);
-			}
-			else
-			{
-				a->GetVelocity() *= glm::vec3(1, 0, 1);
-				b->GetVelocity() *= glm::vec3(1, 0, 1);
+				if (y_overlap > x_overlap) 
+				{
+					if (z_overlap > x_overlap)
+					{
+						a->GetVelocity() *= glm::vec3(0, 1, 1);
+						b->GetVelocity() *= glm::vec3(0, 1, 1);
+					}
+					else 
+					{
+						a->GetVelocity() *= glm::vec3(1, 1, 0);
+						b->GetVelocity() *= glm::vec3(1, 1, 0);
+					}
+				}
+				else
+				{
+					if (z_overlap > y_overlap)
+					{
+						a->GetVelocity() *= glm::vec3(1, 0, 1);
+						b->GetVelocity() *= glm::vec3(1, 0, 1);
+					}
+					else
+					{
+						a->GetVelocity() *= glm::vec3(1, 1, 0);
+						b->GetVelocity() *= glm::vec3(1, 1, 0);
+					}
+				}
 			}
 		}
 	}

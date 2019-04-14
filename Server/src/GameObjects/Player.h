@@ -5,7 +5,7 @@
 #include "Entity.h"
 #include "Item.h"
 
-static const float m_NormalSpeed = 0.1f;
+static const float m_NormalSpeed = 0.015f;
 static const float m_PlayerWeight = 75.0f;
 
 class Player : public Entity
@@ -25,7 +25,6 @@ public:
 	void SetFlying();
 	void UpdateItems(int timemillis);
 	void Hit(Player* player);
-	inline bool IsFlying() { return m_IsFlying;  }
 	inline void IncrementFlagTime() { m_FlagTime++; }
 	inline void IncrementHitsTaken() { m_HitsTaken++; }
 	inline int GetScore() { return m_FlagTime + 5 * m_HitsGiven - 3 * m_HitsTaken + 10 * m_TakeDowns; };
@@ -43,7 +42,6 @@ private:
 	int m_HitsTaken;
 	int m_TakeDowns;
 	float m_Speed;
-	bool m_IsFlying;
 	InstructionType m_Action;
 	std::set<Item*> m_Items;
 	std::set<Player*> m_PlayersHit;

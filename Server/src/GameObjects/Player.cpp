@@ -8,9 +8,9 @@ Player::Player(int id, double xPos, double yPos, float scale)
 	: Entity("character", true, true)
 {
 	DoScale(scale);
-	float depth = scale * ((AABB*)m_ColliderBox)->GetColliderMax().z;
 	SetId(id);
-	v_Transition = glm::vec3(xPos, yPos, depth);
+	v_Transition = glm::vec3(xPos, yPos, 30);
+	v_Velocity = glm::vec3(0);
 	v_Color = glm::vec3(0.1, 0.1, 0.1);
 
 	m_FlagTime = 0;
@@ -75,15 +75,13 @@ void Player::ParsePlayerAttribs(Protocol &protocol)
 		{
 			pVector3 v;
 			protocol.GetData(&v);
-			velocity = glm::vec3(v.X, v.Y, v.Z);
+			velocity = glm::vec3(v.X * m_Speed, v.Y * m_Speed, velocity.z);
 		}
 		//Ignore any other attributes
 	}
 	if (player_id > 0)
 	{
-		if (!IsFlying()) {
-			SetVelocity(velocity * m_Speed);
-		}
+		SetVelocity(velocity);
 	}
 	protocol.Next();
 	UpdatePlayerData(protocol);
@@ -128,7 +126,7 @@ void Player::ParsePlayerAction(Protocol & protocol)
 		}
 		else if (ot == PICKUP || ot == ATTACK)
 		{
-			m_Action = ot;
+ 			m_Action = ot;
 		}
 	}
 	protocol.Next();
@@ -150,15 +148,11 @@ const std::string Player::ToProtocolString(InstructionType it)
 void Player::Move()
 {
 	v_Transition += v_Velocity; 
-	if (m_IsFlying) {
-		if(v_Transition.z < (GetScale().z / 2))
-		{
-			m_IsFlying = false;
-			v_Velocity = glm::vec3(0, 0, 0);
-		}
-		else {
-			v_Velocity -= glm::vec3(0, 0, 0.01);
-		}
+	if (v_Transition.z < -50)
+	{
+		m_HitsTaken += 5;
+		ItemSpawner::RandomRespawn(this);
+		v_Transition.z = 10;
 	}
 	for (auto item : m_Items)
 	{
@@ -170,8 +164,7 @@ void Player::Move()
 
 void Player::SetFlying()
 {
-	m_IsFlying = true; 
-	v_Velocity = glm::vec3(0, 0, 0.73);
+	v_Velocity.z = 0.20;
 	for (auto it = m_Items.begin(); it != m_Items.end(); )
 	{
 		it = DropItem(*it);

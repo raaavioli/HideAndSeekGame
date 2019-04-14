@@ -13,6 +13,7 @@ KeepTheFlag::KeepTheFlag(int boardWidth, int boardHeight,
 	m_MazeGenerator(m_Floor, mazeWidth, mazeHeight)
 {
 	ItemSpawner::SetGroundDimensions(mazeWidth, mazeHeight, boardWidth, boardHeight);
+	m_Floor.Update();
 	Collider::Add(&m_Floor, MovementType::STATIC);
 	m_GameMap.append(m_Floor.ToProtocolString(PLANE));
 
@@ -50,10 +51,10 @@ bool KeepTheFlag::Update()
 	m_TimeAccumulated += diff;
 	m_CurrentTime = t;
 
-	Collider::Interact();
 
 	for (auto[id, player] : m_Players)
 	{
+		player->GetVelocity().z -= 0.0005;
 		if (m_TimeAccumulated > 1000)
 		{
 			if (player->HasItem(m_Flag))
@@ -66,6 +67,9 @@ bool KeepTheFlag::Update()
 				m_WinnerID = id;
 	}
 	m_TimeAccumulated %= 1000;
+	
+	Collider::Interact();
+
 	//Continue playing if there's still no winner.
 	return m_WinnerID == 0;
 }

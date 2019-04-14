@@ -32,7 +32,9 @@ public:
 	~AABB();
 
 	inline ColliderType GetColliderType() override { return GetStaticColliderType(); }
-	inline static ColliderType GetStaticColliderType() { return ColliderType::tAABB; }
+	static ColliderType GetStaticColliderType() {
+		return ColliderType::tAABB;
+	};
 
 	void Update(glm::mat4 &matrix);
 
