@@ -64,7 +64,15 @@ void Server::Run()
 {
 	m_Running = true;
 
-	KeepTheFlag ktf(60, 40, 18, 10, 3);
+	int w, h, density;
+	std::cout << "Walls in width: ";
+	std::cin >> w;
+	std::cout << "\nWalls in height: ";
+	std::cin >> h;
+	std::cout << "\nDensity: ";
+	std::cin >> density;
+
+	KeepTheFlag ktf(60, 40, w, h, density);
 
 	std::vector<std::thread*> threads;
 
@@ -98,6 +106,8 @@ void Server::Run()
 		thread->join();
 	}
 
+	//Temporary, we don't want to sleep here. But if I don't, the game crashes
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	Shutdown();
 	std::cout << "The server got shut down!" << std::endl;
 }
